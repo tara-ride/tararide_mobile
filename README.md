@@ -1,10 +1,10 @@
-# tararide_mobile
+# Tara Ride Mobile
 
-A new Flutter project.
+A new Flutter project for Tara Ride Mobile Application.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Tara Ride is a Mobile App for ride-sharing. This is the initial setup of the app. More documentations to follow.
 
 A few resources to get you started if this is your first Flutter project:
 
