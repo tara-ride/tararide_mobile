@@ -2,7 +2,7 @@
 
 A new Flutter project for Tara Ride Mobile Application.
 
-## Getting Started
+## Project Details
 
 Tara Ride is a Mobile App for ride-sharing. This is the initial setup of the app. More documentations to follow.
 
