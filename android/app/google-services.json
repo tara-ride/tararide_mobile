@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "992326135365",
+    "project_id": "tararide-booking-app",
+    "storage_bucket": "tararide-booking-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:992326135365:android:4c36be81a23fbfba483d2c",
+        "android_client_info": {
+          "package_name": "com.example.tararide_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCc-9P7RwnXjKF8vfXMHy0VjrWVHT7Dj9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
