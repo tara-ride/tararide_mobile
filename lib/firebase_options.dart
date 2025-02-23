@@ -66,4 +66,5 @@ class DefaultFirebaseOptions {
     projectId: 'tararide-booking-app',
     storageBucket: 'tararide-booking-app.firebasestorage.app',
   );
+
 }
