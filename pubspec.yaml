@@ -42,6 +42,7 @@ dependencies:
   firebase_database: ^11.3.3
   firebase_auth: ^5.5.0
   firebase_storage: ^12.4.3
+  paymongo_sdk: ^1.6.1
 
 dev_dependencies:
   flutter_test:
