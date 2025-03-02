@@ -6,3 +6,8 @@ sealed class DetermineUserCategoryEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+final class DetermineUserCategoryCheck extends DetermineUserCategoryEvent {
+  @override
+  List<Object> get props => [];
+}

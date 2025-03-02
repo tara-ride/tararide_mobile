@@ -9,14 +9,23 @@ abstract class UserAuthAvailabilityState extends Equatable {
 
 final class UserAuthAvailabilityInitial extends UserAuthAvailabilityState {}
 
+// ignore: must_be_immutable
 final class UserAvailable extends UserAuthAvailabilityState {
-  String userDisplayName;
-  String userEmail;
+  User user;
 
-  UserAvailable({required this.userDisplayName, required this.userEmail});
+  UserAvailable({required this.user});
 
   @override
-  List<Object> get props => [userDisplayName, userEmail];
+  List<Object> get props => [user];
 }
 
 final class UserNotAvailable extends UserAuthAvailabilityState {}
+
+final class UserAuthAvailabilityError extends UserAuthAvailabilityState {
+  final String errorMessage;
+
+  const UserAuthAvailabilityError({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}
