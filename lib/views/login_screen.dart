@@ -53,6 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       BlocConsumer<AuthenticateFirebaseUserBloc, AuthenticateFirebaseUserState>(
                         listener: (context, state) {
                           if (state is AuthenticateFirebaseUserSuccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Welcome to Tararide, ${state.user.displayName}!"),
+                              ),
+                            );
                             Navigator.pushNamed(context, '/driver_home');
                           } else if (state is AuthenticateFirebaseUserFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -82,13 +87,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             );
                           } else if (state is AuthenticateFirebaseUserLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
+                            return SizedBox(
+                              height: 300,
+                              child: Lottie.asset('assets/loading_animation.json'),
                             );
                           } else if (state is AuthenticateFirebaseUserFailure) {
-                            return Text(state.message);
+                            return SizedBox(
+                              height: 300,
+                              child: Lottie.asset('assets/error_animation.json'),
+                            );
                           } else if (state is AuthenticateFirebaseUserError) {
-                            return Text(state.message);
+                            return SizedBox(
+                              height: 300,
+                              child: Lottie.asset('assets/error_animation.json'),
+                            );
                           } else {
                             return const SizedBox.shrink();
                           }
@@ -146,6 +158,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                       TextButton(
                                         onPressed: () {
                                           // Perform reset password action
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Password reset email sent!'),
+                                            ),
+                                          );
                                           print('Reset email: ${_resetEmailController.text}');
                                           Navigator.of(context).pop();
                                         },
