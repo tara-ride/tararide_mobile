@@ -38,6 +38,56 @@ class App extends StatelessWidget {
         '/signup': (context) => const SignUpScreen(),
         '/driver_home': (context) => const DriverHomePage(title: 'Driver Home Page'),
       },
+      onGenerateRoute: (settings) {
+        print("settings.name: ${settings.name}");
+        if (settings.name == '/driver_home') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const DriverHomePage(title: 'Driver Home Page'),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              var begin = const Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          );
+        } else if (settings.name == '/login') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              var begin = const Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          );
+        } else if (settings.name == '/signup') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const SignUpScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              var begin = const Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          );
+        }
+        return MaterialPageRoute(builder: (context) => const LoginScreen());
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 48, 0, 158)),
         primaryColor: const Color.fromARGB(255, 67, 0, 223),
@@ -117,7 +167,7 @@ class App extends StatelessWidget {
                     BlocConsumer<UserAuthAvailabilityBloc, UserAuthAvailabilityState>(
                       listener: (context, state) {
                         if (state is UserAvailable) {
-                         // context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryEvent(user: state.user));
+                          // context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryEvent(user: state.user));
                         }
                       },
                       builder: (context, state) {
@@ -173,7 +223,10 @@ class App extends StatelessWidget {
                                       width: 250,
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          Navigator.pushNamed(context, '/login');
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/login',
+                                          );
                                         },
                                         child: const Text("Login"),
                                       ),
