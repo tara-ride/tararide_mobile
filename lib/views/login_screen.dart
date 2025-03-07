@@ -54,6 +54,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         listener: (context, state) {
                           if (state is AuthenticateFirebaseUserSuccess) {
                             Navigator.pushNamed(context, '/driver_home');
+                          } else if (state is AuthenticateFirebaseUserFailure) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(state.message),
+                              ),
+                            );
+                          } else if (state is AuthenticateFirebaseUserError) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(state.message),
+                              ),
+                            );
                           }
                         },
                         builder: (context, state) {
@@ -77,8 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             return Text(state.message);
                           } else if (state is AuthenticateFirebaseUserError) {
                             return Text(state.message);
+                          } else {
+                            return const SizedBox.shrink();
                           }
-                          return const SizedBox.shrink();
                         },
                       ),
                       TextFormField(
@@ -182,34 +195,47 @@ class _LoginScreenState extends State<LoginScreen> {
                           } else if (state is AuthenticateFirebaseUserSuccess) {
                             return const SizedBox.shrink();
                           } else if (state is AuthenticateFirebaseUserLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (state is AuthenticateFirebaseUserFailure) {
-                            return Text(state.message);
-                          } else if (state is AuthenticateFirebaseUserError) {
-                            return Text(state.message);
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    context.read<AuthenticateFirebaseUserBloc>().add(
-                                          AuthenticateFirebaseUserLoad(
-                                            _emailController.text,
-                                            _passwordController.text,
-                                          ),
-                                        );
-                                  }
-                                },
-                                child: const Text('Login'),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Logging in...'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Login'),
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      context.read<AuthenticateFirebaseUserBloc>().add(
+                                            AuthenticateFirebaseUserLoad(
+                                              _emailController.text,
+                                              _passwordController.text,
+                                            ),
+                                          );
+                                    }
+                                  },
+                                  child: const Text('Login'),
+                                ),
+                              ),
+                            );
+                          }
                         },
                       ),
                       Padding(
