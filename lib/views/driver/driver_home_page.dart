@@ -14,7 +14,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Text("Main App, initializations happen here.",),
+        child: Text("Driver Main App, initializations happen here.",),
       ),
     );
   }
