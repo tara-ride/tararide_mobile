@@ -1,9 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tararide_mobile/bloc/authenticate_firebase_user/authenticate_firebase_user_bloc.dart';
 import 'package:tararide_mobile/bloc/determine_user_category/determine_user_category_bloc.dart';
 import 'package:tararide_mobile/bloc/user_auth_availability/user_auth_availability_bloc.dart';
+import 'package:tararide_mobile/cubit/password_visibility/password_visibility_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,6 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
             BlocProvider<DetermineUserCategoryBloc>(
               create: (determineUserCategoryContext) => DetermineUserCategoryBloc()..add(DetermineUserCategoryCheck()),
             ),
+            BlocProvider<PasswordVisibilityCubit>(
+              create: (passwordVisibilityContext) => PasswordVisibilityCubit()..toggleVisibility(false),
+            ),
           ],
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -58,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 content: Text("Welcome to Tararide, ${state.user.displayName}!"),
                               ),
                             );
-                            Navigator.pushNamed(context, '/driver_home');
+                            Navigator.pop(context);
                           } else if (state is AuthenticateFirebaseUserFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -120,18 +127,51 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 15),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'Please enter your password',
-                          border: OutlineInputBorder(),
-                        ),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
+                      BlocBuilder<PasswordVisibilityCubit, PasswordVisibilityCubitState>(
+                        builder: (context, state) {
+                          if (state is PasswordVisibilityActivate) {
+                            return TextFormField(
+                              controller: _passwordController,
+                              obscureText: false,
+                              decoration: InputDecoration(
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    context.read<PasswordVisibilityCubit>().toggleVisibility(false);
+                                  },
+                                  child: const Icon(Icons.visibility_off),
+                                ),
+                                labelText: 'Please enter your password',
+                                border: const OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                return null;
+                              },
+                            );
+                          } else {
+                            return TextFormField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    context.read<PasswordVisibilityCubit>().toggleVisibility(true);
+                                  },
+                                  child: const Icon(Icons.visibility),
+                                ),
+                                labelText: 'Please enter your password',
+                                border: const OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                return null;
+                              },
+                            );
                           }
-                          return null;
                         },
                       ),
                       //forgot password
@@ -147,24 +187,61 @@ class _LoginScreenState extends State<LoginScreen> {
                                   final TextEditingController _resetEmailController = TextEditingController();
                                   return AlertDialog(
                                     title: const Text('Reset Password'),
-                                    content: TextField(
+                                    content: Form(
+                                        child: TextFormField(
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your email';
+                                        }
+                                        return null;
+                                      },
                                       controller: _resetEmailController,
                                       decoration: const InputDecoration(
                                         labelText: 'Enter your email',
                                         border: OutlineInputBorder(),
                                       ),
-                                    ),
+                                    )),
                                     actions: <Widget>[
                                       TextButton(
-                                        onPressed: () {
+                                        onPressed: () async {
                                           // Perform reset password action
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Password reset email sent!'),
-                                            ),
-                                          );
-                                          print('Reset email: ${_resetEmailController.text}');
-                                          Navigator.of(context).pop();
+                                          if (_resetEmailController.text.isEmpty) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Please enter your email'),
+                                              ),
+                                            );
+                                            return;
+                                          } else if (!_resetEmailController.text.contains('@')) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Please enter a valid email'),
+                                              ),
+                                            );
+                                            return;
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Sending password reset email...'),
+                                              ),
+                                            );
+                                            try {
+                                              await FirebaseAuth.instance.sendPasswordResetEmail(email: _resetEmailController.text);
+                                            } catch (e) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text("An error occurred. Please contact support."),
+                                                ),
+                                              );
+                                            }
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Password reset email sent!'),
+                                              ),
+                                            );
+                                            print('Reset email: ${_resetEmailController.text}');
+                                            Navigator.of(context).pop();
+                                          }
                                         },
                                         child: const Text('Reset'),
                                       ),

@@ -8,9 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tararide_mobile/bloc/determine_user_category/determine_user_category_bloc.dart';
 import 'package:tararide_mobile/bloc/user_auth_availability/user_auth_availability_bloc.dart';
 import 'package:tararide_mobile/config/firebase_options.dart';
-import 'package:tararide_mobile/views/driver_home_page.dart';
+import 'package:tararide_mobile/views/driver/driver_home_page.dart';
 import 'package:tararide_mobile/views/login_screen.dart';
-import 'package:tararide_mobile/views/signup_screen.dart';
+import 'package:tararide_mobile/views/passenger/signup_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
