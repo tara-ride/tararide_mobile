@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
               create: (userAuthAvailabilityContext) => UserAuthAvailabilityBloc()..add(UserAuthAvailabilityCheck()),
             ),
             BlocProvider<DetermineUserCategoryBloc>(
-              create: (determineUserCategoryContext) => DetermineUserCategoryBloc()..add(DetermineUserCategoryCheck()),
+              create: (determineUserCategoryContext) => DetermineUserCategoryBloc()..add(DetermineUserCategoryAwait()),
             ),
             BlocProvider<PasswordVisibilityCubit>(
               create: (passwordVisibilityContext) => PasswordVisibilityCubit()..toggleVisibility(false),
@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 content: Text("Welcome to Tararide, ${state.user.displayName}!"),
                               ),
                             );
-                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/driver_home');
                           } else if (state is AuthenticateFirebaseUserFailure) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
