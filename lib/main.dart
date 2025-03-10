@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:tararide_mobile/bloc/determine_user_category/determine_user_category_bloc.dart';
 import 'package:tararide_mobile/bloc/user_auth_availability/user_auth_availability_bloc.dart';
 import 'package:tararide_mobile/config/firebase_options.dart';
@@ -135,7 +136,7 @@ class App extends StatelessWidget {
                   UserAuthInitilize(),
                 ),
             ),
-            BlocProvider<DetermineUserCategoryBloc>(create: (BuildContext determineUserCategoryBloc) => DetermineUserCategoryBloc()),
+            BlocProvider<DetermineUserCategoryBloc>(create: (BuildContext determineUserCategoryBloc) => DetermineUserCategoryBloc()..add(DetermineUserCategoryAwait())),
           ],
           child: Scaffold(
             body: Container(
@@ -167,7 +168,8 @@ class App extends StatelessWidget {
                     BlocConsumer<UserAuthAvailabilityBloc, UserAuthAvailabilityState>(
                       listener: (context, state) {
                         if (state is UserAvailable) {
-                          // context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryEvent(user: state.user));
+                          print("User is available! ${state.user.email}");
+                          //context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryLoad(user: state.user));
                         }
                       },
                       builder: (context, state) {
@@ -184,11 +186,14 @@ class App extends StatelessWidget {
                                   ],
                                 );
                               } else {
-                                return const Row(
+                                return Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("Authenticating user, please wait..."),
-                                    CircularProgressIndicator(),
+                                    const Text("Authenticating user, please wait..."),
+                                    SizedBox(
+                                      height: 80,
+                                      child: Lottie.asset('assets/loading_animation_2.json'),
+                                    ),
                                   ],
                                 );
                               }
@@ -250,11 +255,14 @@ class App extends StatelessWidget {
                                   ],
                                 );
                               } else {
-                                return const Row(
+                                return Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("Redirecting to login page..."),
-                                    CircularProgressIndicator(),
+                                    const Text("Redirecting to login page..."),
+                                    SizedBox(
+                                      height: 80,
+                                      child: Lottie.asset('assets/loading_animation_2.json'),
+                                    ),
                                   ],
                                 );
                               }
