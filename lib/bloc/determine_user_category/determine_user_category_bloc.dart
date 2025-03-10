@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 part 'determine_user_category_event.dart';
 part 'determine_user_category_state.dart';
@@ -9,5 +10,6 @@ class DetermineUserCategoryBloc extends Bloc<DetermineUserCategoryEvent, Determi
     on<DetermineUserCategoryEvent>((event, emit) {
       // TODO: implement event handler
     });
+    
   }
 }
