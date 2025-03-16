@@ -14,7 +14,7 @@ class CheckPersonalInformationBloc extends Bloc<CheckPersonalInformationEvent, C
     on<CheckPersonalInformationSubmit>((event, emit) async {
       try {
         emit(CheckPersonalInformationLoading());
-        await Future.delayed(const Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 4));
         emit(const CheckPersonalInformationSuccess('Success'));
       } catch (e) {
         emit(CheckPersonalInformationFailure(e.toString()));
