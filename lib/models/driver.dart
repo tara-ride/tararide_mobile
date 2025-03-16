@@ -1,11 +1,9 @@
-class Driver {
+import 'package:tararide_mobile/models/firebase_user.dart';
+
+class Driver extends FirebaseUserDetails {
   String _currentStatus;
   String _driverCurrentStatus;
-  String _firstName;
-  String _middleName;
-  String _lastName;
-  DateTime _birthDate;
-  String _sex;
+
   String _verificationStatus;
   String _homeAddress;
   String _imagePath;
@@ -20,11 +18,6 @@ class Driver {
   Driver({
     required String currentStatus,
     required String driverCurrentStatus,
-    required String firstName,
-    required String middleName,
-    required String lastName,
-    required DateTime birthDate,
-    required String sex,
     required String verificationStatus,
     required String homeAddress,
     required String imagePath,
@@ -34,13 +27,13 @@ class Driver {
     required String driversLicense,
     required String emailAddress,
     required String contactNumber,
+    required super.firstName,
+    required super.middleName,
+    required super.lastName,
+    required super.sexAtBirth,
+    required super.birthDate,
   })  : _currentStatus = currentStatus,
         _driverCurrentStatus = driverCurrentStatus,
-        _firstName = firstName,
-        _middleName = middleName,
-        _lastName = lastName,
-        _birthDate = birthDate,
-        _sex = sex,
         _verificationStatus = verificationStatus,
         _homeAddress = homeAddress,
         _imagePath = imagePath,
@@ -56,21 +49,6 @@ class Driver {
 
   String get getDriverCurrentStatus => _driverCurrentStatus;
   set setDriverCurrentStatus(String value) => _driverCurrentStatus = value;
-
-  String get getFirstName => _firstName;
-  set setFirstName(String value) => _firstName = value;
-
-  String get getMiddleName => _middleName;
-  set setMiddleName(String value) => _middleName = value;
-
-  String get getLastName => _lastName;
-  set setLastName(String value) => _lastName = value;
-
-  DateTime get getBirthDate => _birthDate;
-  set setBirthDate(DateTime value) => _birthDate = value;
-
-  String get getSex => _sex;
-  set setSex(String value) => _sex = value;
 
   String get getVerificationStatus => _verificationStatus;
   set setVerificationStatus(String value) => _verificationStatus = value;
