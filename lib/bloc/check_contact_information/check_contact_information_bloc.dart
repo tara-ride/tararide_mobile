@@ -16,10 +16,10 @@ class CheckContactInformationBloc extends Bloc<CheckContactInformationEvent, Che
     on<CheckContactInformation>((event, emit) async {
       try {
         emit(CheckContactInformationLoading());
-        await Future.delayed(const Duration(seconds: 3));
-        emit(CheckContactInformationSuccess('Success'));
+        await Future.delayed(const Duration(seconds: 6));
+        emit(const CheckContactInformationSuccess('Success'));
       } catch (e) {
-        emit(CheckContactInformationFailure('Failure'));
+        emit(const CheckContactInformationFailure('Failure'));
       }
     });
   }
