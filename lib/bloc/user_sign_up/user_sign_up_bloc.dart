@@ -7,22 +7,20 @@ part 'user_sign_up_state.dart';
 
 class UserSignUpBloc extends Bloc<UserSignUpEvent, UserSignUpState> {
   UserSignUpBloc() : super(UserSignUpInitial()) {
-    on<UserSignUpEvent>((event, emit) {
-      // TODO: implement event handler
-    });
     on<SignUpAwaiting>(
       (event, emit) {
         emit(UserSignUpInitial());
       },
     );
     on<SignUpUser>(
-      (event, emit) {
+      (event, emit) async {
         emit(UserSignUpLoading());
         try {
           // Call the API to sign up the user
           // If the API call is successful, emit UserSignUpSuccess
           // If the API call is unsuccessful, emit UserSignUpFailure
-          
+          emit(UserSignUpLoading());
+          await Future.delayed(const Duration(seconds: 7));
           emit(UserSignUpSuccess());
           //emit(UserSignUpFailure());
         } catch (e) {
