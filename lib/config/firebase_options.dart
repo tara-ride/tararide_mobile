@@ -49,20 +49,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBWGL12-i5IirCfN2pSQT1Smg65Ps0i7cE',
-    appId: '1:992326135365:web:b4f580ecd7e7f3f9483d2c',
-    messagingSenderId: '992326135365',
-    projectId: 'tararide-booking-app',
-    authDomain: 'tararide-booking-app.firebaseapp.com',
-    storageBucket: 'tararide-booking-app.firebasestorage.app',
-    measurementId: 'G-ZQ4E9F17KF',
+    apiKey: '***********',
+    appId: '***********',
+    messagingSenderId: '***********',
+    projectId: '***********',
+    authDomain: '***********',
+    storageBucket: '***********',
+    measurementId: '***********',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCc-9P7RwnXjKF8vfXMHy0VjrWVHT7Dj9M',
-    appId: '1:992326135365:android:4c36be81a23fbfba483d2c',
-    messagingSenderId: '992326135365',
-    projectId: 'tararide-booking-app',
-    storageBucket: 'tararide-booking-app.firebasestorage.app',
+    apiKey: '***********',
+    appId: '***********',
+    messagingSenderId: '***********',
+    projectId: '***********',
+    storageBucket: '***********',
   );
 }
