@@ -21,7 +21,7 @@ final class CheckPersonalInformationSuccess extends CheckPersonalInformationStat
 }
 
 final class CheckPersonalInformationFailure extends CheckPersonalInformationState {
-  final String error;
+  final List<String> error;
 
   const CheckPersonalInformationFailure(this.error);
 

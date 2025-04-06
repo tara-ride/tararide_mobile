@@ -12,7 +12,6 @@ class FirebaseUserDetails {
         _sexAtBirth = sexAtBirth,
         _birthDate = birthDate;
 
-
   //getters
   
 }

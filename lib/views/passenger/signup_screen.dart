@@ -15,7 +15,6 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _middleNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -43,6 +42,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
     return Scaffold(
         appBar: AppBar(
           title: const Text('Sign Up'),
@@ -64,11 +64,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ],
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
+            child: Form(
               child: Column(
                 children: [
-                  SingleChildScrollView(
-                    child: Form(
+                  Expanded(
+                    child: SingleChildScrollView(
                       child: Column(
                         children: [
                           // Hero Animations
@@ -154,14 +154,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     const SizedBox(height: 10),
                                     TextFormField(
                                       controller: _emailController,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your email';
-                                        } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
-                                          return 'Please enter a valid email';
-                                        }
-                                        return null;
-                                      },
                                       decoration: const InputDecoration(
                                         labelText: 'E-mail Address (Login Credential)',
                                         border: OutlineInputBorder(),
@@ -274,7 +266,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             }
                           }, builder: (checkPersonalInformationBuildContext, checkPersonalInformationState) {
                             if (checkPersonalInformationState is CheckPersonalInformationFailure) {
-                              return Text(checkPersonalInformationState.error, style: const TextStyle(color: Colors.red));
+                              return const Text("Personal Information has errors.", style: TextStyle(color: Colors.red));
                             }
                             return const SizedBox.shrink();
                           }),
@@ -398,7 +390,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               );
                             } else if (state is CheckPersonalInformationFailure) {
-                              return Text(state.error, style: const TextStyle(color: Colors.red));
+                              return const Text("Personal Information has errors.", style: const TextStyle(color: Colors.red));
                             } else {
                               return const SizedBox.shrink();
                             }
@@ -503,8 +495,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ],
                       ),
                     ),
+                  ), //Sign Up Activity
+                  const SizedBox(
+                    height: 10,
                   ),
-                  //Sign Up Activity
                   MultiBlocListener(
                       listeners: [
                         BlocListener<CheckPersonalInformationBloc, CheckPersonalInformationState>(listener: (checkPersonalInformationContext, state) {}),
@@ -513,15 +507,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         BlocListener<UserSignUpBloc, UserSignUpState>(
                           listener: (userSignUpContext, state) {
                             if (state is UserSignUpLoading) {
-                              BlocProvider.of<CheckPersonalInformationBloc>(userSignUpContext).add(CheckPersonalInformationSubmit(
-                                _firstNameController.text,
-                                _middleNameController.text,
-                                _lastNameController.text,
-                                _emailController.text,
-                              ));
-
-                              BlocProvider.of<CheckContactInformationBloc>(userSignUpContext).add(CheckContactInformation());
                               BlocProvider.of<CheckAccountInformationBloc>(userSignUpContext).add(CheckAccountInformation(_emailController.text, _passwordController.text));
+                              BlocProvider.of<CheckPersonalInformationBloc>(userSignUpContext).add(CheckPersonalInformationSubmit(firstName: _firstNameController.text, lastName: _lastNameController.text, middleName: _middleNameController.text, birthDate: DateTime.parse(_birthDateController.text)));
+                              BlocProvider.of<CheckContactInformationBloc>(userSignUpContext).add(CheckContactInformation());
                             }
                           },
                         ),
@@ -539,8 +527,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onPressed: () {
                                       try {
                                         print("work here");
-                                        
-                                        //userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
+
+                                        userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
                                       } catch (e) {
                                         print(e);
                                       }
