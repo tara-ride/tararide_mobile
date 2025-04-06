@@ -527,7 +527,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onPressed: () {
                                       try {
                                         print("work here");
-
+                                        //remove comments
                                         //userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
                                       } catch (e) {
                                         print(e);
