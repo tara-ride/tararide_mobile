@@ -6,6 +6,7 @@ import 'package:tararide_mobile/bloc/check_account_information/check_account_inf
 import 'package:tararide_mobile/bloc/check_contact_information/check_contact_information_bloc.dart';
 import 'package:tararide_mobile/bloc/check_personal_information/check_personal_information_bloc.dart';
 import 'package:tararide_mobile/bloc/user_sign_up/user_sign_up_bloc.dart';
+import 'package:tararide_mobile/cubit/sign_up_accessibility/sign_up_accessibility_cubit.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -24,7 +25,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _retypePasswordController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-
+  final _formKey = GlobalKey<FormState>();
   // XFile? _imageFile;
 
   @override
@@ -42,7 +43,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
     return Scaffold(
         appBar: AppBar(
           title: const Text('Sign Up'),
@@ -61,219 +61,82 @@ class _SignUpScreenState extends State<SignUpScreen> {
             BlocProvider<CheckContactInformationBloc>(
               create: (checkContactInformationContext) => CheckContactInformationBloc()..add(CheckContactInformationAwaiting()),
             ),
+            BlocProvider<SignUpAccessibilityCubit>(
+              create: (context) => SignUpAccessibilityCubit(),
+            )
           ],
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          // Hero Animations
-                          BlocBuilder<UserSignUpBloc, UserSignUpState>(builder: (userSignUpContext, state) {
-                            if (state is UserSignUpInitial) {
-                              return Column(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: BlocConsumer<UserSignUpBloc, UserSignUpState>(
+              listener: (context, state) {},
+              builder: (userSignUpContext, userSignUpState) {
+                if (userSignUpState is UserSignUpInitial) {
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          // decoration: BoxDecoration(
+                          //   color: Colors.green[100],
+                          // ),
+                          child: SingleChildScrollView(
+                            child: Form(
+                              child: Column(
                                 children: [
                                   SizedBox(
                                     height: 300,
                                     child: Lottie.asset('assets/signup_hero_animation.json'),
                                   ),
                                   const Text("Sign up now and let's get on to your journey!", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                                ],
-                              );
-                            } else if (state is UserSignUpLoading) {
-                              return Lottie.asset('assets/loading_animation.json', height: 200);
-                            } else if (state is UserSignUpSuccess) {
-                              return Lottie.asset('assets/success.json', height: 200);
-                            } else if (state is UserSignUpError) {
-                              return Lottie.asset('assets/error_animation.json', height: 200);
-                            } else {
-                              return const SizedBox(height: 200);
-                            }
-                          }),
-                          // GestureDetector(
-                          //   onTap: () async {
-                          //     final ImagePicker _picker = ImagePicker();
-                          //     final XFile? image = await showDialog<XFile>(
-                          //       context: context,
-                          //       builder: (BuildContext context) {
-                          //         return AlertDialog(
-                          //           title: Text('Choose an option'),
-                          //           content: Column(
-                          //             mainAxisSize: MainAxisSize.min,
-                          //             children: [
-                          //               ListTile(
-                          //                 leading: Icon(Icons.camera_alt),
-                          //                 title: Text('Take a selfie'),
-                          //                 onTap: () async {
-                          //                   final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-                          //                   Navigator.pop(context, photo);
-                          //                 },
-                          //               ),
-                          //               ListTile(
-                          //                 leading: Icon(Icons.photo_library),
-                          //                 title: Text('Open gallery'),
-                          //                 onTap: () async {
-                          //                   final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
-                          //                   Navigator.pop(context, photo);
-                          //                 },
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         );
-                          //       },
-                          //     );
-
-                          //     if (image != null) {
-                          //       setState(() {
-                          //         _imageFile = image;
-                          //       });
-                          //     }
-                          //   },
-                          //   child: CircleAvatar(
-                          //     radius: 50,
-                          //     backgroundImage: _imageFile != null ? FileImage(File(_imageFile!.path)) : null,
-                          //     child: _imageFile == null ? Icon(Icons.person, size: 50) : null,
-                          //   ),
-                          // ),
-                          const SizedBox(height: 20),
-                          BlocConsumer<CheckAccountInformationBloc, CheckAccountInformationState>(
-                            listener: (context, state) {},
-                            builder: (checkAccountInformationBuildContext, checkAccountInformationState) {
-                              if (checkAccountInformationState is CheckAccountInformationInitial) {
-                                return Column(
-                                  children: [
-                                    const Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Text("Account Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextFormField(
-                                      controller: _emailController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'E-mail Address (Login Credential)',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextFormField(
-                                      controller: _passwordController,
-                                      obscureText: true,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your password';
-                                        } else if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
-                                          return 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number';
-                                        } else if (value.length > 50) {
-                                          return 'Password must be at most 50 characters long';
-                                        } else if (value.length < 8) {
-                                          return 'Password must be at least 8 characters long';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: const InputDecoration(
-                                        labelText: 'Password',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextFormField(
-                                      controller: _retypePasswordController,
-                                      obscureText: true,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please re-type your password';
-                                        } else if (value != _passwordController.text) {
-                                          return 'Passwords do not match';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: const InputDecoration(
-                                        labelText: 'Re-type Password',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              } else if (checkAccountInformationState is CheckAccountInformationLoading) {
-                                return Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 60,
-                                  decoration: ShapeDecoration(
-                                    color: Colors.grey[200],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("Account Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _emailController,
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(false);
+                                        return 'Please enter your email';
+                                      } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(false);
+                                        return 'Please enter a valid email';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: const InputDecoration(
+                                      labelText: 'E-mail Address (Login Credential)',
+                                      border: OutlineInputBorder(),
                                     ),
                                   ),
-                                  child: const Text(
-                                    "Checking account information..",
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 0, 0, 0),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Password (8 - 50 characters, with special characters, numbers, and symbol)',
+                                      border: OutlineInputBorder(),
                                     ),
                                   ),
-                                );
-                              } else if (checkAccountInformationState is CheckAccountInformationSuccess) {
-                                return Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 60,
-                                  decoration: ShapeDecoration(
-                                    color: Colors.green[200],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _retypePasswordController,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Re-type Password',
+                                      border: OutlineInputBorder(),
                                     ),
                                   ),
-                                  child: const Text(
-                                    "Account Information is valid",
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 29, 83, 30),
-                                    ),
-                                  ),
-                                );
-                              } else if (checkAccountInformationState is CheckAccountInformationFailure) {
-                                return Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 60,
-                                  decoration: ShapeDecoration(
-                                    color: const Color.fromARGB(255, 255, 173, 173),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Personal Information is invalid",
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 83, 29, 29),
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                return Container();
-                              }
-                            },
-                          ),
-
-                          const SizedBox(height: 20),
-                          BlocConsumer<CheckPersonalInformationBloc, CheckPersonalInformationState>(listener: (checkPersonalInformationListenerContext, checkPersonalInformationState) {
-                            if (checkPersonalInformationState is CheckPersonalInformationSuccess) {
-                              print("Personal Information Success");
-                            }
-                          }, builder: (checkPersonalInformationBuildContext, checkPersonalInformationState) {
-                            if (checkPersonalInformationState is CheckPersonalInformationFailure) {
-                              return const Text("Personal Information has errors.", style: TextStyle(color: Colors.red));
-                            }
-                            return const SizedBox.shrink();
-                          }),
-                          BlocBuilder<CheckPersonalInformationBloc, CheckPersonalInformationState>(builder: (checkPersonalInformationContext, state) {
-                            if (state is CheckPersonalInformationInitial) {
-                              return Column(
-                                children: [
+                                  const SizedBox(height: 20),
                                   const Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
@@ -283,6 +146,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   const SizedBox(height: 10),
                                   TextFormField(
                                     controller: _firstNameController,
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your first name';
@@ -351,172 +215,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     },
                                     controller: _birthDateController,
                                   ),
-                                ],
-                              );
-                            } else if (state is CheckPersonalInformationLoading) {
-                              return Container(
-                                alignment: Alignment.center,
-                                width: double.infinity,
-                                height: 60,
-                                decoration: ShapeDecoration(
-                                  color: Colors.grey[200],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                  const SizedBox(height: 20),
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("Contact Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    ],
                                   ),
-                                ),
-                                child: const Text(
-                                  "Checking personal information..",
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                  ),
-                                ),
-                              );
-                            } else if (state is CheckPersonalInformationSuccess) {
-                              return Container(
-                                alignment: Alignment.center,
-                                width: double.infinity,
-                                height: 60,
-                                decoration: ShapeDecoration(
-                                  color: Colors.green[200],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: const Text(
-                                  "Personal Information is valid",
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 29, 83, 30),
-                                  ),
-                                ),
-                              );
-                            } else if (state is CheckPersonalInformationFailure) {
-                              return const Text("Personal Information has errors.", style: const TextStyle(color: Colors.red));
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          }),
-                          const SizedBox(height: 20),
-                          BlocConsumer<CheckContactInformationBloc, CheckContactInformationState>(
-                            listener: (context, state) {
-                              if (state is CheckContactInformationSuccess) {
-                                print("Contact Information Success");
-                              }
-                            },
-                            builder: (checkContactInformationBuildContext, checkContactInformationState) {
-                              // if (state is CheckContactInformationFailure) {
-                              //   return Text(state.error, style: const TextStyle(color: Colors.red));
-                              // }
-                              if (checkContactInformationState is CheckContactInformationInitial) {
-                                return Column(
-                                  children: [
-                                    const Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Text("Contact Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                      ],
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    readOnly: true,
+                                    controller: _emailController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'E-mail Address (Contact)',
+                                      border: OutlineInputBorder(),
                                     ),
-                                    const SizedBox(height: 10),
-                                    TextFormField(
-                                      readOnly: true,
-                                      controller: _emailController,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your email';
-                                        } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
-                                          return 'Please enter a valid email';
-                                        }
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _contactNumberController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Contact Number',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(false);
+                                        return 'Please enter your home address';
+                                      } else {
+                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(true);
                                         return null;
-                                      },
-                                      decoration: const InputDecoration(
-                                        labelText: 'E-mail Address',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextFormField(
-                                      controller: _contactNumberController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Contact Number',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextFormField(
-                                      controller: _homeAddressController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Home Address',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              } else if (checkContactInformationState is CheckContactInformationLoading) {
-                                return Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 60,
-                                  decoration: ShapeDecoration(
-                                    color: Colors.grey[200],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                      }
+                                    },
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    controller: _homeAddressController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Home Address',
+                                      border: OutlineInputBorder(),
                                     ),
                                   ),
-                                  child: const Text(
-                                    "Checking contact information..",
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                    ),
-                                  ),
-                                );
-                              } else if (checkContactInformationState is CheckContactInformationSuccess) {
-                                return Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 60,
-                                  decoration: ShapeDecoration(
-                                    color: Colors.green[200],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Contact Information is valid",
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 29, 83, 30),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
+                                ],
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 20),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-                  ), //Sign Up Activity
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  MultiBlocListener(
-                      listeners: [
-                        BlocListener<CheckPersonalInformationBloc, CheckPersonalInformationState>(listener: (checkPersonalInformationContext, state) {}),
-                        BlocListener<CheckContactInformationBloc, CheckContactInformationState>(listener: (checkContactInformationContext, state) {}),
-                        BlocListener<CheckAccountInformationBloc, CheckAccountInformationState>(listener: (checkAccountInformationContext, state) {}),
-                        BlocListener<UserSignUpBloc, UserSignUpState>(
-                          listener: (userSignUpContext, state) {
-                            if (state is UserSignUpLoading) {
-                              BlocProvider.of<CheckAccountInformationBloc>(userSignUpContext).add(CheckAccountInformation(_emailController.text, _passwordController.text));
-                              BlocProvider.of<CheckPersonalInformationBloc>(userSignUpContext).add(CheckPersonalInformationSubmit(firstName: _firstNameController.text, lastName: _lastNameController.text, middleName: _middleNameController.text, birthDate: DateTime.parse(_birthDateController.text)));
-                              BlocProvider.of<CheckContactInformationBloc>(userSignUpContext).add(CheckContactInformation());
-                            }
-                          },
                         ),
-                      ],
-                      child: BlocBuilder<UserSignUpBloc, UserSignUpState>(
-                        builder: (userSignUpContext, userSignUpState) {
-                          if (userSignUpState is UserSignUpInitial) {
+                      ),
+                      const SizedBox(height: 20),
+                      BlocBuilder<SignUpAccessibilityCubit, SignUpAccessibilityState>(
+                        builder: (signUpAccessibilityContext, state) {
+                          if (state is SignUpAccessibilityEnabled) {
                             return Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -526,8 +276,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   child: ElevatedButton(
                                     onPressed: () {
                                       try {
-                                        print("work here");
-                                        //remove comments
                                         //userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
                                       } catch (e) {
                                         print(e);
@@ -538,44 +286,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               ],
                             );
-                          } else if (userSignUpState is UserSignUpLoading) {
+                          } else if (state is SignUpAccessibilityDisabled) {
                             return const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text("Signing up.."),
-                                CircularProgressIndicator(),
-                              ],
-                            );
-                          } else if (userSignUpState is UserSignUpSuccess) {
-                            return Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Go back to login'),
-                                ),
-                              ],
-                            );
-                          } else if (userSignUpState is UserSignUpError) {
-                            return Column(
-                              children: [
-                                // Text("Sign up failed: ${state}"),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    userSignUpContext.read<UserSignUpBloc>().add(SignUpAwaiting());
-                                  },
-                                  child: const Text('Try again'),
+                                SizedBox(
+                                  height: 50,
+                                  width: 250,
+                                  child: Text(
+                                    "Fill up the required fields.",
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ],
                             );
                           } else {
-                            return const Text("Cannot perform sign up for now, please contact your administrators.");
+                            return Container();
                           }
                         },
-                      )),
-                ],
-              ),
+                      )
+                    ],
+                  );
+                } else if (userSignUpState is UserSignUpLoading) {
+                  return SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 300,
+                          child: Lottie.asset('assets/loading_animation.json', height: 200),
+                        ),
+                        const Text("We are working on your profile, please wait.", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  );
+                } else if (userSignUpState is UserSignUpError) {
+                  return Container();
+                } else if (userSignUpState is UserSignUpSuccess) {
+                  return Container();
+                } else {
+                  return Container();
+                }
+              },
             ),
           ),
         ));

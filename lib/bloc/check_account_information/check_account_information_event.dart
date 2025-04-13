@@ -12,8 +12,9 @@ final class CheckAccountInformationAwaiting extends CheckAccountInformationEvent
 final class CheckAccountInformation extends CheckAccountInformationEvent {
   final String email;
   final String password;
+  final String retypePassword;
 
-  const CheckAccountInformation(this.email, this.password);
+  const CheckAccountInformation(this.email, this.password, this.retypePassword);
 
   @override
   List<Object> get props => [email, password];

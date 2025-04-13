@@ -21,7 +21,7 @@ final class CheckAccountInformationSuccess extends CheckAccountInformationState 
 }
 
 final class CheckAccountInformationFailure extends CheckAccountInformationState {
-  final String error;
+  final List<String> error;
 
   const CheckAccountInformationFailure(this.error);
 
