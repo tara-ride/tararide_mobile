@@ -26,6 +26,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _retypePasswordController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  List<bool> validationList = [false, false, false, false, false, false, false, false];
   // XFile? _imageFile;
 
   @override
@@ -71,7 +73,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               vertical: 5,
             ),
             child: BlocConsumer<UserSignUpBloc, UserSignUpState>(
-              listener: (context, state) {},
+              listener: (context, state) {
+                if (state is UserSignUpError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                    ),
+                  );
+                }
+              },
               builder: (userSignUpContext, userSignUpState) {
                 if (userSignUpState is UserSignUpInitial) {
                   return Column(
@@ -83,6 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           // ),
                           child: SingleChildScrollView(
                             child: Form(
+                              key: _formKey,
                               child: Column(
                                 children: [
                                   SizedBox(
@@ -105,10 +116,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(false);
                                         return 'Please enter your email';
                                       } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
-                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(false);
                                         return 'Please enter a valid email';
                                       }
                                       return null;
@@ -122,6 +131,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   TextFormField(
                                     controller: _passwordController,
                                     obscureText: true,
+                                    validator: (value) {
+                                      return null;
+                                    },
                                     decoration: const InputDecoration(
                                       labelText: 'Password (8 - 50 characters, with special characters, numbers, and symbol)',
                                       border: OutlineInputBorder(),
@@ -243,10 +255,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   TextFormField(
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(false);
                                         return 'Please enter your home address';
                                       } else {
-                                        userSignUpContext.read<SignUpAccessibilityCubit>().toggleAcessibility(true);
                                         return null;
                                       }
                                     },
@@ -264,48 +274,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      BlocBuilder<SignUpAccessibilityCubit, SignUpAccessibilityState>(
-                        builder: (signUpAccessibilityContext, state) {
-                          if (state is SignUpAccessibilityEnabled) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height: 50,
-                                  width: 250,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      try {
-                                        //userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
-                                      } catch (e) {
-                                        print(e);
-                                      }
-                                    },
-                                    child: const Text('Sign Up'),
+                      SizedBox(
+                        height: 50,
+                        width: 250,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            try {
+                              if (_formKey.currentState!.validate()) {
+                                userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Please fill up the fields correctly. "),
                                   ),
-                                ),
-                              ],
-                            );
-                          } else if (state is SignUpAccessibilityDisabled) {
-                            return const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height: 50,
-                                  width: 250,
-                                  child: Text(
-                                    "Fill up the required fields.",
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            );
-                          } else {
-                            return Container();
-                          }
-                        },
-                      )
+                                );
+                              }
+                            } catch (e) {
+                              print(e);
+                            }
+                          },
+                          child: const Text('Sign Up'),
+                        ),
+                      ),
                     ],
                   );
                 } else if (userSignUpState is UserSignUpLoading) {
@@ -315,7 +305,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: 300,
+                          height: 350,
+                          width: double.infinity,
                           child: Lottie.asset('assets/loading_animation.json', height: 200),
                         ),
                         const Text("We are working on your profile, please wait.", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
@@ -323,9 +314,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   );
                 } else if (userSignUpState is UserSignUpError) {
-                  return Container();
+                  return SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 350,
+                          width: double.infinity,
+                          child: Lottie.asset('assets/error_animation.json', height: 200),
+                        ),
+                        const Text("An error occurred during the process.", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        TextButton(
+                          onPressed: () {
+                            userSignUpContext.read<UserSignUpBloc>().add(SignUpAwaiting());
+                          },
+                          child: const Text("Retry"),
+                        ),
+                      ],
+                    ),
+                  );
                 } else if (userSignUpState is UserSignUpSuccess) {
-                  return Container();
+                  return SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 350,
+                          width: double.infinity,
+                          child: Lottie.asset('assets/success.json', height: 200),
+                        ),
+                        const Text("You have successfully signed up!", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Go back to login"),
+                        ),
+                      ],
+                    ),
+                  );
                 } else {
                   return Container();
                 }

@@ -14,14 +14,13 @@ class UserSignUpBloc extends Bloc<UserSignUpEvent, UserSignUpState> {
     );
     on<SignUpUser>(
       (event, emit) async {
-        emit(UserSignUpLoading());
         try {
           // Call the API to sign up the user
           // If the API call is successful, emit UserSignUpSuccess
           // If the API call is unsuccessful, emit UserSignUpFailure
           emit(UserSignUpLoading());
-          await Future.delayed(const Duration(seconds: 7));
-          emit(UserSignUpSuccess());
+          //await Future.delayed(const Duration(seconds: 7));
+          //emit(UserSignUpSuccess());
           //emit(UserSignUpFailure());
         } catch (e) {
           emit(UserSignUpError(e.toString()));
