@@ -52,302 +52,276 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      BlocConsumer<AuthenticateFirebaseUserBloc, AuthenticateFirebaseUserState>(
-                        listener: (context, state) {
-                          if (state is AuthenticateFirebaseUserSuccess) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Welcome to Tararide, ${state.user.displayName}!"),
-                              ),
-                            );
-                            Navigator.pushNamed(context, '/driver_home');
-                          } else if (state is AuthenticateFirebaseUserFailure) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(state.message),
-                              ),
-                            );
-                          } else if (state is AuthenticateFirebaseUserError) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(state.message),
-                              ),
-                            );
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    BlocConsumer<AuthenticateFirebaseUserBloc, AuthenticateFirebaseUserState>(
+                      listener: (authenticateFirebaseUserContext, authenticateFirebaseUserState) async {
+                        if (authenticateFirebaseUserState is AuthenticateFirebaseUserSuccess) {
+                          ScaffoldMessenger.of(authenticateFirebaseUserContext).showSnackBar(
+                            SnackBar(
+                              content: Text("Welcome to Tararide, ${authenticateFirebaseUserState.user.displayName}!"),
+                            ),
+                          );
+                          //Navigator.pushNamed(context, '/driver_home');
+
+                          var userData = authenticateFirebaseUserState.userData;
+                          print("USER DATA WAHH: $userData");
+                          if (userData["business_role"] == "driver") {
+                            print("YOU GOT IT PAREEEE");
                           }
-                        },
-                        builder: (context, state) {
-                          if (state is AuthenticateFirebaseUserInitial) {
-                            return SizedBox(
-                              height: 300,
-                              child: Lottie.asset('assets/login_hero_animation.json'),
-                            );
-                          } else if (state is AuthenticateFirebaseUserSuccess) {
-                            return Column(
-                              children: [
-                                Lottie.asset('assets/lottie/success.json'),
-                                const Text('Login successful'),
-                              ],
-                            );
-                          } else if (state is AuthenticateFirebaseUserLoading) {
-                            return SizedBox(
-                              height: 300,
-                              child: Lottie.asset('assets/loading_animation.json'),
-                            );
-                          } else if (state is AuthenticateFirebaseUserFailure) {
-                            return SizedBox(
-                              height: 300,
-                              child: Lottie.asset('assets/error_animation.json'),
-                            );
-                          } else if (state is AuthenticateFirebaseUserError) {
-                            return SizedBox(
-                              height: 300,
-                              child: Lottie.asset('assets/error_animation.json'),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Please enter your email, e.g. jose.rizal@gmail.com',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-                      BlocBuilder<PasswordVisibilityCubit, PasswordVisibilityCubitState>(
-                        builder: (context, state) {
-                          if (state is PasswordVisibilityActivate) {
-                            return TextFormField(
-                              controller: _passwordController,
-                              obscureText: false,
-                              decoration: InputDecoration(
-                                suffixIcon: GestureDetector(
-                                  onTap: () {
-                                    context.read<PasswordVisibilityCubit>().toggleVisibility(false);
-                                  },
-                                  child: const Icon(Icons.visibility_off),
+                        } else if (authenticateFirebaseUserState is AuthenticateFirebaseUserFailure) {
+                          ScaffoldMessenger.of(authenticateFirebaseUserContext).showSnackBar(
+                            SnackBar(
+                              content: Text("${authenticateFirebaseUserState.message}. Retrying in a moment."),
+                            ),
+                          );
+                          await Future.delayed(const Duration(seconds: 2));
+                          // ignore: use_build_context_synchronously
+                          authenticateFirebaseUserContext.read<AuthenticateFirebaseUserBloc>().add(AuthenticateFirebaseUserInitialize());
+                        } else if (authenticateFirebaseUserState is AuthenticateFirebaseUserError) {
+                          ScaffoldMessenger.of(authenticateFirebaseUserContext).showSnackBar(
+                            SnackBar(
+                              content: Text("${authenticateFirebaseUserState.message}. Retrying in a moment."),
+                            ),
+                          );
+                          await Future.delayed(const Duration(seconds: 2));
+                          // ignore: use_build_context_synchronously
+                          authenticateFirebaseUserContext.read<AuthenticateFirebaseUserBloc>().add(AuthenticateFirebaseUserInitialize());
+                        }
+                      },
+                      builder: (authenticateFirebaseUserContext, state) {
+                        if (state is AuthenticateFirebaseUserSuccess) {
+                          return Column(
+                            children: [
+                              SizedBox(
+                                height: 300,
+                                child: Lottie.asset('assets/success.json'),
+                              ),
+                            ],
+                          );
+                        } else if (state is AuthenticateFirebaseUserInitial) {
+                          return Column(
+                            children: [
+                              SizedBox(
+                                height: 300,
+                                child: Lottie.asset('assets/login_hero_animation.json'),
+                              ),
+                              const SizedBox(height: 15),
+                              TextFormField(
+                                controller: _emailController,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email Address',
+                                  border: OutlineInputBorder(),
                                 ),
-                                labelText: 'Please enter your password',
-                                border: const OutlineInputBorder(),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+                                    return 'Please enter a valid email';
+                                  }
+                                  return null;
+                                },
                               ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
-                                }
-                                return null;
-                              },
-                            );
-                          } else {
-                            return TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                suffixIcon: GestureDetector(
-                                  onTap: () {
-                                    context.read<PasswordVisibilityCubit>().toggleVisibility(true);
-                                  },
-                                  child: const Icon(Icons.visibility),
-                                ),
-                                labelText: 'Please enter your password',
-                                border: const OutlineInputBorder(),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
-                                }
-                                return null;
-                              },
-                            );
-                          }
-                        },
-                      ),
-                      //forgot password
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  final TextEditingController _resetEmailController = TextEditingController();
-                                  return AlertDialog(
-                                    title: const Text('Reset Password'),
-                                    content: Form(
-                                        child: TextFormField(
+                              const SizedBox(height: 10),
+                              BlocBuilder<PasswordVisibilityCubit, PasswordVisibilityCubitState>(
+                                builder: (context, state) {
+                                  if (state is PasswordVisibilityActivate) {
+                                    return TextFormField(
+                                      controller: _passwordController,
+                                      obscureText: false,
+                                      decoration: InputDecoration(
+                                        suffixIcon: GestureDetector(
+                                          onTap: () {
+                                            context.read<PasswordVisibilityCubit>().toggleVisibility(false);
+                                          },
+                                          child: const Icon(Icons.visibility_off),
+                                        ),
+                                        labelText: 'Please enter your password',
+                                        border: const OutlineInputBorder(),
+                                      ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return 'Please enter your email';
+                                          return 'Please enter your password';
                                         }
                                         return null;
                                       },
-                                      controller: _resetEmailController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Enter your email',
-                                        border: OutlineInputBorder(),
+                                    );
+                                  } else {
+                                    return TextFormField(
+                                      controller: _passwordController,
+                                      obscureText: true,
+                                      decoration: InputDecoration(
+                                        suffixIcon: GestureDetector(
+                                          onTap: () {
+                                            context.read<PasswordVisibilityCubit>().toggleVisibility(true);
+                                          },
+                                          child: const Icon(Icons.visibility),
+                                        ),
+                                        labelText: 'Please enter your password',
+                                        border: const OutlineInputBorder(),
                                       ),
-                                    )),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () async {
-                                          // Perform reset password action
-                                          if (_resetEmailController.text.isEmpty) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Please enter your email'),
-                                              ),
-                                            );
-                                            return;
-                                          } else if (!_resetEmailController.text.contains('@')) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Please enter a valid email'),
-                                              ),
-                                            );
-                                            return;
-                                          } else {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Sending password reset email...'),
-                                              ),
-                                            );
-                                            try {
-                                              await FirebaseAuth.instance.sendPasswordResetEmail(email: _resetEmailController.text);
-                                            } catch (e) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text("An error occurred. Please contact support."),
-                                                ),
-                                              );
-                                            }
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Password reset email sent!'),
-                                              ),
-                                            );
-                                            print('Reset email: ${_resetEmailController.text}');
-                                            Navigator.of(context).pop();
-                                          }
-                                        },
-                                        child: const Text('Reset'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Close'),
-                                      ),
-                                    ],
-                                  );
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your password';
+                                        }
+                                        return null;
+                                      },
+                                    );
+                                  }
                                 },
-                              );
-                            },
-                            child: const Text(
-                              'Forgot Password?',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      BlocBuilder<AuthenticateFirebaseUserBloc, AuthenticateFirebaseUserState>(
-                        builder: (context, state) {
-                          if (state is AuthenticateFirebaseUserInitial) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      BlocProvider.of<AuthenticateFirebaseUserBloc>(context).add(
-                                        AuthenticateFirebaseUserLoad(
-                                          _emailController.text,
-                                          _passwordController.text,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text('Login'),
-                                ),
                               ),
-                            );
-                          } else if (state is AuthenticateFirebaseUserSuccess) {
-                            return const SizedBox.shrink();
-                          } else if (state is AuthenticateFirebaseUserLoading) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Logging in...'),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text('Login'),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      context.read<AuthenticateFirebaseUserBloc>().add(
-                                            AuthenticateFirebaseUserLoad(
-                                              _emailController.text,
-                                              _passwordController.text,
-                                            ),
+                              //forgot password
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          final TextEditingController resetEmailController = TextEditingController();
+                                          return AlertDialog(
+                                            title: const Text('Reset Password'),
+                                            content: Form(
+                                                child: TextFormField(
+                                              validator: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Please enter your email';
+                                                }
+                                                return null;
+                                              },
+                                              controller: resetEmailController,
+                                              decoration: const InputDecoration(
+                                                labelText: 'Enter your email',
+                                                border: OutlineInputBorder(),
+                                              ),
+                                            )),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () async {
+                                                  // Perform reset password action
+                                                  if (resetEmailController.text.isEmpty) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('Please enter your email'),
+                                                      ),
+                                                    );
+                                                    return;
+                                                  } else if (!resetEmailController.text.contains('@')) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('Please enter a valid email'),
+                                                      ),
+                                                    );
+                                                    return;
+                                                  } else {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('Sending password reset email...'),
+                                                      ),
+                                                    );
+                                                    try {
+                                                      await FirebaseAuth.instance.sendPasswordResetEmail(email: resetEmailController.text);
+                                                    } catch (e) {
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text("An error occurred. Please contact support."),
+                                                        ),
+                                                      );
+                                                    }
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('Password reset email sent!'),
+                                                      ),
+                                                    );
+                                                    print('Reset email: ${resetEmailController.text}');
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                },
+                                                child: const Text('Reset'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text('Close'),
+                                              ),
+                                            ],
                                           );
-                                    }
-                                  },
-                                  child: const Text('Login'),
+                                        },
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Forgot Password?',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        BlocProvider.of<AuthenticateFirebaseUserBloc>(authenticateFirebaseUserContext).add(
+                                          AuthenticateFirebaseUserLoad(
+                                            _emailController.text,
+                                            _passwordController.text,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('Login'),
+                                  ),
                                 ),
                               ),
-                            );
-                          }
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/signup');
-                            },
-                            child: const Text('Sign Up'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/signup');
+                                    },
+                                    child: const Text('Sign Up'),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else if (state is AuthenticateFirebaseUserLoading) {
+                          return SizedBox(
+                            height: 300,
+                            child: Lottie.asset('assets/loading_animation.json'),
+                          );
+                        } else if (state is AuthenticateFirebaseUserFailure) {
+                          return SizedBox(
+                            height: 300,
+                            child: Lottie.asset('assets/error_animation.json'),
+                          );
+                        } else if (state is AuthenticateFirebaseUserError) {
+                          return SizedBox(
+                            height: 300,
+                            child: Lottie.asset('assets/error_animation.json'),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ));
   }

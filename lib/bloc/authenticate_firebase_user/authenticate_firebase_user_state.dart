@@ -13,8 +13,8 @@ final class AuthenticateFirebaseUserLoading extends AuthenticateFirebaseUserStat
 
 final class AuthenticateFirebaseUserSuccess extends AuthenticateFirebaseUserState {
   final User user;
-
-  const AuthenticateFirebaseUserSuccess(this.user);
+  final Map<String, dynamic> userData;
+  const AuthenticateFirebaseUserSuccess({required this.user, required this.userData});
 
   @override
   List<Object> get props => [user];

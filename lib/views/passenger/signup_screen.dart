@@ -12,6 +12,7 @@ class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
@@ -132,7 +133,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     controller: _passwordController,
                                     obscureText: true,
                                     validator: (value) {
-                                      return null;
+                                      if (value == null || value.isEmpty) {
+                                        return "Password cannot be empty.";
+                                      } else if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
+                                        return "";
+                                      } else if (value.length > 50) {
+                                        return "Password must be at most 50 characters long";
+                                      } else if (value.length < 8) {
+                                        return "Password must be at least 8 characters long";
+                                      } else {
+                                        return null;
+                                      }
                                     },
                                     decoration: const InputDecoration(
                                       labelText: 'Password (8 - 50 characters, with special characters, numbers, and symbol)',
@@ -142,6 +153,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   const SizedBox(height: 10),
                                   TextFormField(
                                     controller: _retypePasswordController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Password cannot be empty.";
+                                      } else if (value.length != _retypePasswordController.text.length && value != _retypePasswordController.text) {
+                                        return "Passwords do not match. Please retry.";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
                                     obscureText: true,
                                     decoration: const InputDecoration(
                                       labelText: 'Re-type Password',
@@ -168,8 +188,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         return 'First name must be at most 50 characters long';
                                       } else if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
                                         return 'First name must contain only letters';
+                                      } else {
+                                        return null;
                                       }
-                                      return null;
                                     },
                                     decoration: const InputDecoration(
                                       labelText: 'First Name',
