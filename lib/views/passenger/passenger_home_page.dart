@@ -14,7 +14,7 @@ class _PassengerHomePageState extends State<PassengerHomePage> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Text("Main App, initializations happen here."),
+        child: Text("Passenger Main APp, initializations happen here."),
       ),
     );
   }

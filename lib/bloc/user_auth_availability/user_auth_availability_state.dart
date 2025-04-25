@@ -19,6 +19,16 @@ final class UserAvailable extends UserAuthAvailabilityState {
   List<Object> get props => [user];
 }
 
+// ignore: must_be_immutable
+final class UserAuthComplete extends UserAuthAvailabilityState {
+  Map<String, dynamic> userData;
+
+  UserAuthComplete({required this.userData});
+
+  @override
+  List<Object> get props => [userData];
+}
+
 final class UserNotAvailable extends UserAuthAvailabilityState {}
 
 final class UserAuthAvailabilityError extends UserAuthAvailabilityState {

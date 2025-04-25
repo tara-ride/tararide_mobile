@@ -17,3 +17,8 @@ final class UserAuthInitilize extends UserAuthAvailabilityEvent {
   @override
   List<Object> get props => [];
 }
+
+final class UserAuthContinue extends UserAuthAvailabilityEvent {
+  @override
+  List<Object> get props => [];
+}

@@ -61,16 +61,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       listener: (authenticateFirebaseUserContext, authenticateFirebaseUserState) async {
                         if (authenticateFirebaseUserState is AuthenticateFirebaseUserSuccess) {
                           ScaffoldMessenger.of(authenticateFirebaseUserContext).showSnackBar(
-                            SnackBar(
-                              content: Text("Welcome to Tararide, ${authenticateFirebaseUserState.user.displayName}!"),
+                            const SnackBar(
+                              content: Text("Login Successful!"),
                             ),
                           );
                           //Navigator.pushNamed(context, '/driver_home');
 
-                          var userData = authenticateFirebaseUserState.userData;
-                          print("USER DATA WAHH: $userData");
+                          Map<String, dynamic> userData = authenticateFirebaseUserState.userData;
+                          await Future.delayed(const Duration(milliseconds: 2500));
                           if (userData["business_role"] == "driver") {
-                            print("YOU GOT IT PAREEEE");
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushNamed(context, '/driver_home');
+                          }
+                          if (userData["business_role"] == "passenger") {
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushNamed(context, '/passenger_home');
                           }
                         } else if (authenticateFirebaseUserState is AuthenticateFirebaseUserFailure) {
                           ScaffoldMessenger.of(authenticateFirebaseUserContext).showSnackBar(
@@ -97,7 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           return Column(
                             children: [
                               SizedBox(
-                                height: 300,
+                                height: 500,
+                                width: double.infinity,
                                 child: Lottie.asset('assets/success.json'),
                               ),
                             ],
@@ -300,17 +306,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         } else if (state is AuthenticateFirebaseUserLoading) {
                           return SizedBox(
-                            height: 300,
+                            height: 500,
+                            width: double.infinity,
                             child: Lottie.asset('assets/loading_animation.json'),
                           );
                         } else if (state is AuthenticateFirebaseUserFailure) {
                           return SizedBox(
-                            height: 300,
+                            height: 500,
+                            width: double.infinity,
                             child: Lottie.asset('assets/error_animation.json'),
                           );
                         } else if (state is AuthenticateFirebaseUserError) {
                           return SizedBox(
-                            height: 300,
+                            height: 500,
+                            width: double.infinity,
                             child: Lottie.asset('assets/error_animation.json'),
                           );
                         } else {

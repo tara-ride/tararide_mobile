@@ -11,6 +11,7 @@ import 'package:tararide_mobile/bloc/user_auth_availability/user_auth_availabili
 import 'package:tararide_mobile/config/firebase_options.dart';
 import 'package:tararide_mobile/views/driver/driver_home_page.dart';
 import 'package:tararide_mobile/views/login_screen.dart';
+import 'package:tararide_mobile/views/passenger/passenger_home_page.dart';
 import 'package:tararide_mobile/views/passenger/signup_screen.dart';
 
 Future<void> main() async {
@@ -27,6 +28,8 @@ final GoRouter router = GoRouter(
   ],
 );
 
+final mainNavigatorState = GlobalKey<NavigatorState>();
+
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -34,16 +37,33 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     var firebaseAuthInstance = FirebaseAuth.instance;
     return MaterialApp(
+      navigatorKey: mainNavigatorState,
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/driver_home': (context) => const DriverHomePage(title: 'Driver Home Page'),
+        '/passenger_home': (context) => const PassengerHomePage(title: 'Passenger Home Page'),
       },
       onGenerateRoute: (settings) {
         print("settings.name: ${settings.name}");
         if (settings.name == '/driver_home') {
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => const DriverHomePage(title: 'Driver Home Page'),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              var begin = const Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          );
+        } else if (settings.name == '/passenger_home') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const PassengerHomePage(title: 'Passenger Home Page'),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               var begin = const Offset(1.0, 0.0);
               var end = Offset.zero;
@@ -166,10 +186,21 @@ class App extends StatelessWidget {
                       },
                     ),
                     BlocConsumer<UserAuthAvailabilityBloc, UserAuthAvailabilityState>(
-                      listener: (context, state) {
+                      listener: (userAuthAvailabilityContext, state) async {
                         if (state is UserAvailable) {
                           print("User is available! ${state.user.email}");
                           //context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryLoad(user: state.user));
+                        }
+                        if (state is UserAuthComplete) {
+                          if (state.userData["business_role"] == "driver") {
+                            print("Complete! DRIVER");
+                            mainNavigatorState.currentState!.pushNamed("/driver_home");
+                            //Navigator.pushNamed(context, "/driver_home");
+                          }
+                          if (state.userData["business_role"] == "passenger") {
+                            print("Complete! DRIVER");
+                            mainNavigatorState.currentState!.pushNamed("/passenger_home");
+                          }
                         }
                       },
                       builder: (context, state) {
@@ -203,13 +234,33 @@ class App extends StatelessWidget {
                           return Column(
                             children: [
                               Text("Welcome to Tararide ${state.user.email}"),
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    await firebaseAuthInstance.signOut();
-                                    // ignore: use_build_context_synchronously
-                                    context.read<UserAuthAvailabilityBloc>().add(UserAuthInitilize());
-                                  },
-                                  child: const Text("Sign Out")),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              SizedBox(
+                                width: 200,
+                                height: 50,
+                                child: ElevatedButton(
+                                    onPressed: () async {
+                                      // ignore: use_build_context_synchronously
+                                      context.read<UserAuthAvailabilityBloc>().add(UserAuthContinue());
+                                    },
+                                    child: const Text("Continue")),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              SizedBox(
+                                width: 200,
+                                height: 50,
+                                child: OutlinedButton(
+                                    onPressed: () async {
+                                      await firebaseAuthInstance.signOut();
+                                      // ignore: use_build_context_synchronously
+                                      context.read<UserAuthAvailabilityBloc>().add(UserAuthInitilize());
+                                    },
+                                    child: const Text("Sign Out")),
+                              ),
                             ],
                           );
                         } else if (state is UserNotAvailable) {
@@ -268,8 +319,10 @@ class App extends StatelessWidget {
                               }
                             },
                           );
+                        } else if (state is UserAuthComplete) {
+                          return const Text("Redirecting to home page..");
                         } else if (state is UserAuthAvailabilityError) {
-                          return const CircularProgressIndicator();
+                          return Text(state.errorMessage);
                         } else {
                           return const CircularProgressIndicator();
                         }
