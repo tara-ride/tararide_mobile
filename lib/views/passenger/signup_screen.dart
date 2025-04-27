@@ -1,10 +1,16 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:intl/intl.dart';
 import 'package:tararide_mobile/bloc/check_account_information/check_account_information_bloc.dart';
 import 'package:tararide_mobile/bloc/check_contact_information/check_contact_information_bloc.dart';
 import 'package:tararide_mobile/bloc/check_personal_information/check_personal_information_bloc.dart';
+import 'package:tararide_mobile/bloc/profile_picture_upload/profile_picture_upload_bloc.dart';
 import 'package:tararide_mobile/bloc/user_sign_up/user_sign_up_bloc.dart';
 import 'package:tararide_mobile/cubit/sign_up_accessibility/sign_up_accessibility_cubit.dart';
 
@@ -16,6 +22,8 @@ class SignUpScreen extends StatefulWidget {
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
+const List<String> genderList = ["Male", "Female"];
+
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _middleNameController = TextEditingController();
@@ -26,10 +34,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _retypePasswordController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final ImagePicker _imagePicker = ImagePicker();
+  DateTime birthDate = DateTime.now();
+  String sexAtBirth = genderList.first;
+  XFile? imageCrossFile;
+  File? imageFile;
 
-  List<bool> validationList = [false, false, false, false, false, false, false, false];
-  // XFile? _imageFile;
+  bool profilePictureUploaded = false;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -64,6 +76,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             BlocProvider<CheckContactInformationBloc>(
               create: (checkContactInformationContext) => CheckContactInformationBloc()..add(CheckContactInformationAwaiting()),
             ),
+            BlocProvider<ProfilePictureUploadBloc>(create: (profilePictureUploadContext) => ProfilePictureUploadBloc()..add(ProfilePictureUploadInitialize())),
             BlocProvider<SignUpAccessibilityCubit>(
               create: (context) => SignUpAccessibilityCubit(),
             )
@@ -74,11 +87,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
               vertical: 5,
             ),
             child: BlocConsumer<UserSignUpBloc, UserSignUpState>(
-              listener: (context, state) {
-                if (state is UserSignUpError) {
+              listener: (userSignUpContext, userSignUpState) {
+                if (userSignUpState is UserSignUpSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Sign up successful!"),
+                    ),
+                  );
+                }
+                if (userSignUpState is UserSignUpError) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(state.message),
+                      content: Text(userSignUpState.message),
                     ),
                   );
                 }
@@ -108,73 +128,160 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   const Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text("Account Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  TextFormField(
-                                    controller: _emailController,
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your email';
-                                      } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
-                                        return 'Please enter a valid email';
-                                      }
-                                      return null;
-                                    },
-                                    decoration: const InputDecoration(
-                                      labelText: 'E-mail Address (Login Credential)',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  TextFormField(
-                                    controller: _passwordController,
-                                    obscureText: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Password cannot be empty.";
-                                      } else if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
-                                        return "";
-                                      } else if (value.length > 50) {
-                                        return "Password must be at most 50 characters long";
-                                      } else if (value.length < 8) {
-                                        return "Password must be at least 8 characters long";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                    decoration: const InputDecoration(
-                                      labelText: 'Password (8 - 50 characters, with special characters, numbers, and symbol)',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  TextFormField(
-                                    controller: _retypePasswordController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Password cannot be empty.";
-                                      } else if (value.length != _retypePasswordController.text.length && value != _retypePasswordController.text) {
-                                        return "Passwords do not match. Please retry.";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                    obscureText: true,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Re-type Password',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  const Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
                                       Text("Personal Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                     ],
                                   ),
+                                  const SizedBox(height: 10),
+                                  BlocConsumer<ProfilePictureUploadBloc, ProfilePictureUploadState>(listener: (profilePictureUploadContext, profilePictureUploadState) async {
+                                    if (profilePictureUploadState is ProfilePictureUploadSuccess) {
+                                      profilePictureUploaded = true;
+                                      imageCrossFile = profilePictureUploadState.validatedImage;
+                                      imageFile = File.fromRawPath(await profilePictureUploadState.validatedImage!.readAsBytes());
+                                    }
+
+                                    if (profilePictureUploadState is ProfilePictureUploadFailure) {
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(profilePictureUploadState.errorList[0])));
+                                      await Future.delayed(const Duration(seconds: 2));
+                                      profilePictureUploadContext.read<ProfilePictureUploadBloc>().add(ProfilePictureUploadInitialize());
+                                    }
+                                  }, builder: (profilePictureUploadContext, profilePictureUploadState) {
+                                    if (profilePictureUploadState is ProfilePictureUploadAwaiting) {
+                                      return SizedBox(
+                                        height: 180,
+                                        width: double.infinity,
+                                        child: Card(
+                                          elevation: 10,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              const Text("Upload a photo of you."),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              OutlinedButton(
+                                                onPressed: () async {
+                                                  try {
+                                                    XFile? profilePicRawData = await _imagePicker.pickImage(source: ImageSource.camera);
+                                                    profilePictureUploadContext.read<ProfilePictureUploadBloc>().add(ProfilePictureUploadValidate(file: profilePicRawData));
+                                                  } catch (error) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                                                    profilePictureUploadContext.read<ProfilePictureUploadBloc>().add(ProfilePictureUploadInitialize());
+                                                  }
+                                                },
+                                                child: const Text("Capture from Camera"),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    } else if (profilePictureUploadState is ProfilePictureUploadSuccess) {
+                                      return SizedBox(
+                                        height: 180,
+                                        width: double.infinity,
+                                        child: Card(
+                                          elevation: 10,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                ),
+                                                child: SizedBox(
+                                                  height: 150,
+                                                  width: 150,
+                                                  child: FutureBuilder<Uint8List>(
+                                                      future: profilePictureUploadState.validatedImage!.readAsBytes(),
+                                                      builder: ((validatedImageContext, snapshot) {
+                                                        if (snapshot.hasData) {
+                                                          return ClipRRect(
+                                                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                                            child: Image.memory(
+                                                              snapshot.data!,
+                                                              alignment: Alignment.center,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          return SizedBox.shrink();
+                                                        }
+                                                      })),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                  child: Padding(
+                                                padding: const EdgeInsets.symmetric(
+                                                  vertical: 10,
+                                                  horizontal: 10,
+                                                ),
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                        child: Column(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text("File size: ${(profilePictureUploadState.imageFileSize / (1048 * 1048)).toStringAsFixed(2)} MB"),
+                                                        Text("Date created: ${DateFormat.yMd().add_jm().format(profilePictureUploadState.imageLastModifiedDate)}"),
+                                                      ],
+                                                    )),
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: OutlinedButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            XFile? profilePicRawData = await _imagePicker.pickImage(source: ImageSource.camera);
+
+                                                            profilePictureUploadContext.read<ProfilePictureUploadBloc>().add(ProfilePictureUploadValidate(file: profilePicRawData));
+                                                          } catch (error) {
+                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                                                            profilePictureUploadContext.read<ProfilePictureUploadBloc>().add(ProfilePictureUploadInitialize());
+                                                          }
+                                                        },
+                                                        child: const Text("Reupload Photo"),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              )),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    } else if (profilePictureUploadState is ProfilePictureUploadFailure) {
+                                      return const SizedBox(
+                                        height: 120,
+                                        width: double.infinity,
+                                        child: Card(
+                                          elevation: 10,
+                                          child: Center(
+                                            child: Text(
+                                              "Upload failed. Retry in a few seconds.",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox(
+                                        height: 120,
+                                        width: double.infinity,
+                                        child: Card(
+                                          elevation: 10,
+                                          child: Center(
+                                            child: Text(
+                                              "Something went wrong. Please contact Tararide Service Desk.",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }),
                                   const SizedBox(height: 10),
                                   TextFormField(
                                     controller: _firstNameController,
@@ -226,6 +333,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 10),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color: const Color.fromARGB(255, 112, 80, 117)),
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(8),
+                                        ),
+                                        color: Colors.white,
+                                        boxShadow: const [
+                                          BoxShadow(color: Colors.black45, blurRadius: 2),
+                                        ]),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Text("Sex at birth: "),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          DropdownButton<String>(
+                                              value: sexAtBirth,
+                                              icon: const Icon(Icons.arrow_downward),
+                                              elevation: 16,
+                                              items: genderList.map<DropdownMenuItem<String>>((String value) {
+                                                return DropdownMenuItem<String>(value: value, child: Text(value));
+                                              }).toList(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  sexAtBirth = value!;
+                                                });
+                                              }),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
                                   TextFormField(
                                     readOnly: true,
                                     decoration: const InputDecoration(
@@ -243,6 +387,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       if (pickedDate != null) {
                                         setState(() {
                                           _birthDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                          birthDate = pickedDate;
                                         });
                                       }
                                     },
@@ -257,8 +402,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
-                                    readOnly: true,
                                     controller: _emailController,
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your email';
+                                      } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+                                        return 'Please enter a valid email';
+                                      }
+                                      return null;
+                                    },
                                     decoration: const InputDecoration(
                                       labelText: 'E-mail Address (Contact)',
                                       border: OutlineInputBorder(),
@@ -267,6 +420,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   const SizedBox(height: 10),
                                   TextFormField(
                                     controller: _contactNumberController,
+                                    keyboardType: TextInputType.number,
                                     decoration: const InputDecoration(
                                       labelText: 'Contact Number',
                                       border: OutlineInputBorder(),
@@ -288,6 +442,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       border: OutlineInputBorder(),
                                     ),
                                   ),
+                                  const SizedBox(height: 20),
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("Account Information", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    readOnly: true,
+                                    controller: _emailController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'E-mail Address (Login Credential)',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _passwordController,
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    obscureText: true,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Password cannot be empty.";
+                                      } else if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
+                                        return "";
+                                      } else if (value.length > 50) {
+                                        return "Password must be at most 50 characters long";
+                                      } else if (value.length < 8) {
+                                        return "Password must be at least 8 characters long";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    decoration: const InputDecoration(
+                                      labelText: 'Password (8 - 50 characters, with special characters, numbers, and symbol)',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    controller: _retypePasswordController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Password cannot be empty.";
+                                      } else if (value.length != _retypePasswordController.text.length && value != _retypePasswordController.text) {
+                                        return "Passwords do not match. Please retry.";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Re-type Password',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -301,8 +513,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             try {
-                              if (_formKey.currentState!.validate()) {
-                                userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(_emailController.text, _passwordController.text));
+                              if (_formKey.currentState!.validate() && profilePictureUploaded) {
+                                userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                    firstName: _firstNameController.text,
+                                    middleName: _middleNameController.text.isEmpty ? "N/A" : _middleNameController.text,
+                                    lastName: _lastNameController.text,
+                                    sexAtBirth: sexAtBirth,
+                                    birthDate: birthDate,
+                                    contactNo: _contactNumberController.text,
+                                    homeAddress: _homeAddressController.text));
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -311,7 +532,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 );
                               }
                             } catch (e) {
-                              print(e);
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                              userSignUpContext.read<UserSignUpBloc>().add(SignUpAwaiting());
                             }
                           },
                           child: const Text('Sign Up'),
