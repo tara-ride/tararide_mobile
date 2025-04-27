@@ -21,7 +21,7 @@ final class CheckPersonalInformationSubmit extends CheckPersonalInformationEvent
   String get getMiddleName => middleName!;
   String get getLastName => lastName;
   DateTime get getBirthDate => birthDate;
-  
+
   @override
   List<Object> get props => [firstName, lastName, birthDate, middleName!];
 }
