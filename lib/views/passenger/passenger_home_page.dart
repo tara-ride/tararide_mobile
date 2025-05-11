@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tararide_mobile/views/passenger/passenger_profile_page/passenger_profile.dart';
+import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/passenger_ride.dart';
 
 class PassengerHomePage extends StatefulWidget {
   const PassengerHomePage({super.key, required this.title});
@@ -13,28 +15,7 @@ class PassengerHomePage extends StatefulWidget {
 class _PassengerHomePageState extends State<PassengerHomePage> {
   int pageIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
-    Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 300,
-            child: LottieBuilder.asset("assets/under_construction.json"),
-          ),
-          const Text(
-            "Home",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text("This area is still under construction."),
-          const Text("We'll get there soon!"),
-        ],
-      ),
-    ),
+    const PassengerRide(),
     Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -79,28 +60,7 @@ class _PassengerHomePageState extends State<PassengerHomePage> {
         ],
       ),
     ),
-    Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 300,
-            child: LottieBuilder.asset("assets/under_construction.json"),
-          ),
-          const Text(
-            "Profile",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text("This area is still under construction."),
-          const Text("We'll get there soon!"),
-        ],
-      ),
-    ),
+    const PassengerProfile(),
   ];
   @override
   Widget build(BuildContext context) {

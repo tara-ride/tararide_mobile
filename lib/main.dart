@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tararide_mobile/bloc/determine_user_category/determine_user_category_bloc.dart';
 import 'package:tararide_mobile/bloc/user_auth_availability/user_auth_availability_bloc.dart';
