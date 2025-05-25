@@ -7,14 +7,27 @@ sealed class PassengerRideStatusState extends Equatable {
   List<Object> get props => [];
 }
 
-final class PassengerRideStatusInitial extends PassengerRideStatusState {
+// ignore: must_be_immutable
+final class PassengerRideStatusInitial extends PassengerRideStatusState {}
+
+// ignore: must_be_immutable
+final class PassengerRideStatusWeatherDataLoaded extends PassengerRideStatusState {
+  GoogleWeatherData weatherDataFromAPI;
+
+  PassengerRideStatusWeatherDataLoaded({required this.weatherDataFromAPI});
   @override
-  List<Object> get props => [];
+  List<Object> get props => [weatherDataFromAPI];
 }
 
+// ignore: must_be_immutable
 final class PassengerSelectingPickupLocation extends PassengerRideStatusState {
+  List<GeocodingDataModel.Result> possiblePickupLocations;
+
+  PassengerSelectingPickupLocation({
+    required this.possiblePickupLocations,
+  });
   @override
-  List<Object> get props => [];
+  List<Object> get props => [possiblePickupLocations];
 }
 
 final class PassengerSelectingDestination extends PassengerRideStatusState {
@@ -28,6 +41,8 @@ final class PassengerSelectingRide extends PassengerRideStatusState {
 }
 
 final class PassengerRideStarted extends PassengerRideStatusState {}
+
+final class PassengerRideInProgress extends PassengerRideStatusState {}
 
 final class PassengerRidePaymentStarted extends PassengerRideStatusState {}
 

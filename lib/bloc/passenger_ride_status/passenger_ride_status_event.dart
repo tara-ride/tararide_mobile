@@ -9,13 +9,35 @@ sealed class PassengerRideStatusEvent extends Equatable {
 
 final class PassengerRideStatusInitialize extends PassengerRideStatusEvent {}
 
-final class PassengerSelectPickupLocation extends PassengerRideStatusEvent {}
+final class PassengerRideStatusLoadWeatherData extends PassengerRideStatusEvent {
+  final GoogleWeatherData googleWeatherData;
+
+  const PassengerRideStatusLoadWeatherData({required this.googleWeatherData});
+
+  @override
+  List<Object> get props => [googleWeatherData];
+}
+
+final class PassengerSelectPickupLocation extends PassengerRideStatusEvent {
+  final String? pickupLocation;
+  const PassengerSelectPickupLocation({this.pickupLocation});
+
+  @override
+  List<Object> get props => [pickupLocation ?? ''];
+}
 
 final class PassengerSelectDestination extends PassengerRideStatusEvent {}
 
-final class PassengerSelectRide extends PassengerRideStatusEvent {}
+final class PassengerSelectRide extends PassengerRideStatusEvent {
+  const PassengerSelectRide();
+
+  @override
+  List<Object> get props => [];
+}
 
 final class PassengerRideStart extends PassengerRideStatusEvent {}
+
+final class PassengerRideProgress extends PassengerRideStatusEvent {}
 
 final class PassengerRidePaymentStart extends PassengerRideStatusEvent {}
 
