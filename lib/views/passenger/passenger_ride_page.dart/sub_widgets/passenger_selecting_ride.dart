@@ -1,0 +1,279 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:tararide_mobile/bloc/passenger_ride_status/passenger_ride_status_bloc.dart';
+import 'package:tararide_mobile/config/firebase_options.dart';
+import 'package:tararide_mobile/repository/gcp_distance_matrix_repository.dart';
+
+class PassengerSelectingRideWidget extends StatefulWidget {
+  const PassengerSelectingRideWidget({
+    super.key,
+  });
+
+  @override
+  State<PassengerSelectingRideWidget> createState() => _PassengerSelectingRideWidgetState();
+}
+
+class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWidget> {
+  String selectedSeatsToOccupy = '1';
+  double estimatedFare = 200.80;
+  int selectedRideIndex = 0;
+
+  Future<double> getDistanceMatrix(LatLng sourceLocation, LatLng destination) async {
+    GcpDistanceMatrixRepositoryImplementation gcpDistanceMatrixRepositoryImplementation = GcpDistanceMatrixRepositoryImplementation();
+
+    var distanceMatrixData = await gcpDistanceMatrixRepositoryImplementation.getDistanceMatrixDataOnce(SystemConstants().getGoogleCloudAPIKey, sourceLocation, destination);
+    print("CHECK VALUE: ${distanceMatrixData.rows[0].elements[0].distance.value.toDouble() * 0.001}");
+    return distanceMatrixData.rows[0].elements[0].distance.value.toDouble() * 0.001;
+  }
+
+  double calculateDistance(double overallRideDistance, double passengerRideDistance) {
+    return passengerRideDistance / overallRideDistance;
+  }
+
+  Future<double> calculateEstimatedFare(LatLng rideSource, LatLng rideDestination, double requiredDistance, int seatsOccupied, double flagDownRate, double overallRideCost) async {
+    double overallRideDistance = await getDistanceMatrix(rideSource, rideDestination);
+
+    print("overallRide Distance : ${overallRideDistance}");
+    print("requiredDistance: ${requiredDistance}");
+    //Passenger Fare = Flagdown Rate + [(Passenger Distance ÷ Total Distance) × (Total Ride Cost - Flagdown Rate)]
+    print("NEW VALUE : ${(flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate))}");
+    return (flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate));
+    // (passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost + 15) * passengerRideStatusState.slotsToOccupy
+  }
+
+  @override
+  Widget build(BuildContext buildContext) {
+    final passengerRideStatusState = buildContext.watch<PassengerRideStatusBloc>().state as PassengerSelectingRide;
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: Text(
+                "Select Ride",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SizedBox(
+              height: double.infinity,
+              width: double.infinity,
+              child: ListView.builder(
+                itemCount: passengerRideStatusState.rideInformationList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedRideIndex = index;
+                        });
+                        print("Selected Ride: ${passengerRideStatusState.rideInformationList[index].driverName}");
+                      },
+                      child: AnimatedContainer(
+                        height: selectedRideIndex == index ? 90 : 60,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(7),
+                          ),
+                          boxShadow: const <BoxShadow>[
+                            BoxShadow(
+                              color: Colors.black,
+                              blurRadius: 3,
+                              offset: Offset.zero,
+                            ),
+                          ],
+                          color: selectedRideIndex == index ? const Color.fromARGB(255, 228, 216, 255) : const Color.fromARGB(255, 255, 255, 255),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 13),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 14),
+                                    child: Icon(Icons.location_city_outlined),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    passengerRideStatusState.rideInformationList[index].rideTitle,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Available seats: ${passengerRideStatusState.rideInformationList[index].availableSeats}",
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  selectedRideIndex == index
+                                      ? Text(
+                                          "Description: ${passengerRideStatusState.rideInformationList[index].rideDescription}",
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        )
+                                      : SizedBox.shrink(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                FutureBuilder(
+                    future: calculateEstimatedFare(
+                        LatLng(passengerRideStatusState.rideInformationList[selectedRideIndex].rideSourceLocation.latitude, passengerRideStatusState.rideInformationList[selectedRideIndex].rideSourceLocation.longitude),
+                        LatLng(passengerRideStatusState.rideInformationList[selectedRideIndex].rideDestination.latitude, passengerRideStatusState.rideInformationList[selectedRideIndex].rideDestination.longitude),
+                        passengerRideStatusState.rideDistance * 0.001,
+                        passengerRideStatusState.slotsToOccupy,
+                        30,
+                        passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost),
+                    builder: (futureBuildContext, snapshot) {
+                      if (snapshot.hasData) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 4, bottom: 5),
+                          child: Text("Estimated Fare: ₱${snapshot.data!.toStringAsFixed(2)}"),
+                        );
+                      }
+                      return SizedBox.shrink();
+                    }),
+                const Spacer(),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 4, bottom: 5),
+                  child: SizedBox(
+                    height: 40,
+                    child: OutlinedButton(
+                        onPressed: () {
+                          buildContext.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
+                        },
+                        child: const Text("Cancel")),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4, right: 8, bottom: 5),
+                  child: SizedBox(
+                    height: 40,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            if (selectedRideIndex == -1) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Please select a ride first.")),
+                              );
+                              return;
+                            }
+
+                            FirebaseAuth auth = FirebaseAuth.instance;
+                            User? user = auth.currentUser;
+                            if (user == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("User not authenticated.")),
+                              );
+                              return;
+                            }
+                            try {
+                              FirebaseFirestore firestore = FirebaseFirestore.instance;
+                              await firestore.collection('ride_information').doc(passengerRideStatusState.rideInformationList[selectedRideIndex].rideId).update({
+                                'passengers_list': FieldValue.arrayUnion([
+                                  {
+                                    'passenger_id': user.uid,
+                                    'passenger_email': user.email ?? '',
+                                    'passenger_source_location': GeoPoint(
+                                      passengerRideStatusState.pickupLocation.latitude,
+                                      passengerRideStatusState.pickupLocation.longitude,
+                                    ),
+                                    'passenger_destination': GeoPoint(
+                                      passengerRideStatusState.destinationLocation.latitude,
+                                      passengerRideStatusState.destinationLocation.longitude,
+                                    ),
+                                    'estimated_fare': (passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost + 15) * passengerRideStatusState.slotsToOccupy,
+                                    'passenger_source_location_name': passengerRideStatusState.pickupLocationFormattedAddress,
+                                    'passenger_destination_name': passengerRideStatusState.destinationFormattedAddress,
+                                    'ride_distance': passengerRideStatusState.rideDistance,
+                                    'ride_duration': passengerRideStatusState.estimatedTime,
+                                    'ride_started_at': Timestamp.now(),
+                                    'seatsOccupied': passengerRideStatusState.slotsToOccupy,
+                                    'ride_completed_at': Timestamp.fromDate(DateTime(9999, 12, 31)), // Placeholder for future completion
+                                  }
+                                ]),
+                                'available_seats': passengerRideStatusState.rideInformationList[selectedRideIndex].availableSeats - passengerRideStatusState.slotsToOccupy,
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Ride information updated successfully.")),
+                              );
+                              if (mounted) {
+                                context.read<PassengerRideStatusBloc>().add(PassengerRideStart(rideId: passengerRideStatusState.rideInformationList[selectedRideIndex].rideId));
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Error updating ride informations: $e")),
+                              );
+                              return;
+                            }
+
+                            // context.read<PassengerRideStatusBloc>().add(PassengerRideStart());
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error starting ride: $e")),
+                            );
+                          }
+                        },
+                        child: const Text("Choose Ride")),
+                  ),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}

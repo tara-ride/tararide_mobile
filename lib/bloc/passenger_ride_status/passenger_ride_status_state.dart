@@ -31,16 +31,134 @@ final class PassengerSelectingPickupLocation extends PassengerRideStatusState {
 }
 
 final class PassengerSelectingDestination extends PassengerRideStatusState {
+  final List<GeocodingDataModel.Result> possibleDestinations;
+
+  const PassengerSelectingDestination({
+    required this.possibleDestinations,
+  });
+  @override
+  List<Object> get props => [possibleDestinations];
+}
+
+final class PassengerRideConfirmDetails extends PassengerRideStatusState {
+  final String pickupLocationFormattedAddress;
+  final String destinationFormattedAddress;
+  final LatLng pickupCoordinates;
+  final LatLng destinationCoordinates;
+  final Map<PolylineId, Polyline> polylines;
+  final String distanceMatrix;
+  final String durationMatrix;
+  final Distance distance;
+  final Distance duration;
+
+  const PassengerRideConfirmDetails({
+    required this.distanceMatrix,
+    required this.durationMatrix,
+    required this.polylines,
+    required this.pickupLocationFormattedAddress,
+    required this.destinationFormattedAddress,
+    required this.pickupCoordinates,
+    required this.destinationCoordinates,
+    required this.distance,
+    required this.duration,
+  });
+  @override
+  List<Object> get props => [
+        pickupLocationFormattedAddress,
+        destinationFormattedAddress,
+        pickupCoordinates,
+        destinationCoordinates,
+        polylines,
+        distanceMatrix,
+        durationMatrix,
+        distance,
+        duration,
+      ];
+}
+
+final class PassengerRideConfirmation extends PassengerRideStatusState {
+  final double estimatedFare;
+  final String estimatedTime;
+  final String rideDistance;
+  final String slotsToOccupy;
+  final String pickupLocation;
+  final String destinationLocation;
+
+  const PassengerRideConfirmation({
+    required this.pickupLocation,
+    required this.estimatedFare,
+    required this.estimatedTime,
+    required this.rideDistance,
+    required this.slotsToOccupy,
+    required this.destinationLocation,
+  });
+
+  @override
+  List<Object> get props => [estimatedFare, estimatedTime, rideDistance, slotsToOccupy, pickupLocation, destinationLocation];
+}
+
+final class PassengerRideConfirmLoading extends PassengerRideStatusState {
+  // pickupLocationFormattedAddress: '',
+  //               destinationFormattedAddress: '',
+  //               pickupCoordinates: LatLng(14.12, 120.98),
+  //               destinationCoordinates: LatLng(14.12, 120.98),
+
+  const PassengerRideConfirmLoading();
   @override
   List<Object> get props => [];
+}
+
+final class PassengerRideConfirmError extends PassengerRideStatusState {
+  final String errorMessage;
+
+  const PassengerRideConfirmError({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
 }
 
 final class PassengerSelectingRide extends PassengerRideStatusState {
+  final String estimatedTime;
+  final double rideDistance;
+  final int slotsToOccupy;
+  final LatLng pickupLocation;
+  final LatLng destinationLocation;
+  final String pickupLocationFormattedAddress;
+  final List<RideInformationModel> rideInformationList;
+  final String destinationFormattedAddress;
+
+  const PassengerSelectingRide({
+    required this.pickupLocation,
+    required this.estimatedTime,
+    required this.rideDistance,
+    required this.slotsToOccupy,
+    required this.destinationLocation,
+    required this.pickupLocationFormattedAddress,
+    required this.destinationFormattedAddress,
+    required this.rideInformationList,
+  });
   @override
-  List<Object> get props => [];
+  List<Object> get props => [
+        pickupLocation,
+        estimatedTime,
+        rideDistance,
+        slotsToOccupy,
+        destinationLocation,
+        pickupLocationFormattedAddress,
+        destinationFormattedAddress,
+        rideInformationList,
+      ];
 }
 
-final class PassengerRideStarted extends PassengerRideStatusState {}
+final class PassengerRideDataFailure extends PassengerRideStatusState {}
+
+final class PassengerRideStarted extends PassengerRideStatusState {
+  String rideId;
+
+  PassengerRideStarted({required this.rideId});
+  @override
+  List<Object> get props => [rideId];
+}
 
 final class PassengerRideInProgress extends PassengerRideStatusState {}
 

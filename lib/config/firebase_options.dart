@@ -13,6 +13,15 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, Tar
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
 /// ```
+///
+final class SystemConstants {
+  String google_cloud_api_key = 'AIzaSyDxHmjdw20bZDDG9Urogftz38-69p40Res';
+
+  get getGoogleCloudAPIKey {
+    return this.google_cloud_api_key;
+  }
+}
+
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -49,20 +58,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: '******',
-    appId: '******',
-    messagingSenderId: '******',
-    projectId: '******',
-    authDomain: '******',
-    storageBucket: '******',
-    measurementId: '******',
+    apiKey: 'AIzaSyBWGL12-i5IirCfN2pSQT1Smg65Ps0i7cE',
+    appId: '1:992326135365:web:b4f580ecd7e7f3f9483d2c',
+    messagingSenderId: '992326135365',
+    projectId: 'tararide-booking-app',
+    authDomain: 'tararide-booking-app.firebaseapp.com',
+    storageBucket: 'tararide-booking-app.firebasestorage.app',
+    measurementId: 'G-ZQ4E9F17KF',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: '******',
-    appId: '******',
-    messagingSenderId: '******',
-    projectId: '******',
-    storageBucket: '******',
+    apiKey: 'AIzaSyCc-9P7RwnXjKF8vfXMHy0VjrWVHT7Dj9M',
+    appId: '1:992326135365:android:4c36be81a23fbfba483d2c',
+    messagingSenderId: '992326135365',
+    projectId: 'tararide-booking-app',
+    storageBucket: 'tararide-booking-app.firebasestorage.app',
   );
 }

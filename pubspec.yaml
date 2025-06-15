@@ -53,6 +53,7 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   animated_rating_stars: ^1.0.1
   geocoding: ^3.0.0
+  flutter_polyline_points: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +94,17 @@ flutter:
     - assets/sedan_car_driving.json
     - assets/payment_loading.json
     - assets/profilepicture_driver_sample.jpg
+    - assets/driver_car_icon.png
+    - assets/driver_current_location.png
+    - assets/driver_destination_icon.png
+    - assets/driver_start_icon.png
+    - assets/general_destination_icon.png
+    - assets/general_start_icon.png
+    - assets/passenger_current_location.png
+    - assets/passenger_destination_icon.png
+    - assets/passenger_start_icon.png
+    - assets/congratulations.json
+    - assets/passenger_waiting.json
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
