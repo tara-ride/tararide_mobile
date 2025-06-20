@@ -162,7 +162,7 @@ class _PassengerRideConfirmDetailsWidgetState extends State<PassengerRideConfirm
                     padding: const EdgeInsets.only(left: 4, right: 8),
                     child: ElevatedButton(
                       onPressed: () {
-                        print("HELLO");
+                        print("HELLO SEATS OCCUPIED: $selectedSeatsToOccupy");
                         context.read<PassengerRideStatusBloc>().add(PassengerConfirmRide(
                               pickupLocation: passengerRideStatusState.pickupCoordinates,
                               estimatedTime: passengerRideStatusState.durationMatrix,

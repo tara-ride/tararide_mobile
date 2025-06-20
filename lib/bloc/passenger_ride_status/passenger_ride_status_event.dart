@@ -10,9 +10,16 @@ sealed class PassengerRideStatusEvent extends Equatable {
 final class PassengerRideStatusInitialize extends PassengerRideStatusEvent {}
 
 final class PassengerRideStatusLoadWeatherData extends PassengerRideStatusEvent {
+  const PassengerRideStatusLoadWeatherData();
+
+  @override
+  List<Object> get props => [];
+}
+
+final class PassengerRideStatusDisplayWeatherData extends PassengerRideStatusEvent {
   final GoogleWeatherData googleWeatherData;
 
-  const PassengerRideStatusLoadWeatherData({required this.googleWeatherData});
+  const PassengerRideStatusDisplayWeatherData({required this.googleWeatherData});
 
   @override
   List<Object> get props => [googleWeatherData];
@@ -34,6 +41,7 @@ final class PassengerSelectDestination extends PassengerRideStatusEvent {
   List<Object> get props => [destinationLocation ?? ''];
 }
 
+// ignore: must_be_immutable
 final class PassengerInitializeConfirmRide extends PassengerRideStatusEvent {
   String pickupLocationFormattedAddress;
   String destinationFormattedAddress;
@@ -144,16 +152,37 @@ final class PassengerLoadAvailableRides extends PassengerRideStatusEvent {
       ];
 }
 
+// ignore: must_be_immutable
 final class PassengerRideStart extends PassengerRideStatusEvent {
   String rideId;
 
   PassengerRideStart({required this.rideId});
-  
 }
 
-final class PassengerRideProgress extends PassengerRideStatusEvent {}
+final class PassengerRideStartedDetails extends PassengerRideStatusEvent {
+  final RideInformationModel rideInformation;
+  final Map<PolylineId, Polyline> generatedPolylines;
 
-final class PassengerRidePaymentStart extends PassengerRideStatusEvent {}
+  const PassengerRideStartedDetails({required this.generatedPolylines, required this.rideInformation});
+
+  @override
+  List<Object> get props => [rideInformation, generatedPolylines];
+}
+
+final class PassengerRideProgress extends PassengerRideStatusEvent {
+  final RideInformationModel rideInformation;
+
+  const PassengerRideProgress({required this.rideInformation});
+  @override
+  List<Object> get props => [rideInformation];
+}
+
+final class PassengerRidePaymentStart extends PassengerRideStatusEvent {
+  final RideInformationModel rideInformation;
+  const PassengerRidePaymentStart({required this.rideInformation});
+  @override
+  List<Object> get props => [rideInformation];
+}
 
 final class PassengerRideFeedbackStart extends PassengerRideStatusEvent {}
 

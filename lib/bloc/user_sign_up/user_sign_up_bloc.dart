@@ -39,6 +39,9 @@ class UserSignUpBloc extends Bloc<UserSignUpEvent, UserSignUpState> {
               "created_by": "tararide_automated_service",
               "created_on": DateTime.now(),
               "email_address": firebaseUserCredential.user!.email,
+              "current_location": const GeoPoint(0, 0),
+              "status": "idle",
+              "ride_id": "",
               "uuid": firebaseUserCredential.user!.uid,
             });
             DocumentSnapshot<Map<String, dynamic>> accountData = await firebaseFirestore.collection("account_information").doc(firebaseUserCredential.user!.uid).get();
@@ -57,6 +60,8 @@ class UserSignUpBloc extends Bloc<UserSignUpEvent, UserSignUpState> {
               "home_address": event.homeAddress,
             });
             DocumentSnapshot<Map<String, dynamic>> contactData = await firebaseFirestore.collection("contact_information").doc(firebaseUserCredential.user!.uid).get();
+
+            //FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
             if (accountData.exists && personalData.exists && contactData.exists) {
               emit(UserSignUpSuccess());

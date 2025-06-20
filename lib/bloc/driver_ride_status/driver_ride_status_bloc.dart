@@ -296,6 +296,7 @@ class DriverRideStatusBloc extends Bloc<DriverRideStatusEvent, DriverRideStatusS
         rideInformation: event.rideInformation,
       ));
     });
+    
     on<DriverCompleteRide>((event, emit) {
       emit(DriverRideCompleted(rideInformation: event.rideInformation));
     });

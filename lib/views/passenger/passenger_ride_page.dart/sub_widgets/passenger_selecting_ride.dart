@@ -42,14 +42,16 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
     print("overallRide Distance : ${overallRideDistance}");
     print("requiredDistance: ${requiredDistance}");
     //Passenger Fare = Flagdown Rate + [(Passenger Distance ÷ Total Distance) × (Total Ride Cost - Flagdown Rate)]
-    print("NEW VALUE : ${(flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate))}");
-    return (flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate));
+    //print("NEW VALUE : ${(flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate))}");
+    return (flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate)) * seatsOccupied.toDouble();
     // (passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost + 15) * passengerRideStatusState.slotsToOccupy
   }
 
   @override
   Widget build(BuildContext buildContext) {
     final passengerRideStatusState = buildContext.watch<PassengerRideStatusBloc>().state as PassengerSelectingRide;
+
+    double calculatedEstimatedFare = 0;
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
@@ -141,7 +143,7 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
                                             fontWeight: FontWeight.w500,
                                           ),
                                         )
-                                      : SizedBox.shrink(),
+                                      : const SizedBox.shrink(),
                                 ],
                               ),
                             ),
@@ -170,6 +172,7 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
                         passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost),
                     builder: (futureBuildContext, snapshot) {
                       if (snapshot.hasData) {
+                        calculatedEstimatedFare = snapshot.data!;
                         return Padding(
                           padding: const EdgeInsets.only(left: 8, right: 4, bottom: 5),
                           child: Text("Estimated Fare: ₱${snapshot.data!.toStringAsFixed(2)}"),
@@ -221,36 +224,49 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
                             }
                             try {
                               FirebaseFirestore firestore = FirebaseFirestore.instance;
-                              await firestore.collection('ride_information').doc(passengerRideStatusState.rideInformationList[selectedRideIndex].rideId).update({
-                                'passengers_list': FieldValue.arrayUnion([
-                                  {
-                                    'passenger_id': user.uid,
-                                    'passenger_email': user.email ?? '',
-                                    'passenger_source_location': GeoPoint(
-                                      passengerRideStatusState.pickupLocation.latitude,
-                                      passengerRideStatusState.pickupLocation.longitude,
-                                    ),
-                                    'passenger_destination': GeoPoint(
-                                      passengerRideStatusState.destinationLocation.latitude,
-                                      passengerRideStatusState.destinationLocation.longitude,
-                                    ),
-                                    'estimated_fare': (passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost + 15) * passengerRideStatusState.slotsToOccupy,
-                                    'passenger_source_location_name': passengerRideStatusState.pickupLocationFormattedAddress,
-                                    'passenger_destination_name': passengerRideStatusState.destinationFormattedAddress,
-                                    'ride_distance': passengerRideStatusState.rideDistance,
-                                    'ride_duration': passengerRideStatusState.estimatedTime,
-                                    'ride_started_at': Timestamp.now(),
-                                    'seatsOccupied': passengerRideStatusState.slotsToOccupy,
-                                    'ride_completed_at': Timestamp.fromDate(DateTime(9999, 12, 31)), // Placeholder for future completion
-                                  }
-                                ]),
-                                'available_seats': passengerRideStatusState.rideInformationList[selectedRideIndex].availableSeats - passengerRideStatusState.slotsToOccupy,
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Ride information updated successfully.")),
-                              );
-                              if (mounted) {
-                                context.read<PassengerRideStatusBloc>().add(PassengerRideStart(rideId: passengerRideStatusState.rideInformationList[selectedRideIndex].rideId));
+
+                              FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                              if (firebaseAuth.currentUser != null) {
+                                await firestore.collection('account_information').doc(firebaseAuth.currentUser!.uid).update({
+                                  "ride_id": passengerRideStatusState.rideInformationList[selectedRideIndex].rideId,
+                                  "status": "waiting_for_driver",
+                                });
+                                await firestore.collection('ride_information').doc(passengerRideStatusState.rideInformationList[selectedRideIndex].rideId).update({
+                                  'passengers_list': FieldValue.arrayUnion([
+                                    {
+                                      'passenger_id': user.uid,
+                                      'passenger_email': user.email ?? '',
+                                      'status': "waiting",
+                                      'passenger_current_location': GeoPoint(
+                                        passengerRideStatusState.pickupLocation.latitude,
+                                        passengerRideStatusState.pickupLocation.longitude,
+                                      ),
+                                      'passenger_source_location': GeoPoint(
+                                        passengerRideStatusState.pickupLocation.latitude,
+                                        passengerRideStatusState.pickupLocation.longitude,
+                                      ),
+                                      'passenger_destination': GeoPoint(
+                                        passengerRideStatusState.destinationLocation.latitude,
+                                        passengerRideStatusState.destinationLocation.longitude,
+                                      ),
+                                      'estimated_fare': calculatedEstimatedFare,
+                                      'passenger_source_location_name': passengerRideStatusState.pickupLocationFormattedAddress,
+                                      'passenger_destination_name': passengerRideStatusState.destinationFormattedAddress,
+                                      'ride_distance': passengerRideStatusState.rideDistance,
+                                      'ride_duration': passengerRideStatusState.estimatedTime,
+                                      'ride_started_at': Timestamp.now(),
+                                      'seatsOccupied': passengerRideStatusState.slotsToOccupy,
+                                      'ride_completed_at': Timestamp.fromDate(DateTime(9999, 12, 31)), // Placeholder for future completion
+                                    }
+                                  ]),
+                                  'available_seats': passengerRideStatusState.rideInformationList[selectedRideIndex].availableSeats - passengerRideStatusState.slotsToOccupy,
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Ride information updated successfully.")),
+                                );
+                                if (mounted) {
+                                  context.read<PassengerRideStatusBloc>().add(PassengerRideStart(rideId: passengerRideStatusState.rideInformationList[selectedRideIndex].rideId));
+                                }
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(

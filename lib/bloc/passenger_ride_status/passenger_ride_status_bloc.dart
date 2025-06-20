@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:tararide_mobile/bloc/driver_ride_status/driver_ride_status_bloc.dart';
 import 'package:tararide_mobile/config/firebase_options.dart';
 import 'package:tararide_mobile/models/geocoding_data.dart' as GeocodingDataModel;
 import 'package:tararide_mobile/models/google_distance_matrix_data.dart';
 import 'package:tararide_mobile/models/google_weather_data.dart';
 import 'package:tararide_mobile/repository/gcp_geocoding_data.dart';
 import 'package:tararide_mobile/repository/gcp_weather_api_repository.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:tararide_mobile/repository/passenger_ride_information_repository.dart';
 
 import '../../models/ride_information_data.dart';
@@ -21,7 +22,7 @@ part 'passenger_ride_status_event.dart';
 part 'passenger_ride_status_state.dart';
 
 class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRideStatusState> {
-  final GcpWeatherApiRepositoryImplementation _gcpWeatherApiRepositoryImplementation;
+  GcpWeatherApiRepositoryImplementation _gcpWeatherApiRepositoryImplementation = GcpWeatherApiRepositoryImplementation();
   GcpGeocodingDataRepositoryImplementation _gcpGeocodingDataRepositoryImplementation = GcpGeocodingDataRepositoryImplementation();
   PassengerRideInformationRepositoryImplementation passengerRideInformationRepositoryImplementation = PassengerRideInformationRepositoryImplementation();
   StreamSubscription? _streamSubscription;
@@ -29,8 +30,13 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
   List<GeocodingDataModel.Result> possiblePickupLocations = [];
   List<GeocodingDataModel.Result> possibleDestinationList = [];
 
-  PassengerRideStatusBloc(this._gcpWeatherApiRepositoryImplementation) : super(PassengerRideStatusInitial()) {
+  PassengerRideStatusBloc() : super(PassengerRideStatusInitial()) {
     on<PassengerRideStatusInitialize>(
+      (event, emit) {
+        emit(PassengerRideStatusInitial());
+      },
+    );
+    on<PassengerRideStatusLoadWeatherData>(
       (event, emit) async {
         if (_streamSubscription != null) {
           await _streamSubscription!.cancel();
@@ -40,12 +46,12 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
         }
         LatLng coordinates = const LatLng(14.383, 120.9773);
         _streamSubscription = _gcpWeatherApiRepositoryImplementation.getWeatherData(SystemConstants().getGoogleCloudAPIKey, coordinates).listen((value) {
-          add(PassengerRideStatusLoadWeatherData(googleWeatherData: value));
+          add(PassengerRideStatusDisplayWeatherData(googleWeatherData: value));
         }, onDone: () {});
       },
     );
 
-    on<PassengerRideStatusLoadWeatherData>(
+    on<PassengerRideStatusDisplayWeatherData>(
       (event, emit) {
         emit(PassengerRideStatusWeatherDataLoaded(weatherDataFromAPI: event.googleWeatherData));
       },
@@ -183,7 +189,7 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
             });
             generatedPolylines[PolylineId("polyline_${generatedPolylines.length}")] = Polyline(
               polylineId: PolylineId("polyline_${generatedPolylines.length}"),
-              color: const Color.fromARGB(255, 0, 125, 31),
+              color: const Color.fromARGB(255, 0, 143, 226),
               width: 5,
               points: polylineCoordinates,
             );
@@ -290,19 +296,73 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
       },
     );
     on<PassengerRideStart>(
-      (event, emit) {
-        emit(PassengerRideStarted(rideId: event.rideId));
+      (event, emit) async {
+        try {
+          List<LatLng> polylineCoordinates = [];
+          Map<PolylineId, Polyline> generatedPolylines = {};
+
+          FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+          var rideInformationInstance = firebaseFirestore.collection("ride_information").doc(event.rideId);
+          var rideInformationDocument = await rideInformationInstance.get();
+          if (rideInformationDocument.exists) {
+            print("RIDE STRTD 2");
+            print("ri ${rideInformationDocument.data()!["ride_source_location"].latitude}");
+
+            PolylineResult polylineResult = await PolylinePoints().getRouteBetweenCoordinates(
+              SystemConstants().getGoogleCloudAPIKey,
+              PointLatLng(rideInformationDocument.data()!["ride_source_location"].latitude, rideInformationDocument.data()!["ride_source_location"].longitude),
+              PointLatLng(rideInformationDocument.data()!["ride_destination"].latitude, rideInformationDocument.data()!["ride_destination"].longitude),
+              travelMode: TravelMode.driving,
+            );
+
+            print("rir ${rideInformationDocument.data()!["ride_source_location"].longitude}");
+
+            if (polylineResult.points.isNotEmpty) {
+              print("RIDE STRTD 3");
+              print("Here is the polyline points: ${polylineResult.points}");
+
+              polylineResult.points.forEach((PointLatLng point) {
+                polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+              });
+              generatedPolylines[PolylineId("polyline_${generatedPolylines.length}")] = Polyline(
+                polylineId: PolylineId("polyline_${generatedPolylines.length}"),
+                color: const Color.fromARGB(255, 58, 104, 255),
+                width: 7,
+                onTap: () {},
+                jointType: JointType.round,
+                points: polylineCoordinates,
+              );
+              emit(PassengerRidePolylinesLoaded(generatedPolylines: generatedPolylines));
+            }
+          }
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          _streamSubscription = passengerRideInformationRepositoryImplementation.getRideInformationByID(event.rideId).listen((onValue) async {
+            print("repeatttt ${event.rideId}");
+            // add(DriverStartRide(rideInformation: onValue, generatedPolylines: generatedPolylines));
+            add(PassengerRideStartedDetails(rideInformation: onValue, generatedPolylines: generatedPolylines));
+          });
+        } catch (error) {
+          //emit(DriverRideConfirmError(errorMessage: error.toString()));
+        }
       },
     );
+    on<PassengerRideStartedDetails>((event, emit) {
+      emit(PassengerRideStarted(generatedPolylines: event.generatedPolylines, rideInformation: event.rideInformation));
+    });
+    // on<DriverStartLoadingPassengers>((event, emit) {
+    //   emit(DriverRidePassengersLoaded(
+    //     rideInformation: event.rideInformation,
+    //   ));
+    // });
     on<PassengerRideProgress>(
       (event, emit) {
-        emit(PassengerRideInProgress());
+        emit(PassengerRideInProgress(rideInformation: event.rideInformation));
       },
     );
-
     on<PassengerRidePaymentStart>(
       (event, emit) {
-        emit(PassengerRidePaymentStarted());
+        emit(PassengerRidePaymentStarted(rideInformation: event.rideInformation));
       },
     );
     on<PassengerRideFeedbackStart>(

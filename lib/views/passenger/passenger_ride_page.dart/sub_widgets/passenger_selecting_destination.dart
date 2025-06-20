@@ -99,7 +99,7 @@ class PassengerSelectingDestinationWidgetState extends State<PassengerSelectingD
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         setState(() {
                           _destinationItemSelectedIndex = index;
                         });
@@ -113,6 +113,11 @@ class PassengerSelectingDestinationWidgetState extends State<PassengerSelectingD
                           google_maps_marker.Marker(
                             markerId: const google_maps_marker.MarkerId("destination"),
                             position: _selectedDestinationLocation!,
+                            icon: await BitmapDescriptor.asset(
+                                const ImageConfiguration(
+                                  size: Size(90, 90),
+                                ),
+                                "assets/passenger_destination_icon.png"),
                             infoWindow: google_maps_marker.InfoWindow(
                               title: passengerRideStatusState.possibleDestinations[index].formattedAddress,
                             ),

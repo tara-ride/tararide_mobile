@@ -152,17 +152,46 @@ final class PassengerSelectingRide extends PassengerRideStatusState {
 
 final class PassengerRideDataFailure extends PassengerRideStatusState {}
 
+// ignore: must_be_immutable
 final class PassengerRideStarted extends PassengerRideStatusState {
-  String rideId;
+  final RideInformationModel rideInformation;
+  final Map<PolylineId, Polyline> generatedPolylines;
 
-  PassengerRideStarted({required this.rideId});
+  const PassengerRideStarted({required this.generatedPolylines, required this.rideInformation});
+
   @override
-  List<Object> get props => [rideId];
+  List<Object> get props => [rideInformation, generatedPolylines];
+}
+//emit(DriverRidePolylinesLoaded(generatedPolylines: generatedPolylines));
+
+final class PassengerRidePolylinesLoaded extends PassengerRideStatusState {
+  final Map<PolylineId, Polyline> generatedPolylines;
+
+  PassengerRidePolylinesLoaded({required this.generatedPolylines});
+
+  @override
+  List<Object> get props => [generatedPolylines];
 }
 
-final class PassengerRideInProgress extends PassengerRideStatusState {}
+final class PassengerRideInProgress extends PassengerRideStatusState {
+  final RideInformationModel rideInformation;
 
-final class PassengerRidePaymentStarted extends PassengerRideStatusState {}
+  const PassengerRideInProgress({required this.rideInformation});
+  @override
+  List<Object> get props => [
+        rideInformation,
+      ];
+}
+
+final class PassengerRidePaymentStarted extends PassengerRideStatusState {
+  final RideInformationModel rideInformation;
+
+  const PassengerRidePaymentStarted({required this.rideInformation});
+  @override
+  List<Object> get props => [
+        rideInformation,
+      ];
+}
 
 final class PassengerRideFeedbackStarted extends PassengerRideStatusState {}
 

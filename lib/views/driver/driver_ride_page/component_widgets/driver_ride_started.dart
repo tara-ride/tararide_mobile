@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tararide_mobile/bloc/chat_interaction/chat_interaction_bloc.dart';
 import 'package:tararide_mobile/bloc/driver_ride_status/driver_ride_status_bloc.dart';
 import 'package:tararide_mobile/models/ride_information_data.dart';
 import 'package:tararide_mobile/repository/gcp_distance_matrix_repository.dart';
@@ -51,6 +52,71 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
         "status": "completed",
         "ride_end_date": DateTime.now(),
       });
+    }
+  }
+
+  Future<String> getMyId() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    var currentUser = firebaseAuth.currentUser;
+
+    if (currentUser != null) {
+      return currentUser!.uid;
+    } else {
+      return "";
+    }
+  }
+
+  void startChat(String rideId, String driverId, String passengerId, {required onErrorOccured, required onStartChat}) async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    var chatInfoInstance = firebaseFirestore.collection("chat_information");
+    try {
+      final QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection('chat_information') // Replace with your actual collection name
+          .where('driver_id', isEqualTo: driverId)
+          .where('passenger_id', isEqualTo: passengerId)
+          .get();
+
+      // var docSnapshot = await firebaseFirestore.collection("chat_information").doc('F3TBfzRHRG9CL7Z9KegK').get();
+
+      // if (docSnapshot.exists) {
+      //   print("docSNAPSHOT: ${docSnapshot.data()!.toString()}");
+      // }
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print("querySnapshot.docs.first.id; ${querySnapshot.docs.first.id}");
+        onStartChat(querySnapshot.docs.first.id);
+      } else {
+        var newChatInfoDocument = chatInfoInstance.doc();
+
+        await newChatInfoDocument.set({
+          "driver_id": driverId,
+          "passenger_id": passengerId,
+          "ride_id": rideId,
+          "chat_id": newChatInfoDocument.id,
+          "chat_created_on": DateTime.now(),
+          "chat_interaction": [
+            {
+              "messaged_by": passengerId,
+              "message_text": "Hello!",
+              "messaged_on": DateTime.now(),
+            },
+          ],
+        });
+        onStartChat(newChatInfoDocument.id);
+      }
+    } catch (error) {
+      onErrorOccured("$error");
+    }
+  }
+
+  Future<String> getPassengerId() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    var currentUser = firebaseAuth.currentUser;
+
+    if (currentUser != null) {
+      return currentUser!.uid;
+    } else {
+      return "";
     }
   }
 
@@ -204,10 +270,10 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                     child: Container(
                                       width: 120,
                                       height: 120,
-                                      decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(5)),
                                         color: Colors.white,
-                                        boxShadow: const <BoxShadow>[
+                                        boxShadow: <BoxShadow>[
                                           BoxShadow(
                                             color: Colors.black,
                                             offset: Offset.zero,
@@ -251,17 +317,27 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                       Text(
                                         "Seats Occupied: ${driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].seatsOccupied}",
                                       ),
-                                      Text(
-                                        "Seats Occupied: ${driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex]}",
-                                      ),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
-                                          IconButton(
-                                              onPressed: () {
-                                                print('tapped');
-                                              },
-                                              icon: const Icon(Icons.chat))
+                                          FutureBuilder(
+                                            future: getMyId(),
+                                            builder: (itemContext, snapshot) {
+                                              if (snapshot.hasData) {
+                                                return IconButton.filled(
+                                                  onPressed: () => startChat(driverRidePassengersLoadedState.rideInformation.rideId, driverRidePassengersLoadedState.rideInformation.driverId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
+                                                    
+                                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Chat room has been started. Please see the chat page to interact.")));
+                                                  }),
+                                                  icon: const Icon(
+                                                    Icons.chat,
+                                                  ),
+                                                );
+                                              } else {
+                                                return const SizedBox.shrink();
+                                              }
+                                            },
+                                          ),
                                         ],
                                       )
                                     ],

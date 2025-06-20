@@ -230,7 +230,7 @@ class _DriverRidePageState extends State<DriverRidePage> {
                           if (documentInstance.data() != null || documentInstance.exists) {
                             var data = documentInstance.data()!;
 
-                            if (data["status"] == "in_a_ride") {
+                            if (data["status"] == "in_a_ride" || data["status"] == "waiting_for_driver") {
                               driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
                             } else {
                               driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideStatusLoadWeatherData());
@@ -441,7 +441,7 @@ class _DriverRidePageState extends State<DriverRidePage> {
                               ),
                               Text(
                                 "Congratulations! You have earned ₱ ${driverStatusBlocState.rideInformation.rideEarnings.toStringAsFixed(2)}",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tararide_mobile/models/ride_information_data.dart';
 
 abstract class DriverRideInformationRepository {
+  Stream<List<RideInformationModel>> getRideinformationList(String uuid);
   Stream<RideInformationModel> getRideInformationByID(String rideId);
 }
 
@@ -24,5 +25,17 @@ class DriverRideInformationRepositoryImplementation extends DriverRideInformatio
       }
       //
     }
+  }
+
+  @override
+  Stream<List<RideInformationModel>> getRideinformationList(String uuid) {
+    // TODO: implement getRideinformationList
+
+    Stream<QuerySnapshot<Map<String, dynamic>>> firebaseSnaps = FirebaseFirestore.instance.collection("ride_information").where("driver_id", isEqualTo: uuid).snapshots();
+    return firebaseSnaps.map((snapshots) {
+      return snapshots.docs.map((deployments) {
+        return RideInformationModel.fromJson(deployments.data());
+      }).toList();
+    });
   }
 }

@@ -132,29 +132,10 @@ class _DriverRideConfirmDetailsState extends State<DriverRideConfirmDetailsWidge
                       if (personalInformationDocument.data() != null || personalInformationDocument.exists) {
                         var personalInfo = personalInformationDocument.data();
 
-                        //process ride information
-                        //
-                        //                         String rideId;
-                        // String driverName;
-                        // String driverId;
-                        // String driverEmail;
-                        // String rideTitle;
-                        // String rideDescription;
-                        // RideCoordinates rideSourceLocation;
-                        // RideCoordinates rideDestination;
-                        // RideCoordinates driverCurrentLocation;
-                        // double rideCost;
-                        // double rideEarnings;
-                        // int seatsAllocated;
-                        // List<PassengersList> passengersList;
-                        // int availableSeats;
-                        // String status;
-                        // String carType;
-                        // String rideType;
                         await documentInstance.set({
                           "ride_title": widget.rideTitle,
                           "ride_description": widget.rideDescription,
-                          "available_seats": 2,
+                          "available_seats": 4,
                           "car_type": "sedan",
                           "driver_email": firebaseAuth.currentUser!.email,
                           "driver_id": firebaseAuth.currentUser!.uid,

@@ -1,8 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:math';
 
 import 'package:animated_rating_stars/animated_rating_stars.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +23,7 @@ import 'package:tararide_mobile/bloc/passenger_ride_status/passenger_ride_status
 import 'package:tararide_mobile/repository/gcp_weather_api_repository.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_confirm_error.dart';
+import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_payment_started.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_started.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_selecting_pickup_location.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_selecting_ride.dart';
@@ -90,10 +95,34 @@ class PassengerRideState extends State<PassengerRide> {
   double feedback_rating = 0;
   final TextEditingController _feedbackCommentController = TextEditingController();
 
+  Future<LatLng> getLocationUpdateByRide(String rideId) async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    BitmapDescriptor bitmapIcon = await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/passenger_icon.png");
+    _serviceEnabled = await _locationController.serviceEnabled();
+    if (_serviceEnabled) {
+      _serviceEnabled = await _locationController.requestService();
+    } else {
+      return LatLng(0, 0);
+    }
+
+    _permissionGranted = await _locationController.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await _locationController.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return LatLng(0, 0);
+      }
+    }
+
+    // _locationController.onLocationChanged.listen()
+
+    return LatLng(0, 0);
+  }
+
   Future<void> getLocationUpdates() async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    BitmapDescriptor bitmapIcon = await BitmapDescriptor.asset(const ImageConfiguration(), "assets/passenger_icon.png");
+    BitmapDescriptor bitmapIcon = await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/passenger_current_location.png");
     _serviceEnabled = await _locationController.serviceEnabled();
     if (_serviceEnabled) {
       _serviceEnabled = await _locationController.requestService();
@@ -112,17 +141,13 @@ class PassengerRideState extends State<PassengerRide> {
     _locationController.onLocationChanged.listen((LocationData currentLocation) {
       if (currentLocation.latitude != null && currentLocation.longitude != null) {
         if (mounted) {
-          setState(() async {
+          setState(() {
             _currentPos = LatLng(currentLocation.latitude!, currentLocation.longitude!);
             _currentMarkers.add(
               google_maps_marker.Marker(
                 markerId: const google_maps_marker.MarkerId("current_location"),
                 position: _currentPos!,
-                icon: await BitmapDescriptor.asset(
-                    const ImageConfiguration(
-                      size: dart_ui.Size(60, 60),
-                    ),
-                    "assets/passenger_current_location.png"),
+                icon: bitmapIcon,
                 infoWindow: const google_maps_marker.InfoWindow(title: "Current Location"),
               ),
             );
@@ -151,7 +176,7 @@ class PassengerRideState extends State<PassengerRide> {
         body: MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => PassengerRideStatusBloc(GcpWeatherApiRepositoryImplementation())..add(PassengerRideStatusInitialize()),
+          create: (context) => PassengerRideStatusBloc()..add(PassengerRideStatusInitialize()),
         )
       ],
       child: Stack(
@@ -199,7 +224,7 @@ class PassengerRideState extends State<PassengerRide> {
                       },
                       child: Text(hideContainer == false ? "Hide" : "Show"),
                     ),
-                  )
+                  ),
                 ],
               ),
               Padding(
@@ -231,8 +256,81 @@ class PassengerRideState extends State<PassengerRide> {
                         // Determine the target height based on the state
                         switch (passengerRideStatusState) {
                           case PassengerRideStatusInitial():
+                            setState(() {
+                              currentStateContainerHeight = 180;
+                            });
+                            // await Future.delayed(const Duration(seconds: 1));
+
+                            FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+                            FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+                            if (firebaseAuth.currentUser != null) {
+                              var accountInstance = firebaseFirestore.collection("account_information").doc(firebaseAuth.currentUser!.uid);
+                              var documentInstance = await accountInstance.get();
+
+                              if (documentInstance.data() != null || documentInstance.exists) {
+                                var data = documentInstance.data()!;
+
+                                if (data["status"] == "in_a_ride") {
+                                  passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideStart(rideId: data["ride_id"].toString()));
+                                  // driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
+                                } else {
+                                  passengerRideStatusContext.read<PassengerRideStatusBloc>().add(const PassengerRideStatusLoadWeatherData());
+                                }
+                              } else {
+                                passengerRideStatusContext.read<PassengerRideStatusBloc>().add(const PassengerRideStatusLoadWeatherData());
+                              }
+                            } else {
+                              passengerRideStatusContext.read<PassengerRideStatusBloc>().add(const PassengerRideStatusLoadWeatherData());
+                            }
+
+                            break;
                           case PassengerRideStarted():
                             newHeight = 220;
+                            polylines = passengerRideStatusState.generatedPolylines;
+                            _currentMarkers.removeWhere(
+                              (marker) => marker.markerId.value == "pickup_location",
+                            );
+                            _currentMarkers.removeWhere(
+                              (marker) => marker.markerId.value == "destination",
+                            );
+                            double sourceLatitude = passengerRideStatusState.rideInformation.rideSourceLocation.latitude;
+                            double sourceLongitude = passengerRideStatusState.rideInformation.rideSourceLocation.longitude;
+                            double destinationLatitude = passengerRideStatusState.rideInformation.rideDestination.latitude;
+                            double destinationLongitude = passengerRideStatusState.rideInformation.rideDestination.longitude;
+                            double rideCurrentLocLatitude = passengerRideStatusState.rideInformation.driverCurrentLocation.latitude;
+                            double rideCurrentLocLongitude = passengerRideStatusState.rideInformation.driverCurrentLocation.longitude;
+                            print("VELLA ${rideCurrentLocLatitude} :  ${rideCurrentLocLongitude}");
+                            _currentMarkers.add(
+                              google_maps_marker.Marker(
+                                markerId: const google_maps_marker.MarkerId("pickup_location"),
+                                icon: await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/general_start_icon.png"),
+                                position: LatLng(
+                                  sourceLatitude,
+                                  sourceLongitude,
+                                ),
+                              ),
+                            );
+                            _currentMarkers.add(
+                              google_maps_marker.Marker(
+                                markerId: const google_maps_marker.MarkerId("destination"),
+                                icon: await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/general_destination_icon.png"),
+                                position: LatLng(
+                                  destinationLatitude,
+                                  destinationLongitude,
+                                ),
+                              ),
+                            );
+                            _currentMarkers.add(
+                              google_maps_marker.Marker(
+                                markerId: const google_maps_marker.MarkerId("ride_current_location"),
+                                icon: await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(40, 40)), "assets/driver_car_icon.png"),
+                                position: LatLng(
+                                  rideCurrentLocLatitude,
+                                  rideCurrentLocLongitude,
+                                ),
+                              ),
+                            );
                             break;
                           case PassengerRideFeedbackCompleted():
                             newHeight = 180;
@@ -247,7 +345,14 @@ class PassengerRideState extends State<PassengerRide> {
                             newHeight = 280;
                             _destinationItemSelectedIndex = -1;
                             break;
+
+                          case PassengerRidePolylinesLoaded():
+                            polylines = passengerRideStatusState.generatedPolylines;
+                            setState(() {});
+                            break;
                           case PassengerSelectingRide():
+                            polylines = {};
+
                             getLocationUpdates();
                             if (passengerRideStatusState.rideInformationList.isEmpty) {
                               newHeight = 180;
@@ -371,6 +476,8 @@ class PassengerRideState extends State<PassengerRide> {
                           );
                         } else if (passengerRideStatusState is PassengerRideConfirmLoading) {
                           return const PassengerRideConfirmLoadingWidget();
+                        } else if (passengerRideStatusState is PassengerRidePolylinesLoaded) {
+                          return const PassengerRideConfirmLoadingWidget();
                         } else if (passengerRideStatusState is PassengerRideConfirmError) {
                           return PassengerRideConfirmErrorWidget(
                             errorMessage: passengerRideStatusState.errorMessage,
@@ -428,7 +535,9 @@ class PassengerRideState extends State<PassengerRide> {
                                           height: 40,
                                           child: ElevatedButton(
                                               onPressed: () {
-                                                passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRidePaymentStart());
+                                                passengerRideStatusContext.read<PassengerRideStatusBloc>().add(
+                                                      PassengerRidePaymentStart(rideInformation: passengerRideStatusState.rideInformation),
+                                                    );
                                               },
                                               child: const Text("Drop Off Now")),
                                         ),
@@ -440,88 +549,8 @@ class PassengerRideState extends State<PassengerRide> {
                             ),
                           );
                         } else if (passengerRideStatusState is PassengerRidePaymentStarted) {
-                          return SizedBox(
-                            width: double.infinity,
-                            height: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(8),
-                                  child: Text(
-                                    "Payment",
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(5),
-                                        ),
-                                      ),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        height: 200,
-                                        child: Lottie.asset('assets/payment_loading.json'),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(5),
-                                  child: Text("Distance Traveled: 10 km"),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(5),
-                                  child: Text("Time Taken: 15 mins"),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(5),
-                                  child: Text("Total Amount: ₱ 200.00"),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                  child: SizedBox(
-                                      width: double.infinity,
-                                      height: 50,
-                                      child: ElevatedButton(
-                                          onPressed: () {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text("Payment has been completed!"),
-                                                duration: Duration(seconds: 2),
-                                              ),
-                                            );
-                                            passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart());
-                                          },
-                                          child: const Text(
-                                            "Pay in Cash",
-                                          ))),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                  child: SizedBox(
-                                      width: double.infinity,
-                                      height: 50,
-                                      child: OutlinedButton(
-                                          onPressed: () {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text("Payment has been completed!"),
-                                                duration: Duration(seconds: 2),
-                                              ),
-                                            );
-                                            passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart());
-                                          },
-                                          child: const Text(
-                                            "Pay via E-wallet",
-                                          ))),
-                                ),
-                              ],
-                            ),
+                          return PassengerRidePaymentStartedWidget(
+                            rideInformation: passengerRideStatusState.rideInformation,
                           );
                         } else if (passengerRideStatusState is PassengerRideFeedbackStarted) {
                           return SizedBox(

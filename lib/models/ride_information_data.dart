@@ -45,9 +45,9 @@ class RideInformationModel {
   String toRawJson() => json.encode(toJson());
 
   factory RideInformationModel.fromJson(Map<String, dynamic> json) {
-    GeoPoint geoPointSourceLocation = json["ride_source_location"] as GeoPoint;
-    GeoPoint geoPointDestination = json["ride_destination"] as GeoPoint;
-    GeoPoint getPointDriverCurrentLocation = json["driver_current_location"] as GeoPoint;
+    GeoPoint geoPointSourceLocation = GeoPoint(json["ride_source_location"].latitude ?? 0, json["ride_source_location"].longitude ?? 0);
+    GeoPoint geoPointDestination = GeoPoint(json["ride_destination"].latitude ?? 0, json["ride_destination"].longitude ?? 0);
+    GeoPoint getPointDriverCurrentLocation = GeoPoint(json["driver_current_location"].latitude ?? 0, json["ride_destination"].longitude ?? 0);
     if (json.isEmpty) {
       return RideInformationModel(
         rideId: '',

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tararide_mobile/views/driver/driver_chat/driver_chat.dart';
+import 'package:tararide_mobile/views/driver/driver_history/driver_history.dart';
 import 'package:tararide_mobile/views/driver/driver_profile/driver_profile_page.dart';
 import 'package:tararide_mobile/views/driver/driver_ride_page/driver_ride_page.dart';
 
@@ -16,50 +18,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
   int pageIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
     const DriverRidePage(),
-    SizedBox(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 300,
-            child: LottieBuilder.asset("assets/under_construction.json"),
-          ),
-          const Text(
-            "Chat",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text("This area is still under construction."),
-          const Text("We'll get there soon!"),
-        ],
-      ),
-    ),
-    SizedBox(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 300,
-            child: LottieBuilder.asset("assets/under_construction.json"),
-          ),
-          const Text(
-            "History",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text("This area is still under construction."),
-          const Text("We'll get there soon!"),
-        ],
-      ),
-    ),
+    DriverChat(),
+    DriverHistory(),
     const DriverProfilePage(),
   ];
   @override

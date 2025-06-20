@@ -105,6 +105,7 @@ flutter:
     - assets/passenger_start_icon.png
     - assets/congratulations.json
     - assets/passenger_waiting.json
+    - assets/profile_icon_empty.png
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
