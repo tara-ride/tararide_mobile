@@ -67,9 +67,9 @@ class PassengerHistoryState extends State<PassengerHistory> {
                   listener: (passengerHistoryContext, passengerHistoryState) {
                     if (passengerHistoryState is PassengerHistoryInteractionDefaultState) {
                       FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-                      print("KIMOCHINIZED");
+                      
                       if (firebaseAuth.currentUser != null) {
-                        print("KIMOCHINIZATIONISM");
+                        
                         passengerHistoryContext.read<PassengerHistoryInteractionBloc>().add(InitializePassengerHistoryInteractionList(uuid: firebaseAuth.currentUser!.uid));
                       }
                     }

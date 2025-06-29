@@ -26,17 +26,17 @@ class PassengerProfileState extends State<PassengerProfile> {
             child: BlocConsumer<UserProfileBloc, UserProfileState>(
               listener: (userProfileContext, userProfileState) {
                 if (userProfileState is UserProfileInitial) {
-                  print("montimossn");
+                  
                   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-                  print("montimon");
+                  
                   if (firebaseAuth.currentUser != null) {
-                    print("chichikita");
+                    
                     userProfileContext.read<UserProfileBloc>().add(LoadUserProfile(userId: firebaseAuth.currentUser!.uid));
                   } else {
                     userProfileContext.read<UserProfileBloc>().add(const DisplayUserProfileError(error: "Cannot fetch user id."));
                   }
                 } else {
-                  print("state did not work ${userProfileState.toString()}");
+                  
                 }
               },
               builder: (context, state) {
@@ -588,7 +588,7 @@ class PassengerProfileState extends State<PassengerProfile> {
                     ],
                   );
                 } else {
-                  print("the State ${state.toString()}");
+                  
                   return Container(
                     child: Center(
                       child: Text("Loading.. "),

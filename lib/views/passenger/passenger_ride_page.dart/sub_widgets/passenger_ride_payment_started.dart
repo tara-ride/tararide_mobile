@@ -127,7 +127,7 @@ class _PassengerRidePaymentStartedState extends State<PassengerRidePaymentStarte
                 height: 50,
                 child: ElevatedButton(
                     onPressed: () async {
-                      print("DID WE CLICK DIS SHII");
+                      // unit test
                       try {
                         FirebaseAuth firebaseAuth = FirebaseAuth.instance;
                         if (firebaseAuth.currentUser == null) {
@@ -251,12 +251,12 @@ class _PassengerRidePaymentStartedState extends State<PassengerRidePaymentStarte
                         if (response.statusCode == 200) {
                           // Successful response
                           final Map<String, dynamic> responseData = jsonDecode(response.body);
-                          print('Response Data:');
-                          print(jsonEncode(responseData)); // Print the full JSON response
+                          // unit test
+                          // unit test
 
                           // You can also access specific fields:
-                          print('Checkout Session ID: ${responseData['data']['id']}');
-                          print('Checkout Session URL: ${responseData['data']['attributes']['checkout_url']}');
+                          // unit test
+                          // unit test
                           Navigator.push(context, MaterialPageRoute(builder: (context) {
                             return PassengerPayment(
                               checkoutURL: responseData['data']['attributes']['checkout_url'].toString(),
@@ -264,12 +264,12 @@ class _PassengerRidePaymentStartedState extends State<PassengerRidePaymentStarte
                           }));
                         } else {
                           // Handle error response
-                          print('Request failed with status: ${response.statusCode}');
-                          print('Response Body: ${response.body}');
+                          // unit test
+                          // unit test
                         }
                       } catch (e) {
                         // Handle any network or other errors
-                        print('An error occurred: $e');
+                        // unit test
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Payment gateway server has issues. Please proceed to pay in cash."),

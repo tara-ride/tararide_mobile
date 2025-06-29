@@ -32,12 +32,9 @@ class _PassengerHomePageState extends State<PassengerHomePage> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           onTap: (value) {
-            print("Value $value");
-
             setState(() {
               pageIndex = value;
             });
-            print("$pageIndex");
           },
           backgroundColor: const Color.fromARGB(255, 93, 47, 123),
           type: BottomNavigationBarType.shifting,

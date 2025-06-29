@@ -146,8 +146,8 @@ class PassengerRideState extends State<PassengerRide> {
               List<Map<String, dynamic>> passengerRideUpdateList = [];
 
               for (int i = 0; i < rideInformation.passengersList.length; i++) {
-                //print("RIDE DISTANCE")
-                print("HOLY SHIII ${rideInformation.passengersList[i].rideDistance}");
+                //
+
                 passengerRideUpdateList.add({
                   "passenger_id": rideInformation.passengersList[i].passengerId,
                   "passenger_email": rideInformation.passengersList[i].passengerEmail,
@@ -169,9 +169,7 @@ class PassengerRideState extends State<PassengerRide> {
                 "passengers_list": passengerRideUpdateList,
               });
             }
-          } catch (err) {
-            print("ERROR: $err");
-          }
+          } catch (err) {}
         }
       }
     });
@@ -243,10 +241,7 @@ class PassengerRideState extends State<PassengerRide> {
         alignment: Alignment.bottomCenter,
         children: [
           GoogleMap(
-            onCameraMove: (cameraPos) {
-              print("HOPYA");
-              print(cameraPos.target);
-            },
+            onCameraMove: (cameraPos) {},
             zoomControlsEnabled: false,
             mapType: MapType.normal,
             initialCameraPosition: _liveCameraPosition,
@@ -332,17 +327,13 @@ class PassengerRideState extends State<PassengerRide> {
                                 var data = documentInstance.data()!;
 
                                 if (data["status"] == "waiting_for_driver") {
-                                  print("WOHOIPIA");
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideStart(rideId: data["ride_id"].toString()));
                                   // driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
                                 } else if (data["status"] == "in_a_ride") {
-                                  print("sus ginoo");
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideProgress(rideId: data["ride_id"].toString()));
                                 } else if (data["status"] == "for_payment") {
-                                  print("sus mariosep");
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRidePaymentStart(rideId: data["ride_id"].toString()));
                                 } else if (data["status"] == "for_feedback") {
-                                  print("alana jud");
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart(rideId: data["ride_id"].toString()));
                                 } else {
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(const PassengerRideStatusLoadWeatherData());
@@ -370,7 +361,7 @@ class PassengerRideState extends State<PassengerRide> {
                             double destinationLongitude = passengerRideStatusState.rideInformation.rideDestination.longitude;
                             double rideCurrentLocLatitude = passengerRideStatusState.rideInformation.driverCurrentLocation.latitude;
                             double rideCurrentLocLongitude = passengerRideStatusState.rideInformation.driverCurrentLocation.longitude;
-                            print("VELLA ${rideCurrentLocLatitude} :  ${rideCurrentLocLongitude}");
+
                             _currentMarkers.add(
                               google_maps_marker.Marker(
                                 markerId: const google_maps_marker.MarkerId("pickup_location"),
@@ -418,7 +409,7 @@ class PassengerRideState extends State<PassengerRide> {
                             double destinationLongitude = passengerRideStatusState.rideInformation.rideDestination.longitude;
                             double rideCurrentLocLatitude = passengerRideStatusState.rideInformation.driverCurrentLocation.latitude;
                             double rideCurrentLocLongitude = passengerRideStatusState.rideInformation.driverCurrentLocation.longitude;
-                            print("VELLA ${rideCurrentLocLatitude} :  ${rideCurrentLocLongitude}");
+
                             _currentMarkers.add(
                               google_maps_marker.Marker(
                                 markerId: const google_maps_marker.MarkerId("pickup_location"),
@@ -455,7 +446,6 @@ class PassengerRideState extends State<PassengerRide> {
                             newHeight = 180;
                             break;
                           case PassengerSelectingPickupLocation():
-                            print("HOPALAISTIAL: ${passengerRideStatusState.possiblePickupLocations.length}");
                             newHeight = 280;
                             _pickupItemSelectedIndex = -1;
                             break;
@@ -520,7 +510,6 @@ class PassengerRideState extends State<PassengerRide> {
 
                         // Handle specific actions/side effects for individual states
                         if (passengerRideStatusState is PassengerSelectingPickupLocation) {
-                          print("HOPYA MANIPAPCARN ${passengerRideStatusState.possiblePickupLocations!.length}");
                         } else if (passengerRideStatusState is PassengerRideConfirmDetails) {
                           // Assuming 'polylines' is a mutable field in your StatefulWidget's State class
                           polylines = passengerRideStatusState.polylines;
@@ -532,7 +521,6 @@ class PassengerRideState extends State<PassengerRide> {
                         }
 
                         // Always log the height adjustment after potential setState
-                        print("Height Adjustment: $heightAdjustment");
                       },
                       builder: (passengerRideStatusContext, passengerRideStatusState) {
                         if (passengerRideStatusState is PassengerRideStatusInitial) {

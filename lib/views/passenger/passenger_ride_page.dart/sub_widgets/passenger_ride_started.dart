@@ -46,11 +46,11 @@ class _PassengerRideStartedWidgetState extends State<PassengerRideStartedWidget>
       // var docSnapshot = await firebaseFirestore.collection("chat_information").doc('F3TBfzRHRG9CL7Z9KegK').get();
 
       // if (docSnapshot.exists) {
-      //   print("docSNAPSHOT: ${docSnapshot.data()!.toString()}");
+      //   
       // }
 
       if (querySnapshot.docs.isNotEmpty) {
-        print("querySnapshot.docs.first.id; ${querySnapshot.docs.first.id}");
+        
         onStartChat(querySnapshot.docs.first.id);
       } else {
         var newChatInfoDocument = chatInfoInstance.doc();
@@ -101,7 +101,7 @@ class _PassengerRideStartedWidgetState extends State<PassengerRideStartedWidget>
                 future: getCarDetails(passengerRideStartedState.rideInformation.driverId),
                 builder: (buildContext, snapshot) {
                   if (snapshot.hasData) {
-                    print("IS IT WORKING: ${snapshot.data!["vehicle_image_url"]}");
+                    
                     return SizedBox(
                       height: 150,
                       width: 150,

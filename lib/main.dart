@@ -46,7 +46,6 @@ class App extends StatelessWidget {
         '/passenger_home': (context) => const PassengerHomePage(title: 'Passenger Home Page'),
       },
       onGenerateRoute: (settings) {
-        print("settings.name: ${settings.name}");
         if (settings.name == '/driver_home') {
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => const DriverHomePage(title: 'Driver Home Page'),
@@ -189,17 +188,14 @@ class App extends StatelessWidget {
                     BlocConsumer<UserAuthAvailabilityBloc, UserAuthAvailabilityState>(
                       listener: (userAuthAvailabilityContext, state) async {
                         if (state is UserAvailable) {
-                          print("User is available! ${state.user.email}");
                           //context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryLoad(user: state.user));
                         }
                         if (state is UserAuthComplete) {
                           if (state.userData["business_role"] == "driver") {
-                            print("Complete! DRIVER");
                             mainNavigatorState.currentState!.pushNamed("/driver_home");
                             //Navigator.pushNamed(context, "/driver_home");
                           }
                           if (state.userData["business_role"] == "passenger") {
-                            print("Complete! DRIVER");
                             mainNavigatorState.currentState!.pushNamed("/passenger_home");
                           }
                         }

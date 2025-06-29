@@ -245,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                         content: Text('Password reset email sent!'),
                                                       ),
                                                     );
-                                                    print('Reset email: ${resetEmailController.text}');
+
                                                     Navigator.of(context).pop();
                                                   }
                                                 },

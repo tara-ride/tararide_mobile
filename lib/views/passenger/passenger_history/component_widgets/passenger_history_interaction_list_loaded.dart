@@ -20,7 +20,7 @@ class PassengerHistoryInteractionListLoadedState extends State<PassengerHistoryI
           final ride = passengerHistoryInteractionListLoaded.historyInformationList[index];
           return GestureDetector(
             onTap: () {
-              print("YES SIR ${passengerHistoryInteractionListLoaded.historyInformationList[index].historyId}");
+              
               context.read<PassengerHistoryInteractionBloc>().add(InitializePassengerHistoryInteraction(historyInteractionData: passengerHistoryInteractionListLoaded.historyInformationList[index]));
               ScaffoldMessenger.of(context).showSnackBar(
                   snackBarAnimationStyle: AnimationStyle(

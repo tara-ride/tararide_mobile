@@ -71,14 +71,14 @@ class _PassengerChatState extends State<PassengerChat> {
                       listener: (chatInteractionContext, chatInteractionState) async {
                         if (chatInteractionState is ChatInteractionDefaultState) {
                           FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-                          print("KIMOCHINIZED");
+                          
                           if (firebaseAuth.currentUser != null) {
-                            print("KIMOCHINIZATIONISM");
+                            
                             chatInteractionContext.read<ChatInteractionBloc>().add(InitializeChatInteractionList(uuid: firebaseAuth.currentUser!.uid));
                           }
                         }
                         if (chatInteractionState is ChatInteractionListLoaded) {
-                          //print("HAYYS ${chatInteractionState.chatInformationList.first.chatId}");
+                          //
                         }
                       },
                       builder: (chatInteractionContext, chatInteractionState) {

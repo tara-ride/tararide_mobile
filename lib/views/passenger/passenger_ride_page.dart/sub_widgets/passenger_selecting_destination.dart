@@ -80,7 +80,7 @@ class PassengerSelectingDestinationWidgetState extends State<PassengerSelectingD
                             duration: Duration(seconds: 2),
                           ),
                         );
-                        print("Error: $e");
+                        
                       }
                     }
                   },
@@ -128,7 +128,7 @@ class PassengerSelectingDestinationWidgetState extends State<PassengerSelectingD
                         //   passengerRideStatusState.possibleDestinations[index].geometry.location.lat,
                         //   passengerRideStatusState.possibleDestinations[index].geometry.location.lng,
                         // ));
-                        print("Selected Location: ${passengerRideStatusState.possibleDestinations[index].formattedAddress}");
+                        
                       },
                       child: AnimatedContainer(
                         width: double.infinity,

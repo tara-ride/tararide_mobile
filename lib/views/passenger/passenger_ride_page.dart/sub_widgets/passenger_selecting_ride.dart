@@ -28,7 +28,7 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
     GcpDistanceMatrixRepositoryImplementation gcpDistanceMatrixRepositoryImplementation = GcpDistanceMatrixRepositoryImplementation();
 
     var distanceMatrixData = await gcpDistanceMatrixRepositoryImplementation.getDistanceMatrixDataOnce(SystemConstants().getGoogleCloudAPIKey, sourceLocation, destination);
-    print("CHECK VALUE: ${distanceMatrixData.rows[0].elements[0].distance.value.toDouble() * 0.001}");
+
     return distanceMatrixData.rows[0].elements[0].distance.value.toDouble() * 0.001;
   }
 
@@ -39,10 +39,8 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
   Future<double> calculateEstimatedFare(LatLng rideSource, LatLng rideDestination, double requiredDistance, int seatsOccupied, double flagDownRate, double overallRideCost) async {
     double overallRideDistance = await getDistanceMatrix(rideSource, rideDestination);
 
-    print("overallRide Distance : ${overallRideDistance}");
-    print("requiredDistance: ${requiredDistance}");
     //Passenger Fare = Flagdown Rate + [(Passenger Distance ÷ Total Distance) × (Total Ride Cost - Flagdown Rate)]
-    //print("NEW VALUE : ${(flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate))}");
+    //
     return (flagDownRate + (requiredDistance / overallRideDistance) * (overallRideCost - flagDownRate)) * seatsOccupied.toDouble();
     // (passengerRideStatusState.rideInformationList[selectedRideIndex].rideCost + 15) * passengerRideStatusState.slotsToOccupy
   }
@@ -81,7 +79,6 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
                         setState(() {
                           selectedRideIndex = index;
                         });
-                        print("Selected Ride: ${passengerRideStatusState.rideInformationList[index].driverName}");
                       },
                       child: AnimatedContainer(
                         height: selectedRideIndex == index ? 90 : 60,

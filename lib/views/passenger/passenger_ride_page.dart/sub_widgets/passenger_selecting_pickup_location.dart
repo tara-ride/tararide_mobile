@@ -76,7 +76,7 @@ class _PassengerSelectingPickupLocationWidgetState extends State<PassengerSelect
                             duration: Duration(seconds: 2),
                           ),
                         );
-                        print("Error: $e");
+                        
                       }
                     }
                   },
@@ -123,7 +123,7 @@ class _PassengerSelectingPickupLocationWidgetState extends State<PassengerSelect
                           ),
                         ),
                       );
-                      print("Selected Location: ${passengerSelectingPickupLocationState.possiblePickupLocations[index].formattedAddress}");
+                      
                     },
                     child: AnimatedContainer(
                       width: double.infinity,

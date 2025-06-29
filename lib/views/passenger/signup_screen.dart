@@ -139,11 +139,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       profilePictureUploaded = true;
                                       imageCrossFile = profilePictureUploadState.validatedImage;
                                       rawFileData = await profilePictureUploadState.validatedImage!.readAsBytes();
-                                      if (rawFileData != null) {
-                                        print(" it is not null anymore");
-                                      }
+                                      if (rawFileData != null) {}
                                       imageFile = File.fromRawPath(await profilePictureUploadState.validatedImage!.readAsBytes());
-                                      print("successfully created the file");
                                     }
 
                                     if (profilePictureUploadState is ProfilePictureUploadFailure) {
@@ -551,7 +548,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 );
                               }
                             } catch (e) {
-                              print("ERROR WHAT THE FUCK: $e");
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                               userSignUpContext.read<UserSignUpBloc>().add(SignUpAwaiting());
                             }
