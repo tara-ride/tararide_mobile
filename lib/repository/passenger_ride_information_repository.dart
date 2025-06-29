@@ -5,6 +5,7 @@ abstract class PassengerRideInformationRepository {
   Stream<List<RideInformationModel>> getPassengerRideInformationList();
   Stream<List<RideInformationModel>> getPassengerRideInformationListStream();
   Stream<RideInformationModel> getRideInformationByID(String rideId);
+  Future<RideInformationModel> getRideInformationByIDOnce(String rideId);
 }
 
 class PassengerRideInformationRepositoryImplementation implements PassengerRideInformationRepository {
@@ -63,5 +64,18 @@ class PassengerRideInformationRepositoryImplementation implements PassengerRideI
       }
       //
     }
+  }
+
+  @override
+  Future<RideInformationModel> getRideInformationByIDOnce(String rideId) async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    CollectionReference rideInformationCollection = firebaseFirestore.collection("ride_information");
+
+    var documentSnapshot = await rideInformationCollection.doc(rideId).get();
+    if (documentSnapshot.exists) {
+      return RideInformationModel.fromJson(documentSnapshot.data()! as Map<String, dynamic>);
+    }
+
+    throw UnimplementedError();
   }
 }

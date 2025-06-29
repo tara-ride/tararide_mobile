@@ -20,7 +20,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
     const DriverRidePage(),
     DriverChat(),
     DriverHistory(),
-    const DriverProfilePage(),
+    const DriverProfile(),
   ];
   @override
   Widget build(BuildContext context) {

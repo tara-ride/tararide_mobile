@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,6 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   DateTime birthDate = DateTime.now();
   String sexAtBirth = genderList.first;
+  Uint8List? rawFileData;
   XFile? imageCrossFile;
   File? imageFile;
 
@@ -136,7 +138,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     if (profilePictureUploadState is ProfilePictureUploadSuccess) {
                                       profilePictureUploaded = true;
                                       imageCrossFile = profilePictureUploadState.validatedImage;
+                                      rawFileData = await profilePictureUploadState.validatedImage!.readAsBytes();
+                                      if (rawFileData != null) {
+                                        print(" it is not null anymore");
+                                      }
                                       imageFile = File.fromRawPath(await profilePictureUploadState.validatedImage!.readAsBytes());
+                                      print("successfully created the file");
                                     }
 
                                     if (profilePictureUploadState is ProfilePictureUploadFailure) {
@@ -511,10 +518,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 50,
                         width: 250,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             try {
                               if (_formKey.currentState!.validate() && profilePictureUploaded) {
+                                String downloadUrl = "";
+                                if (imageFile != null) {
+                                  FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+
+                                  String fileName = "passenger_profile_pic_${DateTime.now().millisecondsSinceEpoch}";
+                                  Reference storageRef = firebaseStorage.ref().child("profilePictures/$fileName");
+
+                                  UploadTask uploadTask = storageRef.putData(rawFileData!);
+                                  TaskSnapshot snapshot = await uploadTask;
+                                  downloadUrl = await snapshot.ref.getDownloadURL();
+                                }
                                 userSignUpContext.read<UserSignUpBloc>().add(SignUpUser(
+                                    profilePictureImageUrl: downloadUrl,
                                     email: _emailController.text,
                                     password: _passwordController.text,
                                     firstName: _firstNameController.text,
@@ -532,6 +551,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 );
                               }
                             } catch (e) {
+                              print("ERROR WHAT THE FUCK: $e");
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                               userSignUpContext.read<UserSignUpBloc>().add(SignUpAwaiting());
                             }

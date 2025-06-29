@@ -100,6 +100,7 @@ final class DriverStartLoadingPassengers extends DriverRideStatusEvent {
   List<Object> get props => [rideInformation, generatedPolylines];
 }
 
+// ignore: must_be_immutable
 final class DriverCompleteRide extends DriverRideStatusEvent {
   RideInformationModel rideInformation;
   DriverCompleteRide({required this.rideInformation});

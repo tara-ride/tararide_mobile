@@ -8,11 +8,13 @@ import 'package:tararide_mobile/views/passenger/passenger_chat/component_widgets
 import '../../../../bloc/passenger_ride_status/passenger_ride_status_bloc.dart';
 
 class PassengerRideStartedWidget extends StatefulWidget {
+  const PassengerRideStartedWidget({super.key});
+
   @override
-  State<StatefulWidget> createState() => _PassengerRideStartedWidget();
+  State<StatefulWidget> createState() => _PassengerRideStartedWidgetState();
 }
 
-class _PassengerRideStartedWidget extends State<PassengerRideStartedWidget> {
+class _PassengerRideStartedWidgetState extends State<PassengerRideStartedWidget> {
   //getCarDetails
   Future<Map<String, String>> getCarDetails(String driverId) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -191,7 +193,10 @@ class _PassengerRideStartedWidget extends State<PassengerRideStartedWidget> {
                                   children: [
                                     IconButton.filled(
                                       onPressed: () => startChat(passengerRideStartedState.rideInformation.rideId, passengerRideStartedState.rideInformation.driverId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Chat room has been started. Please see the chat page to interact.")));
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                          content: Text("Chat room has been started. Please see the chat page to interact."),
+                                          duration: Duration(milliseconds: 100),
+                                        ));
                                       }),
                                       icon: const Icon(
                                         Icons.chat,
@@ -218,8 +223,23 @@ class _PassengerRideStartedWidget extends State<PassengerRideStartedWidget> {
                       width: double.infinity,
                       height: 40,
                       child: ElevatedButton(
-                          onPressed: () {
-                            context.read<PassengerRideStatusBloc>().add(PassengerRideProgress(rideInformation: passengerRideStartedState.rideInformation));
+                          onPressed: () async {
+                            try {
+                              FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                              FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+                              if (firebaseAuth.currentUser != null) {
+                                await firebaseFirestore.collection("account_information").doc(firebaseAuth.currentUser!.uid).update({
+                                  "status": "in_a_ride",
+                                });
+                              }
+                              context.read<PassengerRideStatusBloc>().add(PassengerRideProgress(rideId: passengerRideStartedState.rideInformation.rideId));
+                            } catch (error) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Status update failed: $error"),
+                                duration: const Duration(milliseconds: 200),
+                              ));
+                            }
                           },
                           child: const Text("Confirm")),
                     ),

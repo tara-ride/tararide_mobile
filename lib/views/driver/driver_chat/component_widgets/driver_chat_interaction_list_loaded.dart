@@ -57,6 +57,7 @@ class _DriverChatInteractionListLoadedState extends State<DriverChatInteractionL
                         content: Text(
                           "Loading chat messages..",
                         ),
+                        duration: Duration(milliseconds: 50),
                       ));
                 },
                 child: Container(

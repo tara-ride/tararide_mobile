@@ -170,20 +170,33 @@ final class PassengerRideStartedDetails extends PassengerRideStatusEvent {
 }
 
 final class PassengerRideProgress extends PassengerRideStatusEvent {
+  final String rideId;
+
+  const PassengerRideProgress({required this.rideId});
+  @override
+  List<Object> get props => [rideId];
+}
+
+final class PassengerRideProgressUpdate extends PassengerRideStatusEvent {
   final RideInformationModel rideInformation;
 
-  const PassengerRideProgress({required this.rideInformation});
+  const PassengerRideProgressUpdate({required this.rideInformation});
   @override
   List<Object> get props => [rideInformation];
 }
 
 final class PassengerRidePaymentStart extends PassengerRideStatusEvent {
-  final RideInformationModel rideInformation;
-  const PassengerRidePaymentStart({required this.rideInformation});
+  final String rideId;
+  const PassengerRidePaymentStart({required this.rideId});
   @override
-  List<Object> get props => [rideInformation];
+  List<Object> get props => [rideId];
 }
 
-final class PassengerRideFeedbackStart extends PassengerRideStatusEvent {}
+final class PassengerRideFeedbackStart extends PassengerRideStatusEvent {
+  final String rideId;
+  const PassengerRideFeedbackStart({required this.rideId});
+  @override
+  List<Object> get props => [rideId];
+}
 
 final class PassengerRideFeedbackComplete extends PassengerRideStatusEvent {}

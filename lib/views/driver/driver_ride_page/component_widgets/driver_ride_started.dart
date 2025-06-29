@@ -66,7 +66,7 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
     }
   }
 
-  void startChat(String rideId, String driverId, String passengerId, {required onErrorOccured, required onStartChat}) async {
+  void startChat(String rideId, String passengerId, String driverId, {required onErrorOccured, required onStartChat}) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var chatInfoInstance = firebaseFirestore.collection("chat_information");
     try {
@@ -193,10 +193,26 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                     child: Column(
                   children: [
                     Expanded(
-                      child: Center(
-                        child: Text(bannerMessage),
-                      ),
-                    ),
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 200,
+                          width: double.infinity,
+                          child: Lottie.asset('assets/passenger_waiting.json'),
+                        ),
+                        Center(
+                          child: Text(
+                            bannerMessage,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
                     FutureBuilder(
                         future: checkDistanceFromDestination(
                           LatLng(driverRidePassengersLoadedState.rideInformation.driverCurrentLocation.latitude, driverRidePassengersLoadedState.rideInformation.driverCurrentLocation.longitude),
@@ -205,7 +221,7 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                         builder: (destinationContext, snapshot) {
                           if (snapshot.hasData) {
                             if (snapshot.data! > .7) {
-                              bannerMessage = "Passengers will appear here, please wait";
+                              bannerMessage = "Passengers will appear here, please wait.";
 
                               return const SizedBox.shrink();
                             } else {
@@ -282,7 +298,7 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                           )
                                         ],
                                       ),
-                                      child: Lottie.asset('assets/congratulations.json', fit: BoxFit.cover),
+                                      child: Lottie.asset('assets/passenger_waiting.json', fit: BoxFit.cover),
                                     ),
                                   ),
                                   Column(
@@ -325,9 +341,14 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                             builder: (itemContext, snapshot) {
                                               if (snapshot.hasData) {
                                                 return IconButton.filled(
-                                                  onPressed: () => startChat(driverRidePassengersLoadedState.rideInformation.rideId, driverRidePassengersLoadedState.rideInformation.driverId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
-                                                    
-                                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Chat room has been started. Please see the chat page to interact.")));
+                                                  onPressed: () =>
+                                                      startChat(driverRidePassengersLoadedState.rideInformation.rideId, driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                      content: Text("Chat room has been started. Please see the chat page to interact."),
+                                                      duration: Duration(
+                                                        milliseconds: 100,
+                                                      ),
+                                                    ));
                                                   }),
                                                   icon: const Icon(
                                                     Icons.chat,

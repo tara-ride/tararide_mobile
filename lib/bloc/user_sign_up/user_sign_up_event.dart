@@ -25,7 +25,21 @@ final class SignUpUser extends UserSignUpEvent {
   final String contactNo;
   final String homeAddress;
 
-  const SignUpUser({required this.email, required this.password, required this.firstName, required this.middleName, required this.lastName, required this.sexAtBirth, required this.birthDate, required this.contactNo, required this.homeAddress});
+  //XFile
+  final String profilePictureImageUrl;
 
-  List<Object> get props => [email, password, firstName, middleName!, lastName, sexAtBirth, birthDate, contactNo, homeAddress];
+  const SignUpUser({
+    required this.email,
+    required this.password,
+    required this.firstName,
+    required this.middleName,
+    required this.lastName,
+    required this.sexAtBirth,
+    required this.birthDate,
+    required this.profilePictureImageUrl,
+    required this.contactNo,
+    required this.homeAddress,
+  });
+
+  List<Object> get props => [profilePictureImageUrl, email, password, firstName, middleName!, lastName, sexAtBirth, birthDate, contactNo, homeAddress];
 }

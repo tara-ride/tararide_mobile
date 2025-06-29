@@ -17,3 +17,21 @@ final class DriverHistoryListLoaded extends DriverHistoryState {
   @override
   List<Object> get props => [rideInformationList];
 }
+
+final class DriverHistoryDetailsLoaded extends DriverHistoryState {
+  final RideInformationModel rideInformationList;
+
+  const DriverHistoryDetailsLoaded({required this.rideInformationList});
+
+  @override
+  List<Object> get props => [rideInformationList];
+}
+
+final class DriverHistoryCommonError extends DriverHistoryState {
+  final String error;
+
+  const DriverHistoryCommonError({required this.error});
+
+  @override
+  List<Object> get props => [error];
+}

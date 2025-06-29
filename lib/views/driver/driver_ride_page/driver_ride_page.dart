@@ -230,7 +230,7 @@ class _DriverRidePageState extends State<DriverRidePage> {
                           if (documentInstance.data() != null || documentInstance.exists) {
                             var data = documentInstance.data()!;
 
-                            if (data["status"] == "in_a_ride" || data["status"] == "waiting_for_driver") {
+                            if (data["status"] == "in_a_ride") {
                               driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
                             } else {
                               driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideStatusLoadWeatherData());

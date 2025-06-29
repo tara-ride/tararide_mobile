@@ -100,7 +100,12 @@ class _PassengerChatInteraction extends State<PassengerChatInteraction> {
                                               padding: const EdgeInsets.only(left: 10, right: 10, bottom: 15),
                                               child: Text(
                                                 widget.chatInteraction.chatInteraction[index].messageText,
-                                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                                maxLines: 5,
+                                                overflow: TextOverflow.fade,
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -124,7 +129,9 @@ class _PassengerChatInteraction extends State<PassengerChatInteraction> {
                                       Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 10),
                                         child: Container(
-                                          decoration: const BoxDecoration(image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png"))),
+                                          decoration: const BoxDecoration(
+                                            image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png")),
+                                          ),
                                           width: 40,
                                           height: 40,
                                         ),
@@ -158,10 +165,10 @@ class _PassengerChatInteraction extends State<PassengerChatInteraction> {
                                                   }),
                                             ),
                                             Padding(
-                                              padding: EdgeInsets.only(left: 10, right: 10, bottom: 15),
+                                              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 15),
                                               child: Text(
-                                                "${widget.chatInteraction.chatInteraction[index].messageText}",
-                                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                                widget.chatInteraction.chatInteraction[index].messageText,
+                                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                               ),
                                             ),
                                           ],
@@ -209,6 +216,9 @@ class _PassengerChatInteraction extends State<PassengerChatInteraction> {
                         }
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                           content: Text("Your message is sent!"),
+                          duration: Duration(
+                            milliseconds: 50,
+                          ),
                         ));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

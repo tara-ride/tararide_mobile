@@ -54,6 +54,7 @@ dependencies:
   animated_rating_stars: ^1.0.1
   geocoding: ^3.0.0
   flutter_polyline_points: ^1.0.0
+  webview_flutter: ^4.8.0
 
 dev_dependencies:
   flutter_test:

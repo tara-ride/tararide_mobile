@@ -13,10 +13,13 @@ class ChatInteractionRepositoryImplementation extends ChatInteractionRepository 
     String fieldName = "";
     if (businessRole == "passenger") {
       fieldName = "passenger_id";
+      print("fieldName is: $fieldName dugg");
     }
     if (businessRole == "driver") {
-      fieldName == "driver_id";
+      fieldName = "driver_id";
+      print("fieldName is: $fieldName duuhh");
     }
+
     Stream<QuerySnapshot<Map<String, dynamic>>> firebaseSnaps = FirebaseFirestore.instance.collection("chat_information").where(fieldName, isEqualTo: uuid).snapshots();
     return firebaseSnaps.map((snapshots) {
       return snapshots.docs.map((deployments) {

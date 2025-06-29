@@ -19,10 +19,12 @@ import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tararide_mobile/bloc/passenger_ride_status/passenger_ride_status_bloc.dart';
+import 'package:tararide_mobile/models/ride_information_data.dart';
 
 import 'package:tararide_mobile/repository/gcp_weather_api_repository.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_confirm_error.dart';
+import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_feedback_started.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_payment_started.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_ride_started.dart';
 import 'package:tararide_mobile/views/passenger/passenger_ride_page.dart/sub_widgets/passenger_selecting_pickup_location.dart';
@@ -95,28 +97,86 @@ class PassengerRideState extends State<PassengerRide> {
   double feedback_rating = 0;
   final TextEditingController _feedbackCommentController = TextEditingController();
 
-  Future<LatLng> getLocationUpdateByRide(String rideId) async {
+  Future<void> getLocationUpdateByRide(RideInformationModel rideInformation) async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    BitmapDescriptor bitmapIcon = await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/passenger_icon.png");
+
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    var rideInformationReference = FirebaseFirestore.instance.collection("ride_information").doc(rideInformation.rideId);
+
     _serviceEnabled = await _locationController.serviceEnabled();
     if (_serviceEnabled) {
       _serviceEnabled = await _locationController.requestService();
     } else {
-      return LatLng(0, 0);
+      return;
     }
 
     _permissionGranted = await _locationController.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await _locationController.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
-        return LatLng(0, 0);
+        return;
       }
     }
 
-    // _locationController.onLocationChanged.listen()
+    _locationController.onLocationChanged.listen((LocationData currentLocation) async {
+      if (currentLocation.latitude != null && currentLocation.longitude != null) {
+        if (mounted) {
+          setState(() {
+            _currentPos = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+            _currentMarkers.add(
+              google_maps_marker.Marker(
+                markerId: const google_maps_marker.MarkerId("current_location"),
+                position: _currentPos!,
+                icon: BitmapDescriptor.defaultMarker,
+                //icon: bitmapIcon,
+                infoWindow: const google_maps_marker.InfoWindow(title: "Current Location"),
+              ),
+            );
+          });
 
-    return LatLng(0, 0);
+          try {
+            if (firebaseAuth.currentUser != null && rideInformation.passengersList.isNotEmpty) {
+              int index = 0;
+              index = rideInformation.passengersList.indexWhere((item) {
+                return item.passengerId == firebaseAuth.currentUser!.uid;
+              });
+
+              rideInformation.passengersList[index].passengerCurrentLocation = RideCoordinates(latitude: currentLocation.latitude!, longitude: currentLocation.longitude!);
+              List<Map<String, dynamic>> passengerRideUpdateList = [];
+
+              for (int i = 0; i < rideInformation.passengersList.length; i++) {
+                //print("RIDE DISTANCE")
+                print("HOLY SHIII ${rideInformation.passengersList[i].rideDistance}");
+                passengerRideUpdateList.add({
+                  "passenger_id": rideInformation.passengersList[i].passengerId,
+                  "passenger_email": rideInformation.passengersList[i].passengerEmail,
+                  "passenger_current_location": GeoPoint(rideInformation.passengersList[i].passengerCurrentLocation.latitude, rideInformation.passengersList[i].passengerCurrentLocation.longitude),
+                  "passenger_source_location": GeoPoint(rideInformation.passengersList[i].passengerSourceLocation.latitude, rideInformation.passengersList[i].passengerSourceLocation.longitude),
+                  "passenger_destination": GeoPoint(rideInformation.passengersList[i].passengerDestination.latitude, rideInformation.passengersList[i].passengerDestination.longitude),
+                  "estimated_fare": rideInformation.passengersList[i].estimatedFare,
+                  "passenger_source_lcoation_name": rideInformation.passengersList[i].passengerSourceLocationName,
+                  "passenger_destination_name": rideInformation.passengersList[i].passengerDestinationName,
+                  "ride_distance": rideInformation.passengersList[i].rideDistance,
+                  "ride_duration": rideInformation.passengersList[i].rideDuration,
+                  "ride_started_at": rideInformation.passengersList[i].rideStartedAt,
+                  "seats_occupied": rideInformation.passengersList[i].seatsOccupied,
+                  "ride_completed_at": rideInformation.passengersList[i].rideCompletedAt,
+                });
+              }
+
+              await rideInformationReference.update({
+                "passengers_list": passengerRideUpdateList,
+              });
+            }
+          } catch (err) {
+            print("ERROR: $err");
+          }
+        }
+      }
+    });
+
+    return;
   }
 
   Future<void> getLocationUpdates() async {
@@ -271,9 +331,19 @@ class PassengerRideState extends State<PassengerRide> {
                               if (documentInstance.data() != null || documentInstance.exists) {
                                 var data = documentInstance.data()!;
 
-                                if (data["status"] == "in_a_ride") {
+                                if (data["status"] == "waiting_for_driver") {
+                                  print("WOHOIPIA");
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideStart(rideId: data["ride_id"].toString()));
                                   // driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
+                                } else if (data["status"] == "in_a_ride") {
+                                  print("sus ginoo");
+                                  passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideProgress(rideId: data["ride_id"].toString()));
+                                } else if (data["status"] == "for_payment") {
+                                  print("sus mariosep");
+                                  passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRidePaymentStart(rideId: data["ride_id"].toString()));
+                                } else if (data["status"] == "for_feedback") {
+                                  print("alana jud");
+                                  passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart(rideId: data["ride_id"].toString()));
                                 } else {
                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(const PassengerRideStatusLoadWeatherData());
                                 }
@@ -285,7 +355,55 @@ class PassengerRideState extends State<PassengerRide> {
                             }
 
                             break;
+
+                          case PassengerRideInProgress():
+                            getLocationUpdateByRide(passengerRideStatusState.rideInformation);
+                            _currentMarkers.removeWhere(
+                              (marker) => marker.markerId.value == "pickup_location",
+                            );
+                            _currentMarkers.removeWhere(
+                              (marker) => marker.markerId.value == "destination",
+                            );
+                            double sourceLatitude = passengerRideStatusState.rideInformation.rideSourceLocation.latitude;
+                            double sourceLongitude = passengerRideStatusState.rideInformation.rideSourceLocation.longitude;
+                            double destinationLatitude = passengerRideStatusState.rideInformation.rideDestination.latitude;
+                            double destinationLongitude = passengerRideStatusState.rideInformation.rideDestination.longitude;
+                            double rideCurrentLocLatitude = passengerRideStatusState.rideInformation.driverCurrentLocation.latitude;
+                            double rideCurrentLocLongitude = passengerRideStatusState.rideInformation.driverCurrentLocation.longitude;
+                            print("VELLA ${rideCurrentLocLatitude} :  ${rideCurrentLocLongitude}");
+                            _currentMarkers.add(
+                              google_maps_marker.Marker(
+                                markerId: const google_maps_marker.MarkerId("pickup_location"),
+                                icon: await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/general_start_icon.png"),
+                                position: LatLng(
+                                  sourceLatitude,
+                                  sourceLongitude,
+                                ),
+                              ),
+                            );
+                            _currentMarkers.add(
+                              google_maps_marker.Marker(
+                                markerId: const google_maps_marker.MarkerId("destination"),
+                                icon: await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(90, 90)), "assets/general_destination_icon.png"),
+                                position: LatLng(
+                                  destinationLatitude,
+                                  destinationLongitude,
+                                ),
+                              ),
+                            );
+                            _currentMarkers.add(
+                              google_maps_marker.Marker(
+                                markerId: const google_maps_marker.MarkerId("ride_current_location"),
+                                icon: await BitmapDescriptor.asset(const ImageConfiguration(size: dart_ui.Size(40, 40)), "assets/driver_car_icon.png"),
+                                position: LatLng(
+                                  rideCurrentLocLatitude,
+                                  rideCurrentLocLongitude,
+                                ),
+                              ),
+                            );
+                            break;
                           case PassengerRideStarted():
+                            getLocationUpdateByRide(passengerRideStatusState.rideInformation);
                             newHeight = 220;
                             polylines = passengerRideStatusState.generatedPolylines;
                             _currentMarkers.removeWhere(
@@ -321,6 +439,7 @@ class PassengerRideState extends State<PassengerRide> {
                                 ),
                               ),
                             );
+
                             _currentMarkers.add(
                               google_maps_marker.Marker(
                                 markerId: const google_maps_marker.MarkerId("ride_current_location"),
@@ -376,6 +495,9 @@ class PassengerRideState extends State<PassengerRide> {
                             break;
 
                           case PassengerRidePaymentStarted():
+                            newHeight = 520;
+                            break;
+                          case PassengerRideFeedbackStarted():
                             newHeight = 520;
                             break;
 
@@ -492,7 +614,7 @@ class PassengerRideState extends State<PassengerRide> {
                         } else if (passengerRideStatusState is PassengerSelectingRide) {
                           return const PassengerSelectingRideWidget();
                         } else if (passengerRideStatusState is PassengerRideStarted) {
-                          return PassengerRideStartedWidget();
+                          return const PassengerRideStartedWidget();
                         } else if (passengerRideStatusState is PassengerRideInProgress) {
                           return SizedBox(
                             width: double.infinity,
@@ -524,9 +646,9 @@ class PassengerRideState extends State<PassengerRide> {
                                       const SizedBox(
                                         height: 5,
                                       ),
-                                      const Text("Driver: John Doe"),
-                                      const Text("Destination: SM Mall"),
-                                      const Text("ETA: 10 mins"),
+                                      Text("Driver: ${passengerRideStatusState.rideInformation.driverName}"),
+                                      Text("Destination: ${passengerRideStatusState.rideInformation.rideTitle}"),
+                                      Text("ETA: ${Random().nextInt(20) + 7} mins"),
                                       const Expanded(child: SizedBox()),
                                       Padding(
                                         padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
@@ -536,7 +658,7 @@ class PassengerRideState extends State<PassengerRide> {
                                           child: ElevatedButton(
                                               onPressed: () {
                                                 passengerRideStatusContext.read<PassengerRideStatusBloc>().add(
-                                                      PassengerRidePaymentStart(rideInformation: passengerRideStatusState.rideInformation),
+                                                      PassengerRidePaymentStart(rideId: passengerRideStatusState.rideInformation.rideId),
                                                     );
                                               },
                                               child: const Text("Drop Off Now")),
@@ -553,203 +675,7 @@ class PassengerRideState extends State<PassengerRide> {
                             rideInformation: passengerRideStatusState.rideInformation,
                           );
                         } else if (passengerRideStatusState is PassengerRideFeedbackStarted) {
-                          return SizedBox(
-                            width: double.infinity,
-                            height: double.infinity,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  child: Text(
-                                    "Rate your driver",
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                                  child: Container(
-                                    height: 140,
-                                    width: double.infinity,
-                                    decoration: const BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(blurRadius: 8, blurStyle: BlurStyle.outer, color: Colors.black, offset: Offset(0, 0), spreadRadius: 0),
-                                      ],
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: AssetImage("assets/New-York-City-Backgrounds-HD.jpg"),
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(
-                                          10,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.bottomCenter,
-                                          width: double.infinity,
-                                          height: 70,
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, stops: [
-                                              0.0,
-                                              1.0
-                                            ], colors: [
-                                              Color.fromARGB(255, 0, 0, 0),
-                                              Color.fromARGB(0, 0, 0, 0),
-                                            ]),
-                                            borderRadius: BorderRadius.only(
-                                              bottomLeft: Radius.circular(10),
-                                              bottomRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 5,
-                                          ),
-                                          child: SizedBox(
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                                                  child: Container(
-                                                    height: 90,
-                                                    width: 90,
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        image: Image.asset("assets/profilepicture_driver_sample.jpg").image,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                      color: Colors.white,
-                                                      borderRadius: const BorderRadius.all(
-                                                        Radius.circular(5),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                                                  child: Container(
-                                                    height: 60,
-                                                    width: 200,
-                                                    decoration: const BoxDecoration(
-                                                      borderRadius: BorderRadius.all(
-                                                        Radius.circular(5),
-                                                      ),
-                                                    ),
-                                                    child: const Column(
-                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(
-                                                          "Juan Dela Cruz",
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: Colors.white,
-                                                            fontWeight: FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          "Car: Toyota Vios",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.white,
-                                                            fontWeight: FontWeight.normal,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          "Plate Number: ABC1234",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.white,
-                                                            fontWeight: FontWeight.normal,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                  child: Text(
-                                    "How was your ride?",
-                                    style: TextStyle(fontSize: 16, color: Colors.black.withOpacity(0.7)),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                  child: AnimatedRatingStars(
-                                    onChanged: (rating) {
-                                      feedback_rating = rating;
-                                      setState(() {});
-                                    },
-                                    customFilledIcon: Icons.star,
-                                    customHalfFilledIcon: Icons.star_half,
-                                    customEmptyIcon: Icons.star_border,
-                                    starSize: 30,
-                                    animationDuration: const Duration(milliseconds: 50),
-                                    animationCurve: Curves.easeInOutCirc,
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8),
-                                  child: Text(
-                                    "Leave a comment",
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: SizedBox(
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                      child: TextField(
-                                        controller: _feedbackCommentController,
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(),
-                                          hintText: "Please type your comment here",
-                                          hintStyle: TextStyle(fontSize: 12),
-                                        ),
-                                        maxLines: 9,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                  child: SizedBox(
-                                      width: double.infinity,
-                                      height: 50,
-                                      child: ElevatedButton(
-                                          onPressed: () {
-                                            passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackComplete());
-                                          },
-                                          child: const Text(
-                                            "Submit Feedback",
-                                          ))),
-                                ),
-                              ],
-                            ),
-                          );
+                          return const PassengerRideFeedbackStartedWidget();
                         } else if (passengerRideStatusState is PassengerRideFeedbackCompleted) {
                           return const SizedBox(
                             width: double.infinity,

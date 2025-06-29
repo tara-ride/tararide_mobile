@@ -25,3 +25,11 @@ final class DriverHistoryDisplayList extends DriverHistoryEvent {
   @override
   List<Object> get props => [rideInformationList];
 }
+
+final class DisplayDriverHistoryDetails extends DriverHistoryEvent {
+  final RideInformationModel rideInformation;
+
+  const DisplayDriverHistoryDetails({required this.rideInformation});
+  @override
+  List<Object> get props => [rideInformation];
+}

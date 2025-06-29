@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
@@ -34,6 +36,7 @@ class UserSignUpBloc extends Bloc<UserSignUpEvent, UserSignUpState> {
 
             FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
             FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+
             await firebaseFirestore.collection("account_information").doc(firebaseUserCredential.user!.uid).set({
               "business_role": "passenger",
               "created_by": "tararide_automated_service",
@@ -52,16 +55,20 @@ class UserSignUpBloc extends Bloc<UserSignUpEvent, UserSignUpState> {
               "last_name": event.lastName,
               "sex_at_birth": event.sexAtBirth,
               "birth_date": event.birthDate,
+              "user_id": firebaseUserCredential.user!.uid,
+              "profilePicImage": event.profilePictureImageUrl,
             });
+
             DocumentSnapshot<Map<String, dynamic>> personalData = await firebaseFirestore.collection("personal_information").doc(firebaseUserCredential.user!.uid).get();
 
             await firebaseFirestore.collection("contact_information").doc(firebaseUserCredential.user!.uid).set({
               "contact_no": event.contactNo,
               "home_address": event.homeAddress,
+              "email_address": event.email,
+              "uuid": firebaseUserCredential.user!.uid,
+              "mobile_number": event.contactNo,
             });
             DocumentSnapshot<Map<String, dynamic>> contactData = await firebaseFirestore.collection("contact_information").doc(firebaseUserCredential.user!.uid).get();
-
-            //FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
             if (accountData.exists && personalData.exists && contactData.exists) {
               emit(UserSignUpSuccess());

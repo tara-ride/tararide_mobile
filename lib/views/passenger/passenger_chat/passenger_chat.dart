@@ -107,7 +107,7 @@ class _PassengerChatState extends State<PassengerChat> {
                           ));
                         }
                         return const Center(
-                          child: Text("How are youn't"),
+                          child: Text("Conversations cannot be loaded right now. Please try again later."),
                         );
                       },
                     ),

@@ -193,6 +193,14 @@ final class PassengerRidePaymentStarted extends PassengerRideStatusState {
       ];
 }
 
-final class PassengerRideFeedbackStarted extends PassengerRideStatusState {}
+final class PassengerRideFeedbackStarted extends PassengerRideStatusState {
+  final RideInformationModel rideInformation;
+
+  const PassengerRideFeedbackStarted({required this.rideInformation});
+  @override
+  List<Object> get props => [
+        rideInformation,
+      ];
+}
 
 final class PassengerRideFeedbackCompleted extends PassengerRideStatusState {}

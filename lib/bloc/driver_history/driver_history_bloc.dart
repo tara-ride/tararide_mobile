@@ -33,5 +33,9 @@ class DriverHistoryBloc extends Bloc<DriverHistoryEvent, DriverHistoryState> {
     on<DriverHistoryDisplayList>((event, emit) {
       emit(DriverHistoryListLoaded(rideInformationList: event.rideInformationList));
     });
+
+    on<DisplayDriverHistoryDetails>((event, emit) {
+      emit(DriverHistoryDetailsLoaded(rideInformationList: event.rideInformation));
+    });
   }
 }

@@ -57,6 +57,7 @@ class _PassengerChatInteractionListLoadedState extends State<PassengerChatIntera
                         content: Text(
                           "Loading chat messages..",
                         ),
+                        duration: Duration(milliseconds: 100),
                       ));
                 },
                 child: Container(

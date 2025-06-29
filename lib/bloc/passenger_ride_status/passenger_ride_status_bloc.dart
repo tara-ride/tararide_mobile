@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -197,6 +198,7 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
             // distance
             GcpDistanceMatrixModel distanceMatrixData = await gcpDistanceMatrixRepositoryImplementation.getDistanceMatrixDataOnce(SystemConstants().google_cloud_api_key, event.pickupCoordinates, event.destinationCoordinates);
             print("Here is the distance matrix data: ${distanceMatrixData.rows[0].elements[0].distance.text}");
+            print("Here is the distance matrix data value: ${distanceMatrixData.rows[0].elements[0].distance.value}");
             print("Here is the duration matrix data: ${distanceMatrixData.rows[0].elements[0].duration.text}");
             // ETA
 
@@ -343,31 +345,87 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
             add(PassengerRideStartedDetails(rideInformation: onValue, generatedPolylines: generatedPolylines));
           });
         } catch (error) {
-          //emit(DriverRideConfirmError(errorMessage: error.toString()));
+          emit(PassengerRideConfirmError(errorMessage: error.toString()));
         }
       },
     );
     on<PassengerRideStartedDetails>((event, emit) {
       emit(PassengerRideStarted(generatedPolylines: event.generatedPolylines, rideInformation: event.rideInformation));
     });
-    // on<DriverStartLoadingPassengers>((event, emit) {
-    //   emit(DriverRidePassengersLoaded(
-    //     rideInformation: event.rideInformation,
-    //   ));
-    // });
+
     on<PassengerRideProgress>(
+      (event, emit) async {
+        try {
+          List<LatLng> polylineCoordinates = [];
+          Map<PolylineId, Polyline> generatedPolylines = {};
+
+          FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+          var rideInformationInstance = firebaseFirestore.collection("ride_information").doc(event.rideId);
+          var rideInformationDocument = await rideInformationInstance.get();
+          if (rideInformationDocument.exists) {
+            print("RIDE STRTD 2");
+            print("ri ${rideInformationDocument.data()!["ride_source_location"].latitude}");
+
+            PolylineResult polylineResult = await PolylinePoints().getRouteBetweenCoordinates(
+              SystemConstants().getGoogleCloudAPIKey,
+              PointLatLng(rideInformationDocument.data()!["ride_source_location"].latitude, rideInformationDocument.data()!["ride_source_location"].longitude),
+              PointLatLng(rideInformationDocument.data()!["ride_destination"].latitude, rideInformationDocument.data()!["ride_destination"].longitude),
+              travelMode: TravelMode.driving,
+            );
+
+            print("rir ${rideInformationDocument.data()!["ride_source_location"].longitude}");
+
+            if (polylineResult.points.isNotEmpty) {
+              print("RIDE STRTD 3");
+              print("Here is the polyline points: ${polylineResult.points}");
+
+              polylineResult.points.forEach((PointLatLng point) {
+                polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+              });
+              generatedPolylines[PolylineId("polyline_${generatedPolylines.length}")] = Polyline(
+                polylineId: PolylineId("polyline_${generatedPolylines.length}"),
+                color: const Color.fromARGB(255, 58, 104, 255),
+                width: 7,
+                onTap: () {},
+                jointType: JointType.round,
+                points: polylineCoordinates,
+              );
+              emit(PassengerRidePolylinesLoaded(generatedPolylines: generatedPolylines));
+            }
+          }
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          _streamSubscription = passengerRideInformationRepositoryImplementation.getRideInformationByID(event.rideId).listen((onValue) async {
+            print("repeatttt ${event.rideId}");
+            // add(DriverStartRide(rideInformation: onValue, generatedPolylines: generatedPolylines));
+            add(PassengerRideProgressUpdate(
+              rideInformation: onValue,
+            ));
+          });
+        } catch (error) {
+          emit(PassengerRideConfirmError(errorMessage: error.toString()));
+        }
+        //emit(PassengerRideInProgress(rideInformation: event.rideInformation));
+      },
+    );
+    on<PassengerRideProgressUpdate>(
       (event, emit) {
         emit(PassengerRideInProgress(rideInformation: event.rideInformation));
       },
     );
     on<PassengerRidePaymentStart>(
-      (event, emit) {
-        emit(PassengerRidePaymentStarted(rideInformation: event.rideInformation));
+      (event, emit) async {
+        //dito natin isasagawa yung pagremove.
+        RideInformationModel rideInformation = await passengerRideInformationRepositoryImplementation.getRideInformationByIDOnce(event.rideId);
+        emit(PassengerRidePaymentStarted(rideInformation: rideInformation));
       },
     );
+
     on<PassengerRideFeedbackStart>(
-      (event, emit) {
-        emit(PassengerRideFeedbackStarted());
+      (event, emit) async {
+        RideInformationModel rideInformation = await passengerRideInformationRepositoryImplementation.getRideInformationByIDOnce(event.rideId);
+
+        emit(PassengerRideFeedbackStarted(rideInformation: rideInformation));
       },
     );
 

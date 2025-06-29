@@ -255,7 +255,7 @@ class _PassengerSelectingRideWidgetState extends State<PassengerSelectingRideWid
                                       'ride_distance': passengerRideStatusState.rideDistance,
                                       'ride_duration': passengerRideStatusState.estimatedTime,
                                       'ride_started_at': Timestamp.now(),
-                                      'seatsOccupied': passengerRideStatusState.slotsToOccupy,
+                                      'seats_occupied': passengerRideStatusState.slotsToOccupy,
                                       'ride_completed_at': Timestamp.fromDate(DateTime(9999, 12, 31)), // Placeholder for future completion
                                     }
                                   ]),

@@ -11,6 +11,7 @@ class RideInformationModel {
   RideCoordinates rideSourceLocation;
   RideCoordinates rideDestination;
   RideCoordinates driverCurrentLocation;
+
   double rideCost;
   double rideEarnings;
   int seatsAllocated;
@@ -108,12 +109,14 @@ class RideInformationModel {
 class PassengersList {
   RideCoordinates passengerSourceLocation;
   String passengerId;
+  RideCoordinates passengerCurrentLocation;
   double estimatedFare;
   RideCoordinates passengerDestination;
   String passengerName;
   String passengerEmail;
   String passengerDestinationName;
   String passengerSourceLocationName;
+  double rideDistance;
   String rideDuration;
   int seatsOccupied;
   DateTime rideCompletedAt;
@@ -121,7 +124,9 @@ class PassengersList {
 
   PassengersList(
       {required this.passengerSourceLocation,
+      required this.rideDistance,
       required this.passengerId,
+      required this.passengerCurrentLocation,
       required this.estimatedFare,
       required this.passengerDestination,
       required this.passengerName,
@@ -142,6 +147,8 @@ class PassengersList {
     GeoPoint passengerDestination = json["passenger_destination"] as GeoPoint;
     if (json.isEmpty) {
       return PassengersList(
+        rideDistance: 0,
+        passengerCurrentLocation: RideCoordinates(latitude: 0.0, longitude: 0.0),
         passengerSourceLocation: RideCoordinates(latitude: 0.0, longitude: 0.0),
         passengerId: 'N/A',
         estimatedFare: 0.0,
@@ -158,6 +165,7 @@ class PassengersList {
     }
 
     return PassengersList(
+      rideDistance: json["estimated_fare"].toDouble() ?? 0.0,
       passengerSourceLocation: RideCoordinates(latitude: passengerSourceLocation.latitude, longitude: passengerSourceLocation.longitude),
       passengerId: json["passenger_id"] ?? 'N/A',
       estimatedFare: json["estimated_fare"].toDouble() ?? 0.0,
@@ -167,9 +175,10 @@ class PassengersList {
       passengerEmail: json["passenger_email"] ?? 'N/A',
       passengerSourceLocationName: json["passenger_source_location_name"] ?? 'N/A',
       rideDuration: json["ride_duration"] ?? 'N/A',
-      seatsOccupied: int.parse(json["seatsOccupied"].toString()),
+      seatsOccupied: int.parse(json["seats_occupied"].toString()),
       rideCompletedAt: DateTime.parse(json["ride_completed_at"].toDate().toString()),
       rideStartedAt: DateTime.parse(json["ride_started_at"].toDate().toString()),
+      passengerCurrentLocation: RideCoordinates(latitude: passengerDestination.latitude, longitude: passengerDestination.longitude),
     );
   }
 

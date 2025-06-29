@@ -10,7 +10,7 @@ part 'chat_interaction_event.dart';
 part 'chat_interaction_state.dart';
 
 class ChatInteractionBloc extends Bloc<ChatInteractionEvent, ChatInteractionState> {
-  ChatInteractionRepositoryImplementation _chatInteractionRepositoryImplementation = ChatInteractionRepositoryImplementation();
+  final ChatInteractionRepositoryImplementation _chatInteractionRepositoryImplementation = ChatInteractionRepositoryImplementation();
   StreamSubscription? _streamSubscription;
   //Chat Interaction Constructor.
   ChatInteractionBloc() : super(ChatInteractionDefaultState()) {
@@ -34,8 +34,8 @@ class ChatInteractionBloc extends Bloc<ChatInteractionEvent, ChatInteractionStat
       if (documentSnapshot.exists) {
         print("THE BUSINESS ROOLE: ${documentSnapshot.data()!["business_role"]}");
         print("THE UUID: ${event.uuid}");
-        _streamSubscription = _chatInteractionRepositoryImplementation.getChatInteractionDataListStream(documentSnapshot.data()!["business_role"], event.uuid).listen((onValue) {
-          print("${onValue.isNotEmpty}");
+        _streamSubscription = _chatInteractionRepositoryImplementation.getChatInteractionDataListStream(documentSnapshot.data()!["business_role"].toString(), event.uuid).listen((onValue) {
+          print("isittt${onValue.isNotEmpty}");
           add(ChatInteractionLoadList(chatInteractionDataList: onValue));
         });
       } else {
