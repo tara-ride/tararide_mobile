@@ -427,20 +427,47 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                           ],
                         )),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                        child: SizedBox(
+                      SizedBox(
+                          height: 60,
                           width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              widget.onUpdateRide({
-                                "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
-                              });
-                            },
-                            child: const Text("Check Destination"),
-                          ),
-                        ),
-                      )
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton(
+                                      style: const ButtonStyle(surfaceTintColor: WidgetStatePropertyAll(Color.fromARGB(255, 161, 2, 2))),
+                                      onPressed: () {
+                                        
+                                        // widget.onUpdateRide({
+                                        //   "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
+                                        // });
+                                      },
+                                      child: const Text("Reject"),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        widget.onUpdateRide({
+                                          "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
+                                        });
+                                      },
+                                      child: const Text("Pick Up"),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          )),
                     ],
                   ),
                 ),

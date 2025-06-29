@@ -42,7 +42,7 @@ class _DriverSelectingStartLocationWidgetState extends State<DriverSelectingStar
                   child: TextFormField(
                     controller: _startSearchBarController,
                     decoration: InputDecoration(
-                      hintText: "Where to pick you up?",
+                      hintText: "Where to start?",
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: () {

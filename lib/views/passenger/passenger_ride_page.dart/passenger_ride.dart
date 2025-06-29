@@ -147,7 +147,7 @@ class PassengerRideState extends State<PassengerRide> {
 
               for (int i = 0; i < rideInformation.passengersList.length; i++) {
                 //
-
+                print("unit test: ${rideInformation.passengersList[i].rideDistance}");
                 passengerRideUpdateList.add({
                   "passenger_id": rideInformation.passengersList[i].passengerId,
                   "passenger_email": rideInformation.passengersList[i].passengerEmail,
@@ -155,11 +155,11 @@ class PassengerRideState extends State<PassengerRide> {
                   "passenger_source_location": GeoPoint(rideInformation.passengersList[i].passengerSourceLocation.latitude, rideInformation.passengersList[i].passengerSourceLocation.longitude),
                   "passenger_destination": GeoPoint(rideInformation.passengersList[i].passengerDestination.latitude, rideInformation.passengersList[i].passengerDestination.longitude),
                   "estimated_fare": rideInformation.passengersList[i].estimatedFare,
-                  "passenger_source_lcoation_name": rideInformation.passengersList[i].passengerSourceLocationName,
+                  "passenger_source_location_name": rideInformation.passengersList[i].passengerSourceLocationName,
                   "passenger_destination_name": rideInformation.passengersList[i].passengerDestinationName,
-                  "ride_distance": rideInformation.passengersList[i].rideDistance,
                   "ride_duration": rideInformation.passengersList[i].rideDuration,
                   "ride_started_at": rideInformation.passengersList[i].rideStartedAt,
+                  "ride_distance": rideInformation.passengersList[i].rideDistance,
                   "seats_occupied": rideInformation.passengersList[i].seatsOccupied,
                   "ride_completed_at": rideInformation.passengersList[i].rideCompletedAt,
                 });

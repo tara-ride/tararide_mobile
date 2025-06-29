@@ -209,11 +209,13 @@ class _PassengerChatInteraction extends State<PassengerChatInteraction> {
                               }
                             ]),
                           });
+                          typeChat.clear();
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                             content: Text("Something went wrong, please try again later."),
                           ));
                         }
+
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                           content: Text("Your message is sent!"),
                           duration: Duration(

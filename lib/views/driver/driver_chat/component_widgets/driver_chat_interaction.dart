@@ -207,6 +207,7 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                             content: Text("Something went wrong, please try again later."),
                           ));
                         }
+                        typeChat.clear();
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                           content: Text("Your message is sent!"),
                         ));

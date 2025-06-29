@@ -46,7 +46,7 @@ class DriverSelectingDestinationWidgetState extends State<DriverSelectingDestina
                   child: TextFormField(
                     controller: _destinationSearchBarController,
                     decoration: InputDecoration(
-                      hintText: "Where to drop you off?",
+                      hintText: "Where's the destination?",
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: () {
