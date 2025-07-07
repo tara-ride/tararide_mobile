@@ -1,0 +1,1164 @@
+[
+    {
+        "name": "Bonifacio Monument (Monumento)",
+        "category": "Landmark",
+        "latitude": 14.656944,
+        "longitude": 120.983889,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "San Roque Cathedral",
+        "category": "Landmark",
+        "latitude": 14.6554,
+        "longitude": 120.9796,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "La Loma Cemetery",
+        "category": "Landmark",
+        "latitude": 14.643333,
+        "longitude": 120.988056,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Thai To Taoist Temple",
+        "category": "Landmark",
+        "latitude": 14.6441,
+        "longitude": 120.9859,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Grace Park West",
+        "category": "Landmark",
+        "latitude": 14.6463,
+        "longitude": 120.9829,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "SM City Grand Central",
+        "category": "Mall",
+        "latitude": 14.655292,
+        "longitude": 120.984821,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "SM City Caloocan",
+        "category": "Mall",
+        "latitude": 14.7371,
+        "longitude": 121.0116,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Victory Central Mall Caloocan",
+        "category": "Mall",
+        "latitude": 14.6558,
+        "longitude": 120.9853,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Kai Mall Philippines",
+        "category": "Mall",
+        "latitude": 14.7067,
+        "longitude": 121.0084,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "CALOOCAN 999 SHOPPING MALL",
+        "category": "Mall",
+        "latitude": 14.6467,
+        "longitude": 120.9833,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "10th Avenue Area (Motorcycle Dealers)",
+        "category": "Commercial Center",
+        "latitude": 14.6483,
+        "longitude": 120.9825,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Glorieta Park and Amphitheater",
+        "category": "Park",
+        "latitude": 14.7676,
+        "longitude": 121.0596,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Caloocan Nature Park (Amparo Nature Park)",
+        "category": "Park",
+        "latitude": 14.7676,
+        "longitude": 121.0596,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Luzviminda Resort",
+        "category": "Recreational Area",
+        "latitude": 14.7570,
+        "longitude": 121.0428,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Caloocan City People's Park (Grace Park East)",
+        "category": "Park",
+        "latitude": 14.646389,
+        "longitude": 120.981667,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Forest Park (Memorial Park)",
+        "category": "Park",
+        "latitude": 14.7554,
+        "longitude": 121.0416,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Green Paddle",
+        "category": "Recreational Area",
+        "latitude": 14.6483,
+        "longitude": 120.9825,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Monumento LRT Station (LRT Line 1)",
+        "category": "Transport Terminal",
+        "latitude": 14.654094,
+        "longitude": 120.983906,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "5th Avenue LRT Station (LRT Line 1)",
+        "category": "Transport Terminal",
+        "latitude": 14.644475,
+        "longitude": 120.983575,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Victory Liner Caloocan Bus Terminal",
+        "category": "Transport Terminal",
+        "latitude": 14.6558,
+        "longitude": 120.9853,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "First North Luzon Bus Terminal Caloocan City",
+        "category": "Transport Terminal",
+        "latitude": 14.6558,
+        "longitude": 120.9853,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Baliwag Transit Inc. (Grace Park)",
+        "category": "Transport Terminal",
+        "latitude": 14.6483,
+        "longitude": 120.9825,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Caloocan City Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.6458,
+        "longitude": 120.9677,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Dr. Jose N. Rodriguez Memorial Hospital (Tala Hospital)",
+        "category": "Hospital/Clinic",
+        "latitude": 14.7699,
+        "longitude": 121.0592,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "President Diosdado Macapagal Memorial Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.6550,
+        "longitude": 120.9790,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "MCU Hospital (Manila Central University Hospital)",
+        "category": "Hospital/Clinic",
+        "latitude": 14.6587,
+        "longitude": 120.9840,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Our Lady of Lourdes Hospital of Valenzuela",
+        "category": "Hospital/Clinic",
+        "latitude": 14.703580,
+        "longitude": 120.986542,
+        "city": "Valenzuela City"
+    },
+    {
+        "name": "Caloocan City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.7192,
+        "longitude": 121.0090,
+        "city": "Caloocan City"
+    },
+    {
+        "name": "Bamboo Organ Church (Saint Joseph Parish Church)",
+        "category": "Landmark",
+        "latitude": 14.481111,
+        "longitude": 120.981389,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "Las Piñas-Parañaque Wetland Park (LPPWP)",
+        "category": "Park",
+        "latitude": 14.49196,
+        "longitude": 120.97991,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "Las Piñas City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.477915,
+        "longitude": 120.980103,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "SM Southmall",
+        "category": "Mall",
+        "latitude": 14.4507,
+        "longitude": 120.9798,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "Vista Mall Las Piñas (Evia Lifestyle Center)",
+        "category": "Mall",
+        "latitude": 14.376111,
+        "longitude": 121.011389,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "Robinsons Place Las Piñas",
+        "category": "Mall",
+        "latitude": 14.4500,
+        "longitude": 120.9850,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "Las Piñas General Hospital and Satellite Trauma Center (LPGHSTC)",
+        "category": "Hospital/Clinic",
+        "latitude": 14.471667,
+        "longitude": 120.973611,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "Perpetual Help Medical Center - Las Piñas",
+        "category": "Hospital/Clinic",
+        "latitude": 14.4447,
+        "longitude": 120.9995,
+        "city": "Las Piñas City"
+    },
+    {
+        "name": "South Station (Alabang, Muntinlupa - major transport hub near Las Piñas border)",
+        "category": "Transport Terminal",
+        "latitude": 14.4195,
+        "longitude": 121.0435,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Ayala Triangle Gardens",
+        "category": "Landmark/Park",
+        "latitude": 14.556667,
+        "longitude": 121.024444,
+        "city": "Makati City"
+    },
+    {
+        "name": "Ayala Museum",
+        "category": "Landmark",
+        "latitude": 14.553606,
+        "longitude": 121.023169,
+        "city": "Makati City"
+    },
+    {
+        "name": "Greenbelt Mall",
+        "category": "Mall",
+        "latitude": 14.551833,
+        "longitude": 121.022194,
+        "city": "Makati City"
+    },
+    {
+        "name": "Glorietta Mall",
+        "category": "Mall",
+        "latitude": 14.5516,
+        "longitude": 121.0242,
+        "city": "Makati City"
+    },
+    {
+        "name": "Power Plant Mall",
+        "category": "Mall",
+        "latitude": 14.5649,
+        "longitude": 121.0360,
+        "city": "Makati City"
+    },
+    {
+        "name": "Century City Mall",
+        "category": "Mall",
+        "latitude": 14.565556,
+        "longitude": 121.0275,
+        "city": "Makati City"
+    },
+    {
+        "name": "Makati Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.558889,
+        "longitude": 121.015,
+        "city": "Makati City"
+    },
+    {
+        "name": "Makati Life Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.563056,
+        "longitude": 121.017778,
+        "city": "Makati City"
+    },
+    {
+        "name": "Buendia MRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.557353,
+        "longitude": 121.008103,
+        "city": "Makati City"
+    },
+    {
+        "name": "Ayala MRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.5532,
+        "longitude": 121.0277,
+        "city": "Makati City"
+    },
+    {
+        "name": "Makati City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.55,
+        "longitude": 121.033333,
+        "city": "Makati City"
+    },
+    {
+        "name": "Salcedo Saturday Market",
+        "category": "Park/Market",
+        "latitude": 14.5513,
+        "longitude": 121.026345,
+        "city": "Makati City"
+    },
+    {
+        "name": "Legazpi Sunday Market",
+        "category": "Park/Market",
+        "latitude": 14.5535,
+        "longitude": 121.0195,
+        "city": "Makati City"
+    },
+    {
+        "name": "RCBC Plaza",
+        "category": "Landmark/Office Building",
+        "latitude": 14.560761,
+        "longitude": 121.009867,
+        "city": "Makati City"
+    },
+    {
+        "name": "PBCom Tower",
+        "category": "Landmark/Office Building",
+        "latitude": 14.558306,
+        "longitude": 121.019308,
+        "city": "Makati City"
+    },
+    {
+        "name": "San Bartolome Church",
+        "category": "Landmark",
+        "latitude": 14.658889,
+        "longitude": 120.951389,
+        "city": "Malabon City"
+    },
+    {
+        "name": "St. James Academy",
+        "category": "Landmark",
+        "latitude": 14.658889,
+        "longitude": 120.951944,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Immaculate Concepcion Parish",
+        "category": "Landmark",
+        "latitude": 14.6175,
+        "longitude": 120.975556,
+        "city": "Malabon City"
+    },
+    {
+        "name": "La Purisima Concepcion De Malabon Church (Aglipayan Church)",
+        "category": "Landmark",
+        "latitude": 14.667222,
+        "longitude": 120.9475,
+        "city": "Malabon City"
+    },
+    {
+        "name": "San Antonio de Padua Parish Church",
+        "category": "Landmark",
+        "latitude": 14.663333,
+        "longitude": 120.956944,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Sto. Rosario Church",
+        "category": "Landmark",
+        "latitude": 14.683889,
+        "longitude": 120.9425,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Tropicana Studio",
+        "category": "Landmark",
+        "latitude": 14.667778,
+        "longitude": 120.947778,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Rufina Patis Factory",
+        "category": "Landmark",
+        "latitude": 14.672222,
+        "longitude": 120.943056,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Araneta Square Mall",
+        "category": "Mall",
+        "latitude": 14.6583,
+        "longitude": 120.9856,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Robinsons Town Mall Malabon",
+        "category": "Mall",
+        "latitude": 14.667934,
+        "longitude": 120.965969,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Ospital ng Malabon",
+        "category": "Hospital/Clinic",
+        "latitude": 14.6738,
+        "longitude": 120.9592,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Pagamutan ng Bayan ng Malabon",
+        "category": "Hospital/Clinic",
+        "latitude": 14.6687,
+        "longitude": 120.9575,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Malabon City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.6667,
+        "longitude": 120.9661,
+        "city": "Malabon City"
+    },
+    {
+        "name": "Malabon Public Market (Bayan)",
+        "category": "Market",
+        "latitude": 14.6679,
+        "longitude": 120.9659,
+        "city": "Malabon City"
+    },
+    {
+        "name": "New Bilibid Prison",
+        "category": "Landmark",
+        "latitude": 14.380278,
+        "longitude": 121.028611,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Festival Supermall Alabang",
+        "category": "Mall",
+        "latitude": 14.4157,
+        "longitude": 121.0389,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Alabang Town Center",
+        "category": "Mall",
+        "latitude": 14.4157,
+        "longitude": 121.0389,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Ayala Malls South Park",
+        "category": "Mall",
+        "latitude": 14.40938,
+        "longitude": 121.04278,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Starmall Alabang",
+        "category": "Mall",
+        "latitude": 14.418596,
+        "longitude": 121.046097,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Filinvest City Central Park",
+        "category": "Park",
+        "latitude": 14.417472,
+        "longitude": 121.041944,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Alabang PNR Station",
+        "category": "Transport Terminal",
+        "latitude": 14.419572,
+        "longitude": 121.047675,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "South Station",
+        "category": "Transport Terminal",
+        "latitude": 14.4195,
+        "longitude": 121.0435,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Asian Hospital and Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.418596,
+        "longitude": 121.046097,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Ospital ng Muntinlupa",
+        "category": "Hospital/Clinic",
+        "latitude": 14.383333,
+        "longitude": 121.05,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Muntinlupa City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.383333,
+        "longitude": 121.05,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "De La Salle Santiago Zobel School",
+        "category": "School",
+        "latitude": 14.3939,
+        "longitude": 121.0412,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "San Beda College Alabang",
+        "category": "School",
+        "latitude": 14.433056,
+        "longitude": 121.025556,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Lyceum of Alabang",
+        "category": "School",
+        "latitude": 14.372778,
+        "longitude": 121.0475,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "Pamantasan ng Lungsod ng Muntinlupa",
+        "category": "School",
+        "latitude": 14.389167,
+        "longitude": 121.025556,
+        "city": "Muntinlupa City"
+    },
+    {
+        "name": "EDSA Shrine (Our Lady of EDSA Shrine)",
+        "category": "Landmark",
+        "latitude": 14.5999,
+        "longitude": 121.0599,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "San Felipe Neri Church",
+        "category": "Landmark",
+        "latitude": 14.585833,
+        "longitude": 121.026389,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "SM Megamall",
+        "category": "Mall",
+        "latitude": 14.584447,
+        "longitude": 121.056770,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Shangri-La Plaza",
+        "category": "Mall",
+        "latitude": 14.581167,
+        "longitude": 121.055056,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "The Podium",
+        "category": "Mall",
+        "latitude": 14.585,
+        "longitude": 121.059444,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "St. Francis Square",
+        "category": "Mall",
+        "latitude": 14.586044,
+        "longitude": 121.058239,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Greenfield District",
+        "category": "Commercial Center/Park",
+        "latitude": 14.5775,
+        "longitude": 121.054444,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Shaw Boulevard MRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.578056,
+        "longitude": 121.054444,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Ortigas MRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.5875,
+        "longitude": 121.056667,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Boni MRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.5707,
+        "longitude": 121.0423,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "VRP Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5806,
+        "longitude": 121.0461,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Mandaluyong City Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5888,
+        "longitude": 121.0386,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "National Center for Mental Health",
+        "category": "Hospital/Clinic",
+        "latitude": 14.581389,
+        "longitude": 121.043611,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Mandaluyong City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.5833,
+        "longitude": 121.0333,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Rizal Technological University",
+        "category": "School",
+        "latitude": 14.574392,
+        "longitude": 121.042031,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Arellano University Jose Abad Santos Campus (Plaridel Campus)",
+        "category": "School",
+        "latitude": 14.5858,
+        "longitude": 121.0263,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Don Bosco Technical College",
+        "category": "School",
+        "latitude": 14.5900,
+        "longitude": 121.0255,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Jose Rizal University",
+        "category": "School",
+        "latitude": 14.5925,
+        "longitude": 121.028611,
+        "city": "Mandaluyong City"
+    },
+    {
+        "name": "Our Lady of the Abandoned Parish Church",
+        "category": "Landmark",
+        "latitude": 14.630556,
+        "longitude": 121.096111,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Marikina Shoe Museum",
+        "category": "Landmark",
+        "latitude": 14.629472,
+        "longitude": 121.096333,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Marikina Sports Center",
+        "category": "Landmark",
+        "latitude": 14.634611,
+        "longitude": 121.098417,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Marikina River Park",
+        "category": "Park",
+        "latitude": 14.629722,
+        "longitude": 121.084167,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Riverbanks Center",
+        "category": "Mall",
+        "latitude": 14.6310,
+        "longitude": 121.0820,
+        "city": "Marikina City"
+    },
+    {
+        "name": "SM City Marikina",
+        "category": "Mall",
+        "latitude": 14.6269,
+        "longitude": 121.0847,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Robinsons Metro East",
+        "category": "Mall",
+        "latitude": 14.619167,
+        "longitude": 121.1000,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Marikina Transport Terminal",
+        "category": "Transport Terminal",
+        "latitude": 14.6306,
+        "longitude": 121.0967,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Amang Rodriguez Memorial Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.636111,
+        "longitude": 121.098333,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Marikina Valley Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.6377,
+        "longitude": 121.0976,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Marikina City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.635278,
+        "longitude": 121.097778,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Marikina Polytechnic College",
+        "category": "School",
+        "latitude": 14.6358,
+        "longitude": 121.0967,
+        "city": "Marikina City"
+    },
+    {
+        "name": "Pamantasan ng Lungsod ng Marikina",
+        "category": "School",
+        "latitude": 14.630556,
+        "longitude": 121.1000,
+        "city": "Marikina City"
+    },
+    {
+        "name": "SM Mall of Asia",
+        "category": "Mall",
+        "latitude": 14.535067,
+        "longitude": 120.982155,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Cultural Center of the Philippines (CCP Complex)",
+        "category": "Landmark/Park",
+        "latitude": 14.555,
+        "longitude": 120.985,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Philippine International Convention Center (PICC)",
+        "category": "Landmark",
+        "latitude": 14.554167,
+        "longitude": 120.9825,
+        "city": "Pasay City"
+    },
+    {
+        "name": "World Trade Center Metro Manila",
+        "category": "Landmark",
+        "latitude": 14.5499,
+        "longitude": 120.9897,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Star City",
+        "category": "Recreational Area",
+        "latitude": 14.5463,
+        "longitude": 120.9853,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Conrad Manila",
+        "category": "Hotel/Landmark",
+        "latitude": 14.531889,
+        "longitude": 120.980444,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Solaire Resort and Casino",
+        "category": "Hotel/Casino",
+        "latitude": 14.529722,
+        "longitude": 120.980833,
+        "city": "Pasay City"
+    },
+    {
+        "name": "City of Dreams Manila",
+        "category": "Hotel/Casino",
+        "latitude": 14.5275,
+        "longitude": 120.990278,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Ninoy Aquino International Airport Terminal 1 (NAIA Terminal 1)",
+        "category": "Transport Terminal",
+        "latitude": 14.5099,
+        "longitude": 121.0139,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Ninoy Aquino International Airport Terminal 2 (NAIA Terminal 2)",
+        "category": "Transport Terminal",
+        "latitude": 14.5125,
+        "longitude": 121.018889,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Ninoy Aquino International Airport Terminal 3 (NAIA Terminal 3)",
+        "category": "Transport Terminal",
+        "latitude": 14.5175,
+        "longitude": 121.021667,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Ninoy Aquino International Airport Terminal 4 (NAIA Terminal 4)",
+        "category": "Transport Terminal",
+        "latitude": 14.520833,
+        "longitude": 121.018611,
+        "city": "Pasay City"
+    },
+    {
+        "name": "EDSA LRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.558333,
+        "longitude": 121.000278,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Baclaran LRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.534444,
+        "longitude": 120.996111,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Taft Avenue MRT Station",
+        "category": "Transport Terminal",
+        "latitude": 14.556944,
+        "longitude": 121.000556,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Pasay City General Hospital",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5493,
+        "longitude": 121.0009,
+        "city": "Pasay City"
+    },
+    {
+        "name": "San Juan De Dios Hospital",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5383,
+        "longitude": 120.9997,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Adventist Medical Center Manila",
+        "category": "Hospital/Clinic",
+        "latitude": 14.555565,
+        "longitude": 120.995987,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Pasay City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.55,
+        "longitude": 121.00,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Arellano University Jose Abad Santos Campus",
+        "category": "School",
+        "latitude": 14.55,
+        "longitude": 120.99,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Manila Tytana Colleges",
+        "category": "School",
+        "latitude": 14.540278,
+        "longitude": 120.9875,
+        "city": "Pasay City"
+    },
+    {
+        "name": "Pasig Revolving Tower",
+        "category": "Landmark",
+        "latitude": 14.558861,
+        "longitude": 121.083083,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Immaculate Conception Parish Church (Pasig Cathedral)",
+        "category": "Landmark",
+        "latitude": 14.560278,
+        "longitude": 121.076944,
+        "city": "Pasig City"
+    },
+    {
+        "name": "PhilSports Complex (ULTRA)",
+        "category": "Landmark/Sports Complex",
+        "latitude": 14.5775,
+        "longitude": 121.066111,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Capitol Commons",
+        "category": "Commercial Center",
+        "latitude": 14.575589,
+        "longitude": 121.062489,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Tiendesitas",
+        "category": "Mall/Market",
+        "latitude": 14.5769,
+        "longitude": 121.0847,
+        "city": "Pasig City"
+    },
+    {
+        "name": "SM City East Ortigas",
+        "category": "Mall",
+        "latitude": 14.58763,
+        "longitude": 121.10485,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Ayala Malls The 30th",
+        "category": "Mall",
+        "latitude": 14.580833,
+        "longitude": 121.065,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Robinsons Galleria",
+        "category": "Mall",
+        "latitude": 14.590833,
+        "longitude": 121.059444,
+        "city": "Quezon City"
+    },
+    {
+        "name": "The Medical City",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5847,
+        "longitude": 121.0717,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Pasig City General Hospital",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5833,
+        "longitude": 121.0667,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Rizal Medical Center",
+        "category": "Hospital/Clinic",
+        "latitude": 14.563889,
+        "longitude": 121.065833,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Pasig City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.6000,
+        "longitude": 121.0900,
+        "city": "Pasig City"
+    },
+    {
+        "name": "University of Asia and the Pacific",
+        "category": "School",
+        "latitude": 14.580278,
+        "longitude": 121.060556,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Pamantasan ng Lungsod ng Pasig",
+        "category": "School",
+        "latitude": 14.561944,
+        "longitude": 121.074722,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Arellano University Andres Bonifacio Campus",
+        "category": "School",
+        "latitude": 14.5769,
+        "longitude": 121.0786,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Ortigas Center",
+        "category": "Commercial District",
+        "latitude": 14.5833,
+        "longitude": 121.0611,
+        "city": "Pasig City"
+    },
+    {
+        "name": "Taguig City Hall",
+        "category": "Municipal Office",
+        "latitude": 14.528889,
+        "longitude": 121.0700,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Bonifacio High Street",
+        "category": "Landmark/Commercial Center",
+        "latitude": 14.550556,
+        "longitude": 121.051389,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Market! Market!",
+        "category": "Mall",
+        "latitude": 14.549583,
+        "longitude": 121.056278,
+        "city": "Taguig City"
+    },
+    {
+        "name": "SM Aura Premier",
+        "category": "Mall",
+        "latitude": 14.547222,
+        "longitude": 121.054167,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Venice Grand Canal Mall",
+        "category": "Mall",
+        "latitude": 14.5361,
+        "longitude": 121.0669,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Uptown Mall",
+        "category": "Mall",
+        "latitude": 14.5611,
+        "longitude": 121.0547,
+        "city": "Taguig City"
+    },
+    {
+        "name": "St. Luke's Medical Center - Global City",
+        "category": "Hospital/Clinic",
+        "latitude": 14.555,
+        "longitude": 121.048333,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Taguig-Pateros District Hospital",
+        "category": "Hospital/Clinic",
+        "latitude": 14.4833,
+        "longitude": 121.0500,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Philippine Army General Hospital",
+        "category": "Hospital/Clinic",
+        "latitude": 14.5417,
+        "longitude": 121.0567,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Fort Bonifacio Global City",
+        "category": "Commercial District",
+        "latitude": 14.531094,
+        "longitude": 121.047847,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Mind Museum",
+        "category": "Museum",
+        "latitude": 14.552222,
+        "longitude": 121.045556,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Bonifacio Global City Bus Terminal",
+        "category": "Transport Terminal",
+        "latitude": 14.553056,
+        "longitude": 121.028889,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Market! Market! Bus Terminal",
+        "category": "Transport Terminal",
+        "latitude": 14.549583,
+        "longitude": 121.056278,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Enderun Colleges",
+        "category": "School",
+        "latitude": 14.532778,
+        "longitude": 121.053333,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Taguig City University",
+        "category": "School",
+        "latitude": 14.491111,
+        "longitude": 121.055556,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Philippine National Police Academy (Camp Bagong Diwa)",
+        "category": "Landmark/School",
+        "latitude": 14.486667,
+        "longitude": 121.056389,
+        "city": "Taguig City"
+    },
+    {
+        "name": "Philippine Air Force Aerospace Museum",
+        "category": "Museum",
+        "latitude": 14.516389,
+        "longitude": 121.019167,
+        "city": "Pasay City"
+    }
+]

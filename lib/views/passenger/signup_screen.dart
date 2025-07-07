@@ -423,6 +423,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your contact number';
+                                      } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
+                                        return 'Contact number must be 11 digits and start with "09"';
+                                      }
+                                      return null;
+                                    },
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
                                     controller: _contactNumberController,
                                     keyboardType: TextInputType.number,
                                     decoration: const InputDecoration(

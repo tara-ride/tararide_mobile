@@ -16,7 +16,7 @@ class PassengerSelectingPickupLocationWidget extends StatefulWidget {
 }
 
 class _PassengerSelectingPickupLocationWidgetState extends State<PassengerSelectingPickupLocationWidget> {
-  final PassengerSelectingPickupLocation passengerSelectingPickupLocationState = PassengerSelectingPickupLocation(possiblePickupLocations: []);
+  final PassengerSelectingPickupLocation passengerSelectingPickupLocationState = PassengerSelectingPickupLocation(possiblePickupLocations: const []);
   final TextEditingController _pickupSearchBarController = TextEditingController();
   LatLng? _selectedPickupLocation;
 
@@ -76,7 +76,6 @@ class _PassengerSelectingPickupLocationWidgetState extends State<PassengerSelect
                             duration: Duration(seconds: 2),
                           ),
                         );
-                        
                       }
                     }
                   },
@@ -123,7 +122,6 @@ class _PassengerSelectingPickupLocationWidgetState extends State<PassengerSelect
                           ),
                         ),
                       );
-                      
                     },
                     child: AnimatedContainer(
                       width: double.infinity,

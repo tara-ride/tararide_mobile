@@ -55,6 +55,34 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
     }
   }
 
+  Future<String> getPassengerName(String passengerId) async {
+    String passengerFirstName = "";
+    String passengerLastName = "";
+
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    var personalInfo = firebaseFirestore.collection("personal_information").doc(passengerId);
+
+    var personalInfoSnapshot = await personalInfo.get();
+    if (personalInfoSnapshot.exists) {
+      passengerFirstName = personalInfoSnapshot.data()!["first_name"];
+      passengerLastName = personalInfoSnapshot.data()!["last_name"];
+    }
+
+    return "$passengerFirstName $passengerLastName";
+  }
+
+  Future<String> getProfilePicUrl(String userId) async {
+    String profilePicUrl = "";
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    var personalInfo = firebaseFirestore.collection("personal_information").doc(userId);
+
+    var personalInfoSnapshot = await personalInfo.get();
+    if (personalInfoSnapshot.exists) {
+      profilePicUrl = personalInfoSnapshot.data()!["profilePicImage"];
+    }
+    return profilePicUrl;
+  }
+
   Future<String> getMyId() async {
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     var currentUser = firebaseAuth.currentUser;
@@ -197,11 +225,6 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          height: 200,
-                          width: double.infinity,
-                          child: Lottie.asset('assets/passenger_waiting.json'),
-                        ),
                         Center(
                           child: Text(
                             bannerMessage,
@@ -298,7 +321,18 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                           )
                                         ],
                                       ),
-                                      child: Lottie.asset('assets/passenger_waiting.json', fit: BoxFit.cover),
+                                      child: FutureBuilder(
+                                          future: getProfilePicUrl(driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId),
+                                          builder: (buildContext, snapshot) {
+                                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                              return Image(
+                                                image: NetworkImage(snapshot.data!),
+                                                alignment: Alignment.center,
+                                                fit: BoxFit.cover,
+                                              );
+                                            }
+                                            return Container();
+                                          }),
                                     ),
                                   ),
                                   Column(
@@ -311,13 +345,21 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                           right: 10,
                                         ),
                                       ),
-                                      Text(
-                                        driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerName,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                      FutureBuilder(
+                                          future: getPassengerName(driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId),
+                                          builder: (buildContext, snapshot) {
+                                            if (snapshot.hasData) {
+                                              return Text(
+                                                snapshot.data!,
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              );
+                                            }
+                                            return Container();
+                                          }),
                                       Text(
                                         driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerEmail,
                                         style: const TextStyle(
@@ -440,7 +482,6 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                     child: OutlinedButton(
                                       style: const ButtonStyle(surfaceTintColor: WidgetStatePropertyAll(Color.fromARGB(255, 161, 2, 2))),
                                       onPressed: () {
-                                        
                                         // widget.onUpdateRide({
                                         //   "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
                                         // });

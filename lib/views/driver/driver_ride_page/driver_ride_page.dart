@@ -294,14 +294,12 @@ class _DriverRidePageState extends State<DriverRidePage> {
                           heightAdjustment = 360;
                           currentStateContainerHeight = heightAdjustment;
                         });
-                        print("DRIVER RIDE STARTED");
                       }
                       if (driverStatusBlocState is DriverRideStarted) {
                         setState(() {
                           heightAdjustment = 320;
                           currentStateContainerHeight = heightAdjustment;
                         });
-                        print("DRIVER RIDE STARTED");
                       }
 
                       if (driverStatusBlocState is DriverRideCompleted) {
@@ -316,7 +314,6 @@ class _DriverRidePageState extends State<DriverRidePage> {
                           heightAdjustment = 280;
                           currentStateContainerHeight = heightAdjustment;
                         });
-                        print("DRIVER RIDE Completed");
                       }
                     },
                     builder: (driverRideStatusBlocContext, driverStatusBlocState) {
@@ -412,7 +409,6 @@ class _DriverRidePageState extends State<DriverRidePage> {
                         if (driverStatusBlocState is DriverRidePassengersLoaded) {
                           return DriverRideStartedWidget(
                             onUpdateRide: (Map<String, dynamic> mapUpdate) async {
-                              print("mapUpdate started");
                               // RideCoordinates sourceLocation = mapUpdate["sourceLocation"] as RideCoordinates;
                               // RideCoordinates destination = mapUpdate["destination"] as RideCoordinates;
                               //polylines[PolylineId("poly")] = mapUpdate["polylines"] as Polyline;
