@@ -106,14 +106,29 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                                           ],
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                        child: Container(
-                                          decoration: const BoxDecoration(image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png"))),
-                                          width: 40,
-                                          height: 40,
-                                        ),
+                                      SizedBox(
+                                        width: 5,
                                       ),
+                                      FutureBuilder(
+                                          future: getPersonalData(widget.chatInteraction.chatInteraction[index].messagedBy),
+                                          builder: (buildContext, snapshot) {
+                                            if (snapshot.hasData) {
+                                              //print("PUTANGINAMOd ${widget.chatInteraction.chatInteraction[index].messageText}");
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                    image: NetworkImage(snapshot.data!["profile_image_url"]),
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(50),
+                                                ),
+                                                width: 60,
+                                                height: 60,
+                                              );
+                                            } else {
+                                              return Container();
+                                            }
+                                          }),
                                     ],
                                   ),
                                 )
@@ -123,10 +138,33 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 10),
-                                        child: Container(
-                                          decoration: const BoxDecoration(image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png"))),
-                                          width: 40,
-                                          height: 40,
+                                        child: FutureBuilder(
+                                          future: getPersonalData(widget.chatInteraction.chatInteraction[index].messagedBy),
+                                          builder: (buildContext, snapshot) {
+                                            if (snapshot.hasData) {
+                                              if (snapshot.data!["profile_image_url"] != "N/A") {
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      image: NetworkImage(snapshot.data!["profile_image_url"]),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                    borderRadius: BorderRadius.circular(50),
+                                                  ),
+                                                  width: 60,
+                                                  height: 60,
+                                                );
+                                              } else {
+                                                return Container(
+                                                  decoration: const BoxDecoration(image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png"))),
+                                                  width: 60,
+                                                  height: 60,
+                                                );
+                                              }
+                                            } else {
+                                              return const CircularProgressIndicator();
+                                            }
+                                          },
                                         ),
                                       ),
                                       Container(

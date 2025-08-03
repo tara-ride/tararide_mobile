@@ -76,13 +76,35 @@ class _PassengerChatInteractionListLoadedState extends State<PassengerChatIntera
                         if (snapshot.hasData) {
                           return Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                                child: Container(
-                                  decoration: const BoxDecoration(image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png"))),
-                                  width: 80,
-                                  height: 80,
-                                ),
+                              FutureBuilder(
+                                future: getPersonalData(chatInteractionState.chatInformationList[index].driverId),
+                                builder: (buildContext, snapshot) {
+                                  if (snapshot.hasData && snapshot.data!["profile_image_url"] != "N/A") {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImage(snapshot.data!["profile_image_url"]),
+                                            fit: BoxFit.cover,
+                                          ),
+                                          borderRadius: BorderRadius.circular(50),
+                                        ),
+                                        width: 80,
+                                        height: 80,
+                                      ),
+                                    );
+                                  } else {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Container(
+                                        decoration: const BoxDecoration(image: DecorationImage(image: AssetImage("assets/profile_icon_empty.png"))),
+                                        width: 80,
+                                        height: 80,
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                               Expanded(
                                 child: Column(

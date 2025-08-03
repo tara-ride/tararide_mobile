@@ -24,7 +24,7 @@ class DriverRideStartedWidget extends StatefulWidget {
 
 class _DriverRideStartedState extends State<DriverRideStartedWidget> {
   int selectedItemIndex = 0;
-  String bannerMessage = "Passengers will appear here. Please wait";
+  String bannerMessage = "Passengers will appear here, please wait";
   // double checkDistanceFromDestination(RideCoordinates driverLocation, RideCoordinates rideDestination) {
   //   GcpDistanceMatrixRepositoryImplementation gcpDistanceMatrixImplem = GcpDistanceMatrixRepositoryImplementation();
   //   return 0;
@@ -225,6 +225,11 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Lottie.asset(
+                          "assets/passenger_waiting.json",
+                          width: 200,
+                          height: 200,
+                        ),
                         Center(
                           child: Text(
                             bannerMessage,
@@ -251,6 +256,11 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                               bannerMessage = "You have reached your destination";
                               return Column(
                                 children: [
+                                  Lottie.asset(
+                                    "assets/success.json",
+                                    width: 200,
+                                    height: 200,
+                                  ),
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(

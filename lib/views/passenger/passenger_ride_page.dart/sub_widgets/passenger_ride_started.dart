@@ -197,9 +197,9 @@ class _PassengerRideStartedWidgetState extends State<PassengerRideStartedWidget>
                                   children: [
                                     IconButton.filled(
                                       onPressed: () => startChat(passengerRideStartedState.rideInformation.rideId, passengerRideStartedState.rideInformation.driverId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                          content: Text("Chat room has been started. Please see the chat page to interact."),
-                                          duration: Duration(milliseconds: 100),
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                          content: Text("Chat room has been started. Please see the chat page to interact. $chatId"),
+                                          duration: const Duration(milliseconds: 100),
                                         ));
                                       }),
                                       icon: const Icon(
@@ -243,36 +243,69 @@ class _PassengerRideStartedWidgetState extends State<PassengerRideStartedWidget>
                                 });
                               }
 
-                              List<PassengersList> passengersToBeDeleted = [];
-                              List<Map<String, dynamic>> testList = [];
+                              // // List<PassengersList> passengersToBeDeleted = [];
+                              // List<Map<String, dynamic>> testList = [];
 
+                              // for (int i = 0; i < passengerRideStartedState.rideInformation.passengersList.length; i++) {
+                              //   PassengersList passengerData = passengerRideStartedState.rideInformation.passengersList[i];
+
+                              //   testList.add({
+                              //     "estimated_fare": passengerData.estimatedFare,
+                              //     "passenger_current_location": GeoPoint(passengerData.passengerCurrentLocation.latitude, passengerData.passengerCurrentLocation.longitude),
+                              //     "passenger_destination": GeoPoint(passengerData.passengerDestination.latitude, passengerData.passengerDestination.longitude),
+                              //     "passenger_destination_name": passengerData.passengerDestinationName,
+                              //     "passenger_email": passengerData.passengerEmail,
+                              //     "passenger_id": passengerData.passengerId,
+                              //     "passenger_source_location_name": passengerData.passengerSourceLocationName,
+                              //     "passenger_source_location": GeoPoint(passengerData.passengerSourceLocation.latitude, passengerData.passengerSourceLocation.longitude),
+                              //     "ride_completed_at": passengerData.rideCompletedAt,
+                              //     "ride_distance": passengerData.rideDistance,
+                              //     "ride_duration": passengerData.rideDuration,
+                              //     "ride_started_at": passengerData.rideStartedAt,
+                              //     "seats_occupied": passengerData.seatsOccupied,
+                              //     "ride_status": passengerData.rideStatus,
+                              //   });
+                              // }
+
+                              // testList.removeWhere((item) => item["passenger_id"].toString() == firebaseAuth.currentUser!.uid);
+                              // //  print("unit test: ${passengersToBeDeleted.toString()} ${passengersToBeDeleted.length}");
+                              // await firebaseFirestore.collection("ride_information").doc(passengerRideStartedState.rideInformation.rideId).update(
+                              //   {
+                              //     "passengers_list": testList,
+                              //   },
+                              // );
+                              if (firebaseAuth.currentUser != null && passengerRideStartedState.rideInformation.passengersList.isNotEmpty) {
+                                int index = 0;
+                                index = passengerRideStartedState.rideInformation.passengersList.indexWhere((item) {
+                                  return item.passengerId == firebaseAuth.currentUser!.uid;
+                                });
+
+                                passengerRideStartedState.rideInformation.passengersList[index].rideStatus = "cancelled";
+                              }
+                              List<Map<String, dynamic>> passengerRideUpdateList = [];
                               for (int i = 0; i < passengerRideStartedState.rideInformation.passengersList.length; i++) {
                                 PassengersList passengerData = passengerRideStartedState.rideInformation.passengersList[i];
 
-                                if (passengerData.passengerId == firebaseAuth.currentUser!.uid) {
-                                  //passengersToBeDeleted.add(passengerData);
-                                  continue;
-                                } else {
-                                  testList.add({
-                                    "estimated_fare": passengerData.estimatedFare,
-                                    "passenger_current_location": GeoPoint(passengerData.passengerCurrentLocation.latitude, passengerData.passengerCurrentLocation.longitude),
-                                    "passenger_destination": GeoPoint(passengerData.passengerDestination.latitude, passengerData.passengerDestination.longitude),
-                                    "passenger_destination_name": passengerData.passengerDestinationName,
-                                    "passenger_email": passengerData.passengerEmail,
-                                    "passenger_id": passengerData.passengerId,
-                                    "passenger_source_location_name": passengerData.passengerSourceLocationName,
-                                    "passenger_source_location": GeoPoint(passengerData.passengerSourceLocation.latitude, passengerData.passengerSourceLocation.longitude),
-                                    "ride_completed_at": passengerData.rideCompletedAt,
-                                    "ride_distance": passengerData.rideDistance,
-                                    "ride_duration": passengerData.rideDuration,
-                                    "ride_started_at": passengerData.rideStartedAt,
-                                    "seats_occupied": passengerData.seatsOccupied,
-                                  });
-                                }
+                                passengerRideUpdateList.add({
+                                  "estimated_fare": passengerData.estimatedFare,
+                                  "passenger_current_location": GeoPoint(passengerData.passengerCurrentLocation.latitude, passengerData.passengerCurrentLocation.longitude),
+                                  "passenger_destination": GeoPoint(passengerData.passengerDestination.latitude, passengerData.passengerDestination.longitude),
+                                  "passenger_destination_name": passengerData.passengerDestinationName,
+                                  "passenger_email": passengerData.passengerEmail,
+                                  "passenger_id": passengerData.passengerId,
+                                  "passenger_source_location_name": passengerData.passengerSourceLocationName,
+                                  "passenger_source_location": GeoPoint(passengerData.passengerSourceLocation.latitude, passengerData.passengerSourceLocation.longitude),
+                                  "ride_duration": passengerData.rideDuration,
+                                  "ride_started_at": passengerData.rideStartedAt,
+                                  "ride_distance": passengerData.rideDistance,
+                                  "seats_occupied": passengerData.seatsOccupied,
+                                  "ride_status": passengerData.rideStatus,
+                                  "ride_completed_at": passengerData.rideCompletedAt,
+                                });
                               }
-
-                              print("unit test: ${passengersToBeDeleted.toString()} ${passengersToBeDeleted.length}");
-                              await firebaseFirestore.collection("ride_information").doc(passengerRideStartedState.rideInformation.rideId).update({"passengers_list": testList});
+                              await firebaseFirestore.collection("ride_information").doc(passengerRideStartedState.rideInformation.rideId).update({
+                                "passengers_list": passengerRideUpdateList,
+                              });
 
                               context.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
                             } catch (error) {

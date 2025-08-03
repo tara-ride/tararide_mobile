@@ -340,7 +340,7 @@ class _PassengerRidePaymentStartedState extends State<PassengerRidePaymentStarte
 
                       Future.delayed(const Duration(seconds: 4));
                       context.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart(rideId: widget.rideInformation.rideId));
-
+                      context.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
                       //context.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart());
                     },
                     child: const Text(

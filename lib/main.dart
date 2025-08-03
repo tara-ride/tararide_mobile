@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tararide_mobile/bloc/determine_user_category/determine_user_category_bloc.dart';
 import 'package:tararide_mobile/bloc/user_auth_availability/user_auth_availability_bloc.dart';
@@ -22,12 +22,6 @@ Future<void> main() async {
   );
   runApp(const App());
 }
-
-final GoRouter router = GoRouter(
-  routes: [
-    // Add routes here
-  ],
-);
 
 final mainNavigatorState = GlobalKey<NavigatorState>();
 

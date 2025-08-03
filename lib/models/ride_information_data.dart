@@ -121,6 +121,7 @@ class PassengersList {
   int seatsOccupied;
   DateTime rideCompletedAt;
   DateTime rideStartedAt;
+  String rideStatus;
 
   PassengersList(
       {required this.passengerSourceLocation,
@@ -136,6 +137,7 @@ class PassengersList {
       required this.rideDuration,
       required this.seatsOccupied,
       required this.rideCompletedAt,
+      required this.rideStatus,
       required this.rideStartedAt});
 
   factory PassengersList.fromRawJson(String str) => PassengersList.fromJson(json.decode(str));
@@ -158,6 +160,7 @@ class PassengersList {
         passengerEmail: '',
         passengerSourceLocationName: '',
         rideDuration: '',
+        rideStatus: 'unknown',
         seatsOccupied: 0,
         rideCompletedAt: DateTime.now(),
         rideStartedAt: DateTime.now(),
@@ -165,7 +168,7 @@ class PassengersList {
     }
 
     return PassengersList(
-      rideDistance: json["estimated_fare"].toDouble() ?? 0.0,
+      rideDistance: json["ride_distance"].toDouble() ?? 0.0,
       passengerSourceLocation: RideCoordinates(latitude: passengerSourceLocation.latitude, longitude: passengerSourceLocation.longitude),
       passengerId: json["passenger_id"] ?? 'N/A',
       estimatedFare: json["estimated_fare"].toDouble() ?? 0.0,
@@ -179,6 +182,7 @@ class PassengersList {
       rideCompletedAt: DateTime.parse(json["ride_completed_at"].toDate().toString()),
       rideStartedAt: DateTime.parse(json["ride_started_at"].toDate().toString()),
       passengerCurrentLocation: RideCoordinates(latitude: passengerDestination.latitude, longitude: passengerDestination.longitude),
+      rideStatus: '${json["ride_status"] ?? 'unknown'}',
     );
   }
 

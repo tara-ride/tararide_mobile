@@ -345,7 +345,7 @@ class _DriverRidePageState extends State<DriverRidePage> {
                         if (driverStatusBlocState is DriverSelectingStartLocation) {
                           return DriverSelectingStartLocationWidget(
                             onSelectStartLocation: (pickUpLocation) {
-                              startLocationFormattedAddress = pickUpLocation.formattedAddress;
+                              startLocationFormattedAddress = pickUpLocation;
                             },
                             onSelectStartCoordinates: (pickUpCoordinates) {
                               _selectedStartLocation = LatLng(
@@ -370,7 +370,7 @@ class _DriverRidePageState extends State<DriverRidePage> {
                         if (driverStatusBlocState is DriverSelectingDestination) {
                           return DriverSelectingDestinationWidget(
                             onSelectDestination: (destinationLocation) {
-                              destinationLocationFormattedAddress = destinationLocation.formattedAddress;
+                              destinationLocationFormattedAddress = destinationLocation;
                             },
                             onSelectDestinationCoordinates: (destinationCoordinates) {
                               _selectedDestinationLocation = LatLng(
