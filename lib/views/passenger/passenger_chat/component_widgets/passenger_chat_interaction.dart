@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -32,6 +33,27 @@ Future<Map<String, dynamic>> getPersonalData(String uuid) async {
     "first_name": firstName,
     "last_name": lastName,
   };
+}
+
+Future<bool> sendNotification(String recipientUserId, String messageTitle, String messageBody) async {
+  try {
+    // Get a reference to your Cloud Function
+    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendNotification');
+
+    // Call the function with the recipient's user ID
+    final HttpsCallableResult result = await callable.call(<String, dynamic>{
+      'recipientId': recipientUserId,
+      'messageTitle': messageTitle,
+      'messageBody': messageBody,
+    });
+    return result.data['success'] as bool;
+  } on FirebaseFunctionsException catch (e) {
+    print('Failed to call Cloud Function: ${e.code} - ${e.message}');
+    throw Exception('Failed to call Cloud Function: ${e.message}');
+  } catch (e) {
+    print('Failed to call Cloud Function: ${e}');
+    throw Exception('Failed to call Cloud Function: ${e.toString()}');
+  }
 }
 
 class _PassengerChatInteraction extends State<PassengerChatInteraction> {
@@ -254,6 +276,12 @@ class _PassengerChatInteraction extends State<PassengerChatInteraction> {
                             ]),
                           });
                           typeChat.clear();
+                          var senderDetails = await getPersonalData(widget.chatInteraction.passengerId);
+                          await sendNotification(
+                            widget.chatInteraction.driverId,
+                            "New Message from ${senderDetails["first_name"]}",
+                            typeChat.text,
+                          );
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                             content: Text("Something went wrong, please try again later."),

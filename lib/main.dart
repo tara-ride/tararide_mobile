@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -20,6 +21,24 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final notificationSettings = await FirebaseMessaging.instance.requestPermission(provisional: true);
+  if (notificationSettings.authorizationStatus == AuthorizationStatus.authorized || notificationSettings.authorizationStatus == AuthorizationStatus.provisional) {
+    print('User granted permission');
+  } else {
+    print('User declined or has not accepted permission');
+  }
+  // TODO: If you need to check Google Play Services, add the appropriate package such as 'google_api_availability' and import it.
+  // For now, this block is commented out to avoid compile errors.
+  // GoogleApiAvailability.checkGooglePlayServices().then((isAvailable) {
+  //   if (isAvailable) {
+  //     print("Google Play Services are available");
+  //   } else {
+  //     print("Google Play Services are not available");
+  //   }
+  // }).catchError((error) {
+  //   print("Error checking Google Play Services: $error");
+  // });
+  await FirebaseMessaging.instance.setAutoInitEnabled(true);
   runApp(const App());
 }
 
@@ -182,7 +201,25 @@ class App extends StatelessWidget {
                     BlocConsumer<UserAuthAvailabilityBloc, UserAuthAvailabilityState>(
                       listener: (userAuthAvailabilityContext, state) async {
                         if (state is UserAvailable) {
-                          //context.read<DetermineUserCategoryBloc>().add(DetermineUserCategoryLoad(user: state.user));
+                          try {
+                            FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+                            FirebaseMessaging firebaseMessagingInstance = FirebaseMessaging.instance;
+
+                            final userDoc = await firestoreInstance.collection('account_information').doc(state.user.uid).get();
+
+                            if (userDoc.exists) {
+                              final fcmToken = await firebaseMessagingInstance.getToken();
+                              if (fcmToken != null) {
+                                await firestoreInstance.collection('account_information').doc(state.user.uid).update({
+                                  "fcm_token": fcmToken,
+                                });
+                              }
+                            }
+                          } catch (error) {
+                            ScaffoldMessenger.of(userAuthAvailabilityContext).showSnackBar(
+                              SnackBar(content: Text("Error: ${error.toString()}")),
+                            );
+                          }
                         }
                         if (state is UserAuthComplete) {
                           if (state.userData["business_role"] == "driver") {

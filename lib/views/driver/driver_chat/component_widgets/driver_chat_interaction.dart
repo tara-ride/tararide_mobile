@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,27 @@ class DriverChatInteraction extends StatefulWidget {
   const DriverChatInteraction({super.key, required this.chatInteraction});
   @override
   State<StatefulWidget> createState() => _DriverChatInteraction();
+}
+
+Future<bool> sendNotification(String recipientUserId, String messageTitle, String messageBody) async {
+  try {
+    // Get a reference to your Cloud Function
+    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendNotification');
+
+    // Call the function with the recipient's user ID
+    final HttpsCallableResult result = await callable.call(<String, dynamic>{
+      'recipientId': recipientUserId,
+      'messageTitle': messageTitle,
+      'messageBody': messageBody,
+    });
+    return result.data['success'] as bool;
+  } on FirebaseFunctionsException catch (e) {
+    print('Failed to call Cloud Function: ${e.code} - ${e.message}');
+    throw Exception('Failed to call Cloud Function: ${e.message}');
+  } catch (e) {
+    print('Failed to call Cloud Function: ${e}');
+    throw Exception('Failed to call Cloud Function: ${e.toString()}');
+  }
 }
 
 Future<Map<String, dynamic>> getPersonalData(String uuid) async {
@@ -113,7 +135,6 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                                           future: getPersonalData(widget.chatInteraction.chatInteraction[index].messagedBy),
                                           builder: (buildContext, snapshot) {
                                             if (snapshot.hasData) {
-                                              //print("PUTANGINAMOd ${widget.chatInteraction.chatInteraction[index].messageText}");
                                               return Container(
                                                 decoration: BoxDecoration(
                                                   image: DecorationImage(
@@ -196,7 +217,7 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                                                   }),
                                             ),
                                             Padding(
-                                              padding: EdgeInsets.only(left: 10, right: 10, bottom: 15),
+                                              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 15),
                                               child: Text(
                                                 "${widget.chatInteraction.chatInteraction[index].messageText}",
                                                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
@@ -230,6 +251,8 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                       if (typeChat.text.isNotEmpty) {
                         try {
                           FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+                          FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                          var userId = firebaseAuth.currentUser!.uid;
                           var documentReference = firebaseFirestore.collection("chat_information").doc(widget.chatInteraction.chatId);
                           await documentReference.update({
                             "chat_interaction": FieldValue.arrayUnion([
@@ -240,6 +263,12 @@ class _DriverChatInteraction extends State<DriverChatInteraction> {
                               }
                             ]),
                           });
+                          var senderDetails = await getPersonalData(widget.chatInteraction.driverId);
+                          await sendNotification(
+                            widget.chatInteraction.passengerId,
+                            "New Message from ${senderDetails["first_name"]}",
+                            typeChat.text,
+                          );
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                             content: Text("Something went wrong, please try again later."),

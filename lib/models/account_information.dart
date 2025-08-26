@@ -6,6 +6,7 @@ class AccountInformationModel {
   final String rideId;
   final String status;
   final String uuid;
+  final String fcmToken;
 
   AccountInformationModel({
     required this.businessRole,
@@ -15,6 +16,7 @@ class AccountInformationModel {
     required this.rideId,
     required this.status,
     required this.uuid,
+    required this.fcmToken,
   });
 
   factory AccountInformationModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class AccountInformationModel {
       rideId: json['ride_id'] as String? ?? '',
       status: json['status'] as String? ?? '',
       uuid: json['uuid'] as String? ?? '',
+      fcmToken: json['fcm_token'] as String? ?? '',
     );
   }
 
@@ -38,6 +41,7 @@ class AccountInformationModel {
       'ride_id': rideId,
       'status': status,
       'uuid': uuid,
+      'fcm_token': fcmToken,
     };
   }
 }

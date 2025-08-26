@@ -25,7 +25,7 @@ class _PassengerHomePageState extends State<PassengerHomePage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvoked: (didPop) => false,
+      canPop: false,
       child: Scaffold(
         body: Center(
           child: _widgetOptions.elementAt(pageIndex),

@@ -149,322 +149,349 @@ class _DriverRidePageState extends State<DriverRidePage> {
   Widget build(BuildContext context) {
     // This method builds the UI for the driver's ride page.
     // You can customize it to display the driver's ride information.
-    return Scaffold(
-        body: MultiBlocProvider(
-      providers: [
-        BlocProvider<DriverRideStatusBloc>(
-          create: (driverRideStatusContext) => DriverRideStatusBloc()..add(const DriverRideInitialize()),
-        ),
-      ],
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        fit: StackFit.expand,
-        children: [
-          GoogleMap(
-            myLocationButtonEnabled: true,
-            zoomControlsEnabled: false,
-            buildingsEnabled: true,
-            initialCameraPosition: _liveCameraPosition,
-            polylines: Set<Polyline>.of(polylines.values),
-            markers: _currentMarkers,
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-            },
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+          body: MultiBlocProvider(
+        providers: [
+          BlocProvider<DriverRideStatusBloc>(
+            create: (driverRideStatusContext) => DriverRideStatusBloc()..add(const DriverRideInitialize()),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (hideContainer) {
-                      setState(() {
-                        hideContainer = false;
-                        currentStateContainerHeight = heightAdjustment;
-                      });
-                    } else {
-                      setState(() {
-                        hideContainer = true;
-                        currentStateContainerHeight = 0;
-                      });
-                    }
-                  },
-                  child: Text(hideContainer ? "Show" : "Hide"),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-                child: AnimatedContainer(
-                  curve: Curves.easeInOut,
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.5),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  height: hideContainer && currentStateContainerHeight == heightAdjustment ? 0 : currentStateContainerHeight,
-                  width: double.infinity,
-                  child: BlocConsumer<DriverRideStatusBloc, DriverRideStatusState>(
-                    listener: (driverRideStatusBlocContext, driverStatusBlocState) async {
-                      if (driverStatusBlocState is DriverRideStatusInitial) {
+        ],
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          fit: StackFit.expand,
+          children: [
+            GoogleMap(
+              myLocationButtonEnabled: true,
+              zoomControlsEnabled: false,
+              buildingsEnabled: true,
+              initialCameraPosition: _liveCameraPosition,
+              polylines: Set<Polyline>.of(polylines.values),
+              markers: _currentMarkers,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (hideContainer) {
                         setState(() {
-                          currentStateContainerHeight = 180;
+                          hideContainer = false;
+                          currentStateContainerHeight = heightAdjustment;
                         });
-                        await Future.delayed(const Duration(seconds: 1));
+                      } else {
+                        setState(() {
+                          hideContainer = true;
+                          currentStateContainerHeight = 0;
+                        });
+                      }
+                    },
+                    child: Text(hideContainer ? "Show" : "Hide"),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                  child: AnimatedContainer(
+                    curve: Curves.easeInOut,
+                    duration: const Duration(milliseconds: 500),
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    height: hideContainer && currentStateContainerHeight == heightAdjustment ? 0 : currentStateContainerHeight,
+                    width: double.infinity,
+                    child: BlocConsumer<DriverRideStatusBloc, DriverRideStatusState>(
+                      listener: (driverRideStatusBlocContext, driverStatusBlocState) async {
+                        if (driverStatusBlocState is DriverRideStatusInitial) {
+                          setState(() {
+                            currentStateContainerHeight = 180;
+                          });
+                          await Future.delayed(const Duration(seconds: 1));
 
-                        FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-                        FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                          FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+                          FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-                        if (firebaseAuth.currentUser != null) {
-                          var accountInstance = firebaseFirestore.collection("account_information").doc(firebaseAuth.currentUser!.uid);
-                          var documentInstance = await accountInstance.get();
+                          if (firebaseAuth.currentUser != null) {
+                            var accountInstance = firebaseFirestore.collection("account_information").doc(firebaseAuth.currentUser!.uid);
+                            var documentInstance = await accountInstance.get();
 
-                          if (documentInstance.data() != null || documentInstance.exists) {
-                            var data = documentInstance.data()!;
+                            if (documentInstance.data() != null || documentInstance.exists) {
+                              var data = documentInstance.data()!;
 
-                            if (data["status"] == "in_a_ride") {
-                              driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
+                              if (data["status"] == "in_a_ride") {
+                                driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(DriverStartRide(rideId: data["ride_id"].toString()));
+                              } else {
+                                driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideStatusLoadWeatherData());
+                              }
                             } else {
                               driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideStatusLoadWeatherData());
                             }
                           } else {
                             driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideStatusLoadWeatherData());
                           }
-                        } else {
-                          driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideStatusLoadWeatherData());
                         }
-                      }
 
-                      if (driverStatusBlocState is DriverPostRideFormDisplayed) {
-                        setState(() {
-                          heightAdjustment = 380;
-                          currentStateContainerHeight = heightAdjustment;
-                        });
-                      }
+                        if (driverStatusBlocState is DriverPostRideFormDisplayed) {
+                          setState(() {
+                            heightAdjustment = 380;
+                            currentStateContainerHeight = heightAdjustment;
+                          });
+                        }
 
-                      if (driverStatusBlocState is DriverRideConfirmDetails) {
-                        setState(() {
-                          heightAdjustment = 320;
-                          currentStateContainerHeight = heightAdjustment;
-                        });
-                      }
-                      if (driverStatusBlocState is DriverRidePolylinesLoaded) {
-                        polylines = driverStatusBlocState.generatedPolylines;
-                        setState(() {});
-                      }
-                      if (driverStatusBlocState is DriverRidePassengersLoaded) {
-                        await getLocationUpdates(driverStatusBlocState.rideInformation.rideId);
-                        _currentMarkers.add(
-                          google_maps_marker.Marker(
-                            markerId: const google_maps_marker.MarkerId("start_location"),
-                            position: LatLng(driverStatusBlocState.rideInformation.rideSourceLocation.latitude, driverStatusBlocState.rideInformation.rideSourceLocation.longitude),
-                            draggable: false,
+                        if (driverStatusBlocState is DriverRideConfirmDetails) {
+                          setState(() {
+                            heightAdjustment = 320;
+                            currentStateContainerHeight = heightAdjustment;
+                          });
+                        }
+                        if (driverStatusBlocState is DriverRidePolylinesLoaded) {
+                          polylines = driverStatusBlocState.generatedPolylines;
+                          setState(() {});
+                        }
+                        if (driverStatusBlocState is DriverRidePassengersLoaded) {
+                          await getLocationUpdates(driverStatusBlocState.rideInformation.rideId);
+                          _currentMarkers.add(
+                            google_maps_marker.Marker(
+                              markerId: const google_maps_marker.MarkerId("start_location"),
+                              position: LatLng(driverStatusBlocState.rideInformation.rideSourceLocation.latitude, driverStatusBlocState.rideInformation.rideSourceLocation.longitude),
+                              draggable: false,
+                              icon: await BitmapDescriptor.asset(
+                                  const ImageConfiguration(
+                                    size: Size(90, 90),
+                                  ),
+                                  "assets/driver_start_icon.png"),
+                            ),
+                          );
+                          _currentMarkers.add(google_maps_marker.Marker(
+                            markerId: const google_maps_marker.MarkerId("destination"),
+                            position: LatLng(driverStatusBlocState.rideInformation.rideDestination.latitude, driverStatusBlocState.rideInformation.rideDestination.longitude),
                             icon: await BitmapDescriptor.asset(
                                 const ImageConfiguration(
                                   size: Size(90, 90),
                                 ),
-                                "assets/driver_start_icon.png"),
-                          ),
-                        );
-                        _currentMarkers.add(google_maps_marker.Marker(
-                          markerId: const google_maps_marker.MarkerId("destination"),
-                          position: LatLng(driverStatusBlocState.rideInformation.rideDestination.latitude, driverStatusBlocState.rideInformation.rideDestination.longitude),
-                          icon: await BitmapDescriptor.asset(
-                              const ImageConfiguration(
-                                size: Size(90, 90),
-                              ),
-                              "assets/driver_destination_icon.png"),
-                        ));
-                        if (mapSettings["checkDestination"] != null) {
-                          _updateCameraView(LatLng(
-                            mapSettings["checkDestination"].latitude,
-                            mapSettings["checkDestination"].longitude,
+                                "assets/driver_destination_icon.png"),
                           ));
-                          mapSettings.remove("checkDestination");
+                          if (mapSettings["checkDestination"] != null) {
+                            _updateCameraView(LatLng(
+                              mapSettings["checkDestination"].latitude,
+                              mapSettings["checkDestination"].longitude,
+                            ));
+                            mapSettings.remove("checkDestination");
+                          }
+                          setState(() {
+                            heightAdjustment = 360;
+                            currentStateContainerHeight = heightAdjustment;
+                          });
                         }
-                        setState(() {
-                          heightAdjustment = 360;
-                          currentStateContainerHeight = heightAdjustment;
-                        });
-                      }
-                      if (driverStatusBlocState is DriverRideStarted) {
-                        setState(() {
-                          heightAdjustment = 320;
-                          currentStateContainerHeight = heightAdjustment;
-                        });
-                      }
+                        if (driverStatusBlocState is DriverRideStarted) {
+                          //run an isolate to handle the location updates
 
-                      if (driverStatusBlocState is DriverRideCompleted) {
-                        polylines = {};
-                        _currentMarkers.removeWhere(
-                          (marker) => marker.markerId.value == "start_location",
-                        );
-                        _currentMarkers.removeWhere(
-                          (marker) => marker.markerId.value == "destination",
-                        );
-                        setState(() {
-                          heightAdjustment = 280;
-                          currentStateContainerHeight = heightAdjustment;
-                        });
-                      }
-                    },
-                    builder: (driverRideStatusBlocContext, driverStatusBlocState) {
-                      if (hideContainer) {
-                        return const SizedBox.shrink();
-                      } else {
-                        if (driverStatusBlocState is DriverRideStatusInitial) {
-                          return const Center(
-                            child: Text(
-                              "Loading...",
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          );
-                        }
-                        if (driverStatusBlocState is DriverRideStatusWeatherDataLoaded) {
-                          return DriverLoadWeatherDataWidget(
-                            weatherData: driverStatusBlocState,
-                          );
-                        }
-
-                        if (driverStatusBlocState is DriverPostRideFormDisplayed) {
-                          return DriverPostRideFormDisplayedWidget(
-                            onCarpoolDetailsCollected: (value) {
-                              _rideTitle = value["ride_title"]!;
-                              _rideDescription = value["ride_description"]!;
-                            },
-                          );
-                        }
-                        if (driverStatusBlocState is DriverSelectingStartLocation) {
-                          return DriverSelectingStartLocationWidget(
-                            onSelectStartLocation: (pickUpLocation) {
-                              startLocationFormattedAddress = pickUpLocation;
-                            },
-                            onSelectStartCoordinates: (pickUpCoordinates) {
-                              _selectedStartLocation = LatLng(
-                                pickUpCoordinates.latitude,
-                                pickUpCoordinates.longitude,
-                              );
-
-                              _updateCameraView(LatLng(
-                                pickUpCoordinates.latitude,
-                                pickUpCoordinates.longitude,
-                              ));
-                            },
-                            onSelectStartMarker: (pickUpMarker) {
-                              _currentMarkers.removeWhere(
-                                (marker) => marker.markerId.value == "start_location",
-                              );
-                              _currentMarkers.add(pickUpMarker);
-                              setState(() {});
-                            },
-                          );
-                        }
-                        if (driverStatusBlocState is DriverSelectingDestination) {
-                          return DriverSelectingDestinationWidget(
-                            onSelectDestination: (destinationLocation) {
-                              destinationLocationFormattedAddress = destinationLocation;
-                            },
-                            onSelectDestinationCoordinates: (destinationCoordinates) {
-                              _selectedDestinationLocation = LatLng(
-                                destinationCoordinates.latitude,
-                                destinationCoordinates.longitude,
-                              );
-
-                              _updateCameraView(LatLng(
-                                destinationCoordinates.latitude,
-                                destinationCoordinates.longitude,
-                              ));
-                            },
-                            onSelectDestinationMarker: (destinationMarker) {
-                              _currentMarkers.removeWhere(
-                                (marker) => marker.markerId.value == "destination",
-                              );
-                              _currentMarkers.add(destinationMarker);
-                              setState(() {});
-                            },
-                            selectedStartLocation: _selectedStartLocation!,
-                          );
-                        }
-                        if (driverStatusBlocState is DriverRideConfirmLoading) {
-                          return const DriverRideConfirmLoadingWidget();
-                        }
-                        if (driverStatusBlocState is DriverRidePolylinesLoaded) {
-                          return const DriverRideConfirmLoadingWidget();
-                        }
-                        if (driverStatusBlocState is DriverRideConfirmDetails) {
-                          return DriverRideConfirmDetailsWidget(
-                            rideTitle: _rideTitle,
-                            rideDescription: _rideDescription,
-                            onCarpoolDetailsProcessed: (processedValue) {},
-                          );
-                        }
-                        if (driverStatusBlocState is DriverRidePassengersLoaded) {
-                          return DriverRideStartedWidget(
-                            onUpdateRide: (Map<String, dynamic> mapUpdate) async {
-                              // RideCoordinates sourceLocation = mapUpdate["sourceLocation"] as RideCoordinates;
-                              // RideCoordinates destination = mapUpdate["destination"] as RideCoordinates;
-                              //polylines[PolylineId("poly")] = mapUpdate["polylines"] as Polyline;
-                              // generatePolylineFromPoints([
-                              //   LatLng(sourceLocation.latitude, sourceLocation.longitude),
-                              //   LatLng(
-                              //     destination.latitude,
-                              //     destination.longitude,
-                              //   )
-                              // ]);
-
-                              mapSettings.addAll(mapUpdate);
-                              //_currentMarkers.removeWhere((marker) => marker.markerId.value == "current_location");
-                              //_currentMarkers.add(Marker(markerId: MarkerId("current_location"), position: LatLng(latitude, longitude)));
-                            },
-                          );
+                          setState(() {
+                            heightAdjustment = 320;
+                            currentStateContainerHeight = heightAdjustment;
+                          });
                         }
 
                         if (driverStatusBlocState is DriverRideCompleted) {
-                          return Column(
-                            children: [
-                              SizedBox(
-                                width: 200,
-                                height: 200,
-                                child: Lottie.asset('assets/congratulations.json', fit: BoxFit.cover),
-                              ),
-                              Text(
-                                "Congratulations! You have earned ₱ ${driverStatusBlocState.rideInformation.rideEarnings.toStringAsFixed(2)}",
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideInitialize());
-                                      },
-                                      child: const Text("I want to do it again!")),
-                                ),
-                              )
-                            ],
+                          
+                          polylines = {};
+                          _currentMarkers.removeWhere(
+                            (marker) => marker.markerId.value == "start_location",
                           );
+                          _currentMarkers.removeWhere(
+                            (marker) => marker.markerId.value == "destination",
+                          );
+                          setState(() {
+                            heightAdjustment = 280;
+                            currentStateContainerHeight = heightAdjustment;
+                          });
                         }
-                        return const Icon(Icons.help_outline);
-                      }
-                    },
+                      },
+                      builder: (driverRideStatusBlocContext, driverStatusBlocState) {
+                        if (hideContainer) {
+                          return const SizedBox.shrink();
+                        } else {
+                          if (driverStatusBlocState is DriverRideStatusInitial) {
+                            return const Center(
+                              child: Text(
+                                "Loading...",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          }
+                          if (driverStatusBlocState is DriverRideStatusWeatherDataLoaded) {
+                            return DriverLoadWeatherDataWidget(
+                              weatherData: driverStatusBlocState,
+                            );
+                          }
+
+                          if (driverStatusBlocState is DriverPostRideFormDisplayed) {
+                            return DriverPostRideFormDisplayedWidget(
+                              onCarpoolDetailsCollected: (value) {
+                                _rideTitle = value["ride_title"]!;
+                                _rideDescription = value["ride_description"]!;
+                              },
+                            );
+                          }
+                          if (driverStatusBlocState is DriverSelectingStartLocation) {
+                            return DriverSelectingStartLocationWidget(
+                              onSelectStartLocation: (pickUpLocation) {
+                                startLocationFormattedAddress = pickUpLocation;
+                              },
+                              onSelectStartCoordinates: (pickUpCoordinates) {
+                                _selectedStartLocation = LatLng(
+                                  pickUpCoordinates.latitude,
+                                  pickUpCoordinates.longitude,
+                                );
+
+                                _updateCameraView(LatLng(
+                                  pickUpCoordinates.latitude,
+                                  pickUpCoordinates.longitude,
+                                ));
+                              },
+                              onSelectStartMarker: (pickUpMarker) {
+                                _currentMarkers.removeWhere(
+                                  (marker) => marker.markerId.value == "start_location",
+                                );
+                                _currentMarkers.add(pickUpMarker);
+                                setState(() {});
+                              },
+                            );
+                          }
+                          if (driverStatusBlocState is DriverSelectingDestination) {
+                            return DriverSelectingDestinationWidget(
+                              onSelectDestination: (destinationLocation) {
+                                destinationLocationFormattedAddress = destinationLocation;
+                              },
+                              onSelectDestinationCoordinates: (destinationCoordinates) {
+                                _selectedDestinationLocation = LatLng(
+                                  destinationCoordinates.latitude,
+                                  destinationCoordinates.longitude,
+                                );
+
+                                _updateCameraView(LatLng(
+                                  destinationCoordinates.latitude,
+                                  destinationCoordinates.longitude,
+                                ));
+                              },
+                              onSelectDestinationMarker: (destinationMarker) {
+                                _currentMarkers.removeWhere(
+                                  (marker) => marker.markerId.value == "destination",
+                                );
+                                _currentMarkers.add(destinationMarker);
+                                setState(() {});
+                              },
+                              selectedStartLocation: _selectedStartLocation!,
+                            );
+                          }
+                          if (driverStatusBlocState is DriverRideConfirmLoading) {
+                            return const DriverRideConfirmLoadingWidget();
+                          }
+                          if (driverStatusBlocState is DriverRidePolylinesLoaded) {
+                            return const DriverRideConfirmLoadingWidget();
+                          }
+                          if (driverStatusBlocState is DriverRideConfirmDetails) {
+                            return DriverRideConfirmDetailsWidget(
+                              rideTitle: _rideTitle,
+                              rideDescription: _rideDescription,
+                              onCarpoolDetailsProcessed: (processedValue) {},
+                            );
+                          }
+                          if (driverStatusBlocState is DriverRidePassengersLoaded) {
+                            return DriverRideStartedWidget(
+                              onUpdateRide: (Map<String, dynamic> mapUpdate) async {
+                                // RideCoordinates sourceLocation = mapUpdate["sourceLocation"] as RideCoordinates;
+                                // RideCoordinates destination = mapUpdate["destination"] as RideCoordinates;
+                                //polylines[PolylineId("poly")] = mapUpdate["polylines"] as Polyline;
+                                // generatePolylineFromPoints([
+                                //   LatLng(sourceLocation.latitude, sourceLocation.longitude),
+                                //   LatLng(
+                                //     destination.latitude,
+                                //     destination.longitude,
+                                //   )
+                                // ]);
+
+                                mapSettings.addAll(mapUpdate);
+                                //_currentMarkers.removeWhere((marker) => marker.markerId.value == "current_location");
+                                //_currentMarkers.add(Marker(markerId: MarkerId("current_location"), position: LatLng(latitude, longitude)));
+                              },
+                            );
+                          }
+
+                          if (driverStatusBlocState is DriverRideCompleted) {
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: Lottie.asset('assets/congratulations.json', fit: BoxFit.cover),
+                                ),
+                                Text(
+                                  "Congratulations! You have earned ₱ ${driverStatusBlocState.rideInformation.rideEarnings.toStringAsFixed(2)}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                        onPressed: () async {
+                                          try {
+                                            FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                                            FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+                                            var accountInstance = firebaseFirestore.collection("account_information").doc(firebaseAuth.currentUser!.uid);
+                                            await accountInstance.update({
+                                              "status": "idle",
+                                              "ride_id": "",
+                                            });
+                                            await firebaseFirestore.collection("ride_information").doc(driverStatusBlocState.rideInformation.rideId).update({
+                                              "ride_status": "completed",
+                                            });
+                                            await firebaseFirestore.collection("ride_information").doc(driverStatusBlocState.rideInformation.rideId).collection("passenger_information").get().then((value) {
+                                              for (var element in value.docs) {
+                                                element.reference.update({
+                                                  "ride_status": "completed",
+                                                });
+                                              }
+                                            });
+                                          } catch (e) {
+                                            print("Error: $e");
+                                          }
+                                          driverRideStatusBlocContext.read<DriverRideStatusBloc>().add(const DriverRideInitialize());
+                                        },
+                                        child: const Text("I want to do it again!")),
+                                  ),
+                                )
+                              ],
+                            );
+                          }
+                          return const Icon(Icons.help_outline);
+                        }
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ));
+              ],
+            ),
+          ],
+        ),
+      )),
+    );
   }
 }

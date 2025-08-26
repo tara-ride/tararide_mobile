@@ -139,7 +139,8 @@ class PassengerRideState extends State<PassengerRide> {
 
               for (int i = 0; i < rideInformation.passengersList.length; i++) {
                 //
-                print("unit test: ${rideInformation.passengersList[i].rideDistance}");
+
+                print("unit test $i : ${rideInformation.passengersList[i].rideStatus}");
                 passengerRideUpdateList.add({
                   "passenger_id": rideInformation.passengersList[i].passengerId,
                   "passenger_email": rideInformation.passengersList[i].passengerEmail,
@@ -344,7 +345,7 @@ class PassengerRideState extends State<PassengerRide> {
                               break;
 
                             case PassengerRideInProgress():
-                              getLocationUpdateByRide(passengerRideStatusState.rideInformation);
+                              //getLocationUpdateByRide(passengerRideStatusState.rideInformation);
                               _currentMarkers.removeWhere(
                                 (marker) => marker.markerId.value == "pickup_location",
                               );
@@ -390,7 +391,7 @@ class PassengerRideState extends State<PassengerRide> {
                               );
                               break;
                             case PassengerRideStarted():
-                              getLocationUpdateByRide(passengerRideStatusState.rideInformation);
+                              //getLocationUpdateByRide(passengerRideStatusState.rideInformation);
                               newHeight = 220;
                               polylines = passengerRideStatusState.generatedPolylines;
                               _currentMarkers.removeWhere(
@@ -644,7 +645,9 @@ class PassengerRideState extends State<PassengerRide> {
                               },
                             );
                           } else if (passengerRideStatusState is PassengerRideStarted) {
-                            return const PassengerRideStartedWidget();
+                            return PassengerRideStartedWidget(
+                              onRideCancelled: (rideStatus) {},
+                            );
                           } else if (passengerRideStatusState is PassengerRideInProgress) {
                             return SizedBox(
                               width: double.infinity,
@@ -686,7 +689,51 @@ class PassengerRideState extends State<PassengerRide> {
                                             width: double.infinity,
                                             height: 40,
                                             child: ElevatedButton(
-                                                onPressed: () {
+                                                onPressed: () async {
+                                                  try {
+                                                    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                                                    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+                                                    var accountInstance = firebaseFirestore.collection("account_information").doc(firebaseAuth.currentUser!.uid);
+                                                    accountInstance.update({
+                                                      "status": "for_payment",
+                                                      "ride_id": passengerRideStatusState.rideInformation.rideId,
+                                                    });
+
+                                                    var rideInformationReference = firebaseFirestore.collection("ride_information").doc(passengerRideStatusState.rideInformation.rideId);
+
+                                                    var index = passengerRideStatusState.rideInformation.passengersList.indexWhere((item) {
+                                                      return item.passengerId == firebaseAuth.currentUser!.uid;
+                                                    });
+
+                                                    passengerRideStatusState.rideInformation.passengersList[index].rideStatus = "completed";
+                                                    List<Map<String, dynamic>> updatedPassengersList = [];
+                                                    for (var item in passengerRideStatusState.rideInformation.passengersList) {
+                                                      updatedPassengersList.add(
+                                                        {
+                                                          "estimated_fare": item.estimatedFare,
+                                                          "passenger_current_location": GeoPoint(item.passengerCurrentLocation.latitude, item.passengerCurrentLocation.longitude),
+                                                          "passenger_destination": GeoPoint(item.passengerDestination.latitude, item.passengerDestination.longitude),
+                                                          "passenger_destination_name": item.passengerDestinationName,
+                                                          "passenger_email": item.passengerEmail,
+                                                          "passenger_id": item.passengerId,
+                                                          "passenger_source_location_name": item.passengerSourceLocationName,
+                                                          "passenger_source_location": GeoPoint(item.passengerSourceLocation.latitude, item.passengerSourceLocation.longitude),
+                                                          "ride_duration": item.rideDuration,
+                                                          "ride_started_at": item.rideStartedAt,
+                                                          "ride_distance": item.rideDistance,
+                                                          "seats_occupied": item.seatsOccupied,
+                                                          "ride_status": item.rideStatus,
+                                                          "ride_completed_at": item.rideCompletedAt,
+                                                        },
+                                                      );
+                                                    }
+                                                    print("Updated Passengers List: ${passengerRideStatusState.rideInformation.passengersList[0].toJson().toString()}");
+                                                    await rideInformationReference.update({
+                                                      "passengers_list": updatedPassengersList,
+                                                    });
+                                                  } catch (e) {
+                                                    print("Error: $e");
+                                                  }
                                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(
                                                         PassengerRidePaymentStart(rideId: passengerRideStatusState.rideInformation.rideId),
                                                       );

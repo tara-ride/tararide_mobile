@@ -173,14 +173,18 @@ class _PassengerRidePaymentStartedState extends State<PassengerRidePaymentStarte
 
                           var rideInformationReference = firebaseFirestore.collection("ride_information").doc(widget.rideInformation.rideId);
 
-                          if (firebaseAuth.currentUser != null) {
-                            widget.rideInformation.passengersList.removeWhere((item) {
-                              return item.passengerId == firebaseAuth.currentUser!.uid;
-                            });
-                          }
+                          var index = widget.rideInformation.passengersList.indexWhere((item) {
+                            return item.passengerId == firebaseAuth.currentUser!.uid;
+                          });
+
+                          widget.rideInformation.passengersList[index].rideStatus = "completed";
+
                           await rideInformationReference.update({
                             "passengers_list": widget.rideInformation.passengersList,
                           });
+                          // await rideInformationReference.update({
+                          //   "passengers_list": widget.rideInformation.passengersList,
+                          // });
                         }
 
                         ScaffoldMessenger.of(context).showSnackBar(

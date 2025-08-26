@@ -219,8 +219,8 @@
     {
         "name": "SM Southmall",
         "category": "Mall",
-        "latitude": 14.4507,
-        "longitude": 120.9798,
+        "latitude": 14.4332416,
+        "longitude": 121.0105001,
         "city": "Las Piñas City"
     },
     {
@@ -1164,8 +1164,8 @@
     {
         "name": "FEU Alabang (Far Eastern University Alabang)",
         "category": "School",
-        "latitude": 14.516389,
-        "longitude": 121.019167,
+        "latitude": 14.4106901,
+        "longitude": 121.0352668,
         "city": "Muntinlupa City"
     }
 ]

@@ -71,7 +71,7 @@ class _DriverChatInteractionListLoadedState extends State<DriverChatInteractionL
                     ],
                   ),
                   child: FutureBuilder(
-                      future: getPersonalData(chatInteractionState.chatInformationList[index].driverId),
+                      future: getPersonalData(chatInteractionState.chatInformationList[index].passengerId),
                       builder: (buildContext, snapshot) {
                         if (snapshot.hasData) {
                           return Row(

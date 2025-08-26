@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tararide_mobile/bloc/passenger_ride_status/passenger_ride_status_bloc.dart';
 
 import '../../../../bloc/driver_ride_status/driver_ride_status_bloc.dart';
 

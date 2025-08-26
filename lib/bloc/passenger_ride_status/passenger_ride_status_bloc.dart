@@ -33,13 +33,21 @@ class PassengerRideStatusBloc extends Bloc<PassengerRideStatusEvent, PassengerRi
 
   PassengerRideStatusBloc() : super(PassengerRideStatusInitial()) {
     on<PassengerRideStatusInitialize>(
-      (event, emit) {
+      (event, emit) async {
+        if (_streamSubscription != null) {
+          await _streamSubscription!.cancel();
+        }
+        if (_gcpGeocodingDataStreamSubscription != null) {
+          await _gcpGeocodingDataStreamSubscription!.cancel();
+        }
         emit(PassengerRideStatusInitial());
       },
     );
     on<PassengerRideStatusLoadWeatherData>(
       (event, emit) async {
         if (_streamSubscription != null) {
+          _streamSubscription!.pause();
+          //_streamSubscription.
           await _streamSubscription!.cancel();
         }
         if (_gcpGeocodingDataStreamSubscription != null) {

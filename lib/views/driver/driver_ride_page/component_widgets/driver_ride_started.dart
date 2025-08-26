@@ -1,10 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tararide_mobile/bloc/chat_interaction/chat_interaction_bloc.dart';
 import 'package:tararide_mobile/bloc/driver_ride_status/driver_ride_status_bloc.dart';
 import 'package:tararide_mobile/models/ride_information_data.dart';
 import 'package:tararide_mobile/repository/gcp_distance_matrix_repository.dart';
@@ -12,11 +14,10 @@ import 'package:tararide_mobile/repository/gcp_distance_matrix_repository.dart';
 import '../../../../config/firebase_options.dart';
 import '../../../../models/google_distance_matrix_data.dart' as gcp_distance_matrix_model;
 
-// ignore: must_be_immutable
-class DriverRideStartedWidget extends StatefulWidget {
-  ValueChanged<Map<String, dynamic>> onUpdateRide;
+final class DriverRideStartedWidget extends StatefulWidget {
+  final ValueChanged<Map<String, dynamic>> onUpdateRide;
 
-  DriverRideStartedWidget({super.key, required this.onUpdateRide});
+  const DriverRideStartedWidget({super.key, required this.onUpdateRide});
 
   @override
   State<StatefulWidget> createState() => _DriverRideStartedState();
@@ -25,15 +26,11 @@ class DriverRideStartedWidget extends StatefulWidget {
 class _DriverRideStartedState extends State<DriverRideStartedWidget> {
   int selectedItemIndex = 0;
   String bannerMessage = "Passengers will appear here, please wait";
-  // double checkDistanceFromDestination(RideCoordinates driverLocation, RideCoordinates rideDestination) {
-  //   GcpDistanceMatrixRepositoryImplementation gcpDistanceMatrixImplem = GcpDistanceMatrixRepositoryImplementation();
-  //   return 0;
-  // }
+
   Future<double> checkDistanceFromDestination(LatLng driverLocation, LatLng rideDestination) async {
     GcpDistanceMatrixRepositoryImplementation gcpDistanceMatrixImplem = GcpDistanceMatrixRepositoryImplementation();
     gcp_distance_matrix_model.GcpDistanceMatrixModel gcpDistanceMatrixModel = await gcpDistanceMatrixImplem.getDistanceMatrixDataOnce(SystemConstants().google_cloud_api_key, driverLocation, rideDestination);
 
-    print("HERE YOU GO: ${gcpDistanceMatrixModel.rows[0].elements[0].distance.text}");
     double distanceValue = gcpDistanceMatrixModel.rows[0].elements[0].distance.value.toDouble() * .001;
     return distanceValue;
   }
@@ -88,7 +85,7 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
     var currentUser = firebaseAuth.currentUser;
 
     if (currentUser != null) {
-      return currentUser!.uid;
+      return currentUser.uid;
     } else {
       return "";
     }
@@ -98,20 +95,9 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var chatInfoInstance = firebaseFirestore.collection("chat_information");
     try {
-      final QuerySnapshot querySnapshot = await firebaseFirestore
-          .collection('chat_information') // Replace with your actual collection name
-          .where('driver_id', isEqualTo: driverId)
-          .where('passenger_id', isEqualTo: passengerId)
-          .get();
-
-      // var docSnapshot = await firebaseFirestore.collection("chat_information").doc('F3TBfzRHRG9CL7Z9KegK').get();
-
-      // if (docSnapshot.exists) {
-      //   print("docSNAPSHOT: ${docSnapshot.data()!.toString()}");
-      // }
+      final QuerySnapshot querySnapshot = await firebaseFirestore.collection('chat_information').where('driver_id', isEqualTo: driverId).where('passenger_id', isEqualTo: passengerId).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        print("querySnapshot.docs.first.id; ${querySnapshot.docs.first.id}");
         onStartChat(querySnapshot.docs.first.id);
       } else {
         var newChatInfoDocument = chatInfoInstance.doc();
@@ -142,9 +128,30 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
     var currentUser = firebaseAuth.currentUser;
 
     if (currentUser != null) {
-      return currentUser!.uid;
+      return currentUser.uid;
     } else {
       return "";
+    }
+  }
+
+  Future<bool> sendNotification(String recipientUserId, String messageTitle, String messageBody) async {
+    try {
+      // Get a reference to your Cloud Function
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendNotification');
+
+      // Call the function with the recipient's user ID
+      final HttpsCallableResult result = await callable.call(<String, dynamic>{
+        'recipientId': recipientUserId,
+        'messageTitle': messageTitle,
+        'messageBody': messageBody,
+      });
+      return result.data['success'] as bool;
+    } on FirebaseFunctionsException catch (e) {
+      print('Failed to call Cloud Function: ${e.code} - ${e.message}');
+      throw Exception('Failed to call Cloud Function: ${e.message}');
+    } catch (e) {
+      print('Failed to call Cloud Function: ${e} - ${e}');
+      throw Exception('Failed to call Cloud Function: ${e.toString()}');
     }
   }
 
@@ -152,18 +159,15 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
   Widget build(BuildContext context) {
     final DriverRidePassengersLoaded driverRidePassengersLoadedState = context.watch<DriverRideStatusBloc>().state as DriverRidePassengersLoaded;
 
-    widget.onUpdateRide({
-      "sourceLocation": driverRidePassengersLoadedState.rideInformation.rideSourceLocation,
-      "destination": driverRidePassengersLoadedState.rideInformation.rideDestination,
-    });
+    List<PassengersList> filteredPassengersList = driverRidePassengersLoadedState.rideInformation.passengersList.where((passenger) => passenger.rideStatus != "cancelled").where((passenger) => passenger.rideStatus != "completed").toList();
     return Column(
       children: [
         SizedBox(
           height: 60,
           width: double.infinity,
-          child: driverRidePassengersLoadedState.rideInformation.passengersList.isNotEmpty
+          child: filteredPassengersList.isNotEmpty
               ? ListView.builder(
-                  itemCount: driverRidePassengersLoadedState.rideInformation.passengersList.length,
+                  itemCount: filteredPassengersList.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
                     return Padding(
@@ -199,12 +203,12 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              driverRidePassengersLoadedState.rideInformation.passengersList[index].seatsOccupied > 1 ? const Icon(Icons.people) : const Icon(Icons.person),
+                              filteredPassengersList[index].seatsOccupied > 1 ? const Icon(Icons.people) : const Icon(Icons.person),
                               const SizedBox(
                                 width: 3,
                               ),
                               Text(
-                                "${driverRidePassengersLoadedState.rideInformation.passengersList[index].seatsOccupied}",
+                                "${filteredPassengersList[index].seatsOccupied}",
                               )
                             ],
                           )),
@@ -215,7 +219,7 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                 )
               : const SizedBox.shrink(),
         ),
-        driverRidePassengersLoadedState.rideInformation.passengersList.isEmpty
+        filteredPassengersList.isEmpty
             ? Expanded(
                 child: SizedBox(
                     child: Column(
@@ -256,11 +260,6 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                               bannerMessage = "You have reached your destination";
                               return Column(
                                 children: [
-                                  Lottie.asset(
-                                    "assets/success.json",
-                                    width: 200,
-                                    height: 200,
-                                  ),
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
@@ -304,221 +303,344 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                     children: [
                       Expanded(
                         child: SizedBox(
-                            child: Column(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    height: 280,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const SizedBox(
+                                      height: 280,
                                     ),
-                                    child: Container(
-                                      width: 120,
-                                      height: 120,
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                                        color: Colors.white,
-                                        boxShadow: <BoxShadow>[
-                                          BoxShadow(
-                                            color: Colors.black,
-                                            offset: Offset.zero,
-                                            blurRadius: 0.5,
-                                            spreadRadius: 0.5,
-                                          )
-                                        ],
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
                                       ),
-                                      child: FutureBuilder(
-                                          future: getProfilePicUrl(driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId),
-                                          builder: (buildContext, snapshot) {
-                                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                                              return Image(
-                                                image: NetworkImage(snapshot.data!),
-                                                alignment: Alignment.center,
-                                                fit: BoxFit.cover,
-                                              );
-                                            }
-                                            return Container();
-                                          }),
+                                      child: Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                                          color: Colors.white,
+                                          boxShadow: <BoxShadow>[
+                                            BoxShadow(
+                                              color: Colors.black,
+                                              offset: Offset.zero,
+                                              blurRadius: 0.5,
+                                              spreadRadius: 0.5,
+                                            )
+                                          ],
+                                        ),
+                                        child: FutureBuilder(
+                                            future: getProfilePicUrl(filteredPassengersList[selectedItemIndex].passengerId),
+                                            builder: (buildContext, snapshot) {
+                                              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                                return Image(
+                                                  image: NetworkImage(snapshot.data!),
+                                                  alignment: Alignment.center,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              }
+                                              return Container();
+                                            }),
+                                      ),
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(
-                                          top: 5,
-                                          left: 5,
-                                          right: 10,
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.only(
+                                            top: 5,
+                                            left: 5,
+                                            right: 10,
+                                          ),
+                                        ),
+                                        FutureBuilder(
+                                            future: getPassengerName(filteredPassengersList[selectedItemIndex].passengerId),
+                                            builder: (buildContext, snapshot) {
+                                              if (snapshot.hasData) {
+                                                return Text(
+                                                  snapshot.data!,
+                                                  textAlign: TextAlign.end,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                );
+                                              }
+                                              return Container();
+                                            }),
+                                        Text(
+                                          filteredPassengersList[selectedItemIndex].passengerEmail,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text(
+                                          "ETA: ${filteredPassengersList[selectedItemIndex].rideDuration}",
+                                        ),
+                                        Text(
+                                          "Seats Occupied: ${filteredPassengersList[selectedItemIndex].seatsOccupied}",
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            FutureBuilder(
+                                              future: getMyId(),
+                                              builder: (itemContext, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return IconButton.filled(
+                                                    onPressed: () => startChat(driverRidePassengersLoadedState.rideInformation.rideId, filteredPassengersList[selectedItemIndex].passengerId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
+                                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                        content: Text("Chat room has been started. Please see the chat page to interact."),
+                                                        duration: Duration(
+                                                          milliseconds: 100,
+                                                        ),
+                                                      ));
+                                                    }),
+                                                    icon: const Icon(
+                                                      Icons.chat,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return const SizedBox.shrink();
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 2.5,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.location_pin),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          filteredPassengersList[selectedItemIndex].passengerSourceLocationName,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
-                                      FutureBuilder(
-                                          future: getPassengerName(driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId),
-                                          builder: (buildContext, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Text(
-                                                snapshot.data!,
-                                                textAlign: TextAlign.end,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 2.5,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.location_city),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          filteredPassengersList[selectedItemIndex].passengerDestinationName,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 60,
+                        width: double.infinity,
+                        child: filteredPassengersList[selectedItemIndex].rideStatus == "waiting"
+                            ? Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: OutlinedButton(
+                                          style: const ButtonStyle(surfaceTintColor: WidgetStatePropertyAll(Color.fromARGB(255, 161, 2, 2))),
+                                          onPressed: () async {
+                                            selectedItemIndex = 0;
+                                            widget.onUpdateRide({
+                                              "checkDestination": filteredPassengersList[selectedItemIndex].passengerDestination,
+                                            });
+
+                                            try {
+                                              FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                                              FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+                                              if (firebaseAuth.currentUser != null && filteredPassengersList.isNotEmpty) {
+                                                int index = 0;
+                                                index = filteredPassengersList.indexWhere((item) {
+                                                  return item.passengerId == filteredPassengersList[selectedItemIndex].passengerId;
+                                                });
+
+                                                filteredPassengersList[index].rideStatus = "cancelled";
+                                              }
+                                              List<Map<String, dynamic>> passengerRideUpdateList = [];
+                                              for (int i = 0; i < filteredPassengersList.length; i++) {
+                                                PassengersList passengerData = filteredPassengersList[i];
+
+                                                passengerRideUpdateList.add(
+                                                  {
+                                                    "estimated_fare": passengerData.estimatedFare,
+                                                    "passenger_current_location": GeoPoint(passengerData.passengerCurrentLocation.latitude, passengerData.passengerCurrentLocation.longitude),
+                                                    "passenger_destination": GeoPoint(passengerData.passengerDestination.latitude, passengerData.passengerDestination.longitude),
+                                                    "passenger_destination_name": passengerData.passengerDestinationName,
+                                                    "passenger_email": passengerData.passengerEmail,
+                                                    "passenger_id": passengerData.passengerId,
+                                                    "passenger_source_location_name": passengerData.passengerSourceLocationName,
+                                                    "passenger_source_location": GeoPoint(passengerData.passengerSourceLocation.latitude, passengerData.passengerSourceLocation.longitude),
+                                                    "ride_duration": passengerData.rideDuration,
+                                                    "ride_started_at": passengerData.rideStartedAt,
+                                                    "ride_distance": passengerData.rideDistance,
+                                                    "seats_occupied": passengerData.seatsOccupied,
+                                                    "ride_status": passengerData.rideStatus,
+                                                    "ride_completed_at": passengerData.rideCompletedAt,
+                                                  },
+                                                );
+                                              }
+                                              await firebaseFirestore.collection("ride_information").doc(driverRidePassengersLoadedState.rideInformation.rideId).update({
+                                                "available_seats": driverRidePassengersLoadedState.rideInformation.availableSeats + filteredPassengersList[selectedItemIndex].seatsOccupied,
+                                                "passengers_list": passengerRideUpdateList,
+                                              });
+                                              await firebaseFirestore.collection("account_information").doc(filteredPassengersList[selectedItemIndex].passengerId).update({
+                                                "ride_id": "",
+                                                "status": "idle",
+                                              });
+                                              await sendNotification(filteredPassengersList[selectedItemIndex].passengerId, "Your ride is cancelled.", "Please request a new ride.");
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text("Ride has been rejected."),
+                                                  duration: Duration(milliseconds: 1000),
+                                                ),
+                                              );
+                                            } catch (e) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text("Ride cannot be rejected. $e"),
+                                                  duration: const Duration(milliseconds: 500),
                                                 ),
                                               );
                                             }
-                                            return Container();
-                                          }),
-                                      Text(
-                                        driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerEmail,
-                                        style: const TextStyle(
-                                          fontSize: 11,
+                                          },
+                                          child: const Text("Reject"),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        "ETA: ${driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].rideDuration}",
-                                      ),
-                                      Text(
-                                        "Seats Occupied: ${driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].seatsOccupied}",
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          FutureBuilder(
-                                            future: getMyId(),
-                                            builder: (itemContext, snapshot) {
-                                              if (snapshot.hasData) {
-                                                return IconButton.filled(
-                                                  onPressed: () =>
-                                                      startChat(driverRidePassengersLoadedState.rideInformation.rideId, driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId, snapshot.data!, onErrorOccured: (String error) {}, onStartChat: (String chatId) {
-                                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                                      content: Text("Chat room has been started. Please see the chat page to interact."),
-                                                      duration: Duration(
-                                                        milliseconds: 100,
-                                                      ),
-                                                    ));
-                                                  }),
-                                                  icon: const Icon(
-                                                    Icons.chat,
-                                                  ),
-                                                );
-                                              } else {
-                                                return const SizedBox.shrink();
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            widget.onUpdateRide({
+                                              "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
+                                            });
+                                            try {
+                                              FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                                              FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+                                              if (firebaseAuth.currentUser != null && filteredPassengersList.isNotEmpty) {
+                                                int index = 0;
+                                                index = filteredPassengersList.indexWhere((item) {
+                                                  return item.passengerId == filteredPassengersList[selectedItemIndex].passengerId;
+                                                });
+
+                                                filteredPassengersList[index].rideStatus = "in_a_ride";
                                               }
-                                            },
-                                          ),
-                                        ],
-                                      )
-                                    ],
+                                              List<Map<String, dynamic>> passengerRideUpdateList = [];
+                                              for (int i = 0; i < driverRidePassengersLoadedState.rideInformation.passengersList.length; i++) {
+                                                PassengersList passengerData = driverRidePassengersLoadedState.rideInformation.passengersList[i];
+
+                                                passengerRideUpdateList.add({
+                                                  "estimated_fare": passengerData.estimatedFare,
+                                                  "passenger_current_location": GeoPoint(passengerData.passengerCurrentLocation.latitude, passengerData.passengerCurrentLocation.longitude),
+                                                  "passenger_destination": GeoPoint(passengerData.passengerDestination.latitude, passengerData.passengerDestination.longitude),
+                                                  "passenger_destination_name": passengerData.passengerDestinationName,
+                                                  "passenger_email": passengerData.passengerEmail,
+                                                  "passenger_id": passengerData.passengerId,
+                                                  "passenger_source_location_name": passengerData.passengerSourceLocationName,
+                                                  "passenger_source_location": GeoPoint(passengerData.passengerSourceLocation.latitude, passengerData.passengerSourceLocation.longitude),
+                                                  "ride_duration": passengerData.rideDuration,
+                                                  "ride_started_at": passengerData.rideStartedAt,
+                                                  "ride_distance": passengerData.rideDistance,
+                                                  "seats_occupied": passengerData.seatsOccupied,
+                                                  "ride_status": passengerData.rideStatus,
+                                                  "ride_completed_at": passengerData.rideCompletedAt,
+                                                });
+                                              }
+                                              await firebaseFirestore.collection("ride_information").doc(driverRidePassengersLoadedState.rideInformation.rideId).update({
+                                                "passengers_list": passengerRideUpdateList,
+                                              });
+
+                                              await firebaseFirestore.collection("account_information").doc(driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerId).update({
+                                                "status": "in_a_ride",
+                                              });
+                                              await sendNotification(filteredPassengersList[selectedItemIndex].passengerId, "Your driver is on the way!", "Please wait for the driver to arrive at your location.");
+
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                content: Text("On the way to pick up the passenger."),
+                                                duration: Duration(milliseconds: 300),
+                                              ));
+                                            } catch (e) {
+                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                content: Text("Cannot pick up the passenger. $e"),
+                                                duration: const Duration(milliseconds: 500),
+                                              ));
+                                            }
+                                          },
+                                          child: const Text("Pick Up"),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                            : const Row(
+                                children: [
+                                  Expanded(
+                                    child: Center(
+                                      child: Text("Currently in a ride"),
+                                    ),
                                   )
                                 ],
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 2.5,
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.location_pin),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: Text(
-                                        driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerSourceLocationName,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 2.5,
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.location_city),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: Text(
-                                        driverRidePassengersLoadedState.rideInformation.passengersList[selectedItemIndex].passengerDestinationName,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )),
                       ),
-                      SizedBox(
-                          height: 60,
-                          width: double.infinity,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton(
-                                      style: const ButtonStyle(surfaceTintColor: WidgetStatePropertyAll(Color.fromARGB(255, 161, 2, 2))),
-                                      onPressed: () {
-                                        // widget.onUpdateRide({
-                                        //   "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
-                                        // });
-                                      },
-                                      child: const Text("Reject"),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        widget.onUpdateRide({
-                                          "checkDestination": driverRidePassengersLoadedState.rideInformation.rideDestination,
-                                        });
-                                      },
-                                      child: const Text("Pick Up"),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          )),
                     ],
                   ),
                 ),
