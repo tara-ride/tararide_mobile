@@ -254,8 +254,8 @@
     {
         "name": "South Station (Alabang, Muntinlupa - major transport hub near Las Piñas border)",
         "category": "Transport Terminal",
-        "latitude": 14.4195,
-        "longitude": 121.0435,
+        "latitude": 14.421555,
+        "longitude": 121.043305,
         "city": "Muntinlupa City"
     },
     {
@@ -478,8 +478,8 @@
     {
         "name": "Alabang Town Center",
         "category": "Mall",
-        "latitude": 14.4157,
-        "longitude": 121.0389,
+        "latitude": 14.4229141,
+        "longitude": 121.0273546,
         "city": "Muntinlupa City"
     },
     {
@@ -513,8 +513,8 @@
     {
         "name": "South Station",
         "category": "Transport Terminal",
-        "latitude": 14.4195,
-        "longitude": 121.0435,
+        "latitude": 14.4207052,
+        "longitude": 121.0420657,
         "city": "Muntinlupa City"
     },
     {

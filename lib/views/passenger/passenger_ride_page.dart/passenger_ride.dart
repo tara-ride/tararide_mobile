@@ -46,8 +46,8 @@ class PassengerRideState extends State<PassengerRide> {
   PolylinePoints polylinePoints = PolylinePoints();
   final Set<google_maps_marker.Marker> _currentMarkers = {};
   final Set<Circle> _currentCircles = {};
-  LatLng? _currentPos = null;
-  location_settings.Location _locationController = location_settings.Location();
+  LatLng? _currentPos;
+  final location_settings.Location _locationController = location_settings.Location();
 
   static const CameraPosition _liveCameraPosition = CameraPosition(
     bearing: 192.8334901395799,
@@ -163,7 +163,11 @@ class PassengerRideState extends State<PassengerRide> {
                 "passengers_list": passengerRideUpdateList,
               });
             }
-          } catch (err) {}
+          } catch (err) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Error updating location: $err"),
+            ));
+          }
         }
       }
     });
@@ -705,32 +709,32 @@ class PassengerRideState extends State<PassengerRide> {
                                                       return item.passengerId == firebaseAuth.currentUser!.uid;
                                                     });
 
-                                                    passengerRideStatusState.rideInformation.passengersList[index].rideStatus = "completed";
-                                                    List<Map<String, dynamic>> updatedPassengersList = [];
-                                                    for (var item in passengerRideStatusState.rideInformation.passengersList) {
-                                                      updatedPassengersList.add(
-                                                        {
-                                                          "estimated_fare": item.estimatedFare,
-                                                          "passenger_current_location": GeoPoint(item.passengerCurrentLocation.latitude, item.passengerCurrentLocation.longitude),
-                                                          "passenger_destination": GeoPoint(item.passengerDestination.latitude, item.passengerDestination.longitude),
-                                                          "passenger_destination_name": item.passengerDestinationName,
-                                                          "passenger_email": item.passengerEmail,
-                                                          "passenger_id": item.passengerId,
-                                                          "passenger_source_location_name": item.passengerSourceLocationName,
-                                                          "passenger_source_location": GeoPoint(item.passengerSourceLocation.latitude, item.passengerSourceLocation.longitude),
-                                                          "ride_duration": item.rideDuration,
-                                                          "ride_started_at": item.rideStartedAt,
-                                                          "ride_distance": item.rideDistance,
-                                                          "seats_occupied": item.seatsOccupied,
-                                                          "ride_status": item.rideStatus,
-                                                          "ride_completed_at": item.rideCompletedAt,
-                                                        },
-                                                      );
-                                                    }
-                                                    print("Updated Passengers List: ${passengerRideStatusState.rideInformation.passengersList[0].toJson().toString()}");
-                                                    await rideInformationReference.update({
-                                                      "passengers_list": updatedPassengersList,
-                                                    });
+                                                    // passengerRideStatusState.rideInformation.passengersList[index].rideStatus = "completed";
+                                                    // List<Map<String, dynamic>> updatedPassengersList = [];
+                                                    // for (var item in passengerRideStatusState.rideInformation.passengersList) {
+                                                    //   updatedPassengersList.add(
+                                                    //     {
+                                                    //       "estimated_fare": item.estimatedFare,
+                                                    //       "passenger_current_location": GeoPoint(item.passengerCurrentLocation.latitude, item.passengerCurrentLocation.longitude),
+                                                    //       "passenger_destination": GeoPoint(item.passengerDestination.latitude, item.passengerDestination.longitude),
+                                                    //       "passenger_destination_name": item.passengerDestinationName,
+                                                    //       "passenger_email": item.passengerEmail,
+                                                    //       "passenger_id": item.passengerId,
+                                                    //       "passenger_source_location_name": item.passengerSourceLocationName,
+                                                    //       "passenger_source_location": GeoPoint(item.passengerSourceLocation.latitude, item.passengerSourceLocation.longitude),
+                                                    //       "ride_duration": item.rideDuration,
+                                                    //       "ride_started_at": item.rideStartedAt,
+                                                    //       "ride_distance": item.rideDistance,
+                                                    //       "seats_occupied": item.seatsOccupied,
+                                                    //       "ride_status": item.rideStatus,
+                                                    //       "ride_completed_at": item.rideCompletedAt,
+                                                    //     },
+                                                    //   );
+                                                    // }
+                                                    // print("Updated Passengers List: ${passengerRideStatusState.rideInformation.passengersList[0].toJson().toString()}");
+                                                    // await rideInformationReference.update({
+                                                    //   "passengers_list": updatedPassengersList,
+                                                    // });
                                                   } catch (e) {
                                                     print("Error: $e");
                                                   }

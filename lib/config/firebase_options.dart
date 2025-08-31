@@ -15,7 +15,7 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, Tar
 /// ```
 ///
 final class SystemConstants {
-  String google_cloud_api_key = 'AIzaSyDxHmjdw20bZDDG9Urogftz38-69p40Res';
+  String google_cloud_api_key = 'AIzaSyBMSr6bU9I8iqvjZ8r9ZNaGBkGiEGhHd_w';
 
   get getGoogleCloudAPIKey {
     return this.google_cloud_api_key;
