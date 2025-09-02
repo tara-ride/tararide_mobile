@@ -529,6 +529,7 @@ class _DriverRideStartedState extends State<DriverRideStartedWidget> {
                                                     "seats_occupied": passengerData.seatsOccupied,
                                                     "ride_status": passengerData.rideStatus,
                                                     "ride_completed_at": passengerData.rideCompletedAt,
+                                                    "status": passengerData.rideStatus,
                                                   },
                                                 );
                                               }

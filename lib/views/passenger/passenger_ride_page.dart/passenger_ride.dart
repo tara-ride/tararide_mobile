@@ -444,7 +444,7 @@ class PassengerRideState extends State<PassengerRide> {
                               );
                               break;
                             case PassengerRideFeedbackCompleted():
-                              newHeight = 180;
+                              newHeight = 500;
                               break;
                             case PassengerSelectingPickupLocation():
                               newHeight = 280;
@@ -508,7 +508,6 @@ class PassengerRideState extends State<PassengerRide> {
                               heightAdjustment = currentStateContainerHeight; // Assuming this always mirrors currentStateContainerHeight
                             });
                           }
-
                           // Handle specific actions/side effects for individual states
                           if (passengerRideStatusState is PassengerSelectingPickupLocation) {
                           } else if (passengerRideStatusState is PassengerRideConfirmDetails) {
@@ -516,11 +515,11 @@ class PassengerRideState extends State<PassengerRide> {
                             polylines = passengerRideStatusState.polylines;
                           } else if (passengerRideStatusState is PassengerRideFeedbackCompleted) {
                             // Dispatch event after a delay for the feedback completed state
-                            Future.delayed(const Duration(seconds: 2), () {
+                            
+                            Future.delayed(const Duration(seconds: 5), () {
                               passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
                             });
                           }
-
                           // Always log the height adjustment after potential setState
                         },
                         builder: (passengerRideStatusContext, passengerRideStatusState) {
@@ -705,42 +704,67 @@ class PassengerRideState extends State<PassengerRide> {
 
                                                     var rideInformationReference = firebaseFirestore.collection("ride_information").doc(passengerRideStatusState.rideInformation.rideId);
 
-                                                    var index = passengerRideStatusState.rideInformation.passengersList.indexWhere((item) {
+                                                    //passengerRideStatusState.rideInformation.passengersList[index].rideStatus = "completed";
+                                                    RideInformationModel rideInformationModel = passengerRideStatusState.rideInformation;
+                                                    var index = rideInformationModel.passengersList.indexWhere((item) {
                                                       return item.passengerId == firebaseAuth.currentUser!.uid;
                                                     });
+                                                    rideInformationModel.passengersList[index].rideStatus = "completed";
 
-                                                    // passengerRideStatusState.rideInformation.passengersList[index].rideStatus = "completed";
-                                                    // List<Map<String, dynamic>> updatedPassengersList = [];
-                                                    // for (var item in passengerRideStatusState.rideInformation.passengersList) {
-                                                    //   updatedPassengersList.add(
-                                                    //     {
-                                                    //       "estimated_fare": item.estimatedFare,
-                                                    //       "passenger_current_location": GeoPoint(item.passengerCurrentLocation.latitude, item.passengerCurrentLocation.longitude),
-                                                    //       "passenger_destination": GeoPoint(item.passengerDestination.latitude, item.passengerDestination.longitude),
-                                                    //       "passenger_destination_name": item.passengerDestinationName,
-                                                    //       "passenger_email": item.passengerEmail,
-                                                    //       "passenger_id": item.passengerId,
-                                                    //       "passenger_source_location_name": item.passengerSourceLocationName,
-                                                    //       "passenger_source_location": GeoPoint(item.passengerSourceLocation.latitude, item.passengerSourceLocation.longitude),
-                                                    //       "ride_duration": item.rideDuration,
-                                                    //       "ride_started_at": item.rideStartedAt,
-                                                    //       "ride_distance": item.rideDistance,
-                                                    //       "seats_occupied": item.seatsOccupied,
-                                                    //       "ride_status": item.rideStatus,
-                                                    //       "ride_completed_at": item.rideCompletedAt,
-                                                    //     },
-                                                    //   );
-                                                    // }
-                                                    // print("Updated Passengers List: ${passengerRideStatusState.rideInformation.passengersList[0].toJson().toString()}");
-                                                    // await rideInformationReference.update({
-                                                    //   "passengers_list": updatedPassengersList,
+                                                    List<Map<String, dynamic>> updatedPassengersList = [];
+                                                    for (var item in rideInformationModel.passengersList) {
+                                                      updatedPassengersList.add(
+                                                        {
+                                                          "estimated_fare": item.estimatedFare,
+                                                          "passenger_current_location": GeoPoint(item.passengerCurrentLocation.latitude, item.passengerCurrentLocation.longitude),
+                                                          "passenger_destination": GeoPoint(item.passengerDestination.latitude, item.passengerDestination.longitude),
+                                                          "passenger_destination_name": item.passengerDestinationName,
+                                                          "passenger_email": item.passengerEmail,
+                                                          "passenger_id": item.passengerId,
+                                                          "passenger_source_location_name": item.passengerSourceLocationName,
+                                                          "passenger_source_location": GeoPoint(item.passengerSourceLocation.latitude, item.passengerSourceLocation.longitude),
+                                                          "ride_duration": item.rideDuration,
+                                                          "ride_started_at": item.rideStartedAt,
+                                                          "ride_distance": item.rideDistance,
+                                                          "seats_occupied": item.seatsOccupied,
+                                                          "ride_status": item.rideStatus,
+                                                          "status": item.rideStatus,
+                                                          "ride_completed_at": item.rideCompletedAt,
+                                                        },
+                                                      );
+                                                    }
+
+                                                    //                           var index = widget.rideInformation.passengersList.indexWhere((item) {
+                                                    //   return item.passengerId == firebaseAuth.currentUser!.uid;
                                                     // });
+
+                                                    // widget.rideInformation.passengersList[index].rideStatus = "completed";
+
+                                                    // await rideInformationReference.update({
+                                                    //   "passengers_list": widget.rideInformation.passengersList,
+                                                    // });
+
+                                                    await rideInformationReference.update({
+                                                      "passengers_list": updatedPassengersList,
+                                                    });
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text("Please proceed to payment."),
+                                                        duration: Duration(seconds: 1),
+                                                      ),
+                                                    );
                                                   } catch (e) {
-                                                    print("Error: $e");
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text("Error updating ride status: $e"),
+                                                        duration: const Duration(seconds: 3),
+                                                      ),
+                                                    );
                                                   }
                                                   passengerRideStatusContext.read<PassengerRideStatusBloc>().add(
                                                         PassengerRidePaymentStart(rideId: passengerRideStatusState.rideInformation.rideId),
                                                       );
+                                                  context.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
                                                 },
                                                 child: const Text("Drop Off Now")),
                                           ),
@@ -756,13 +780,30 @@ class PassengerRideState extends State<PassengerRide> {
                               rideInformation: passengerRideStatusState.rideInformation,
                             );
                           } else if (passengerRideStatusState is PassengerRideFeedbackStarted) {
-                            return const PassengerRideFeedbackStartedWidget();
+                            return PassengerRideFeedbackStartedWidget(
+                              rideInformation: passengerRideStatusState.rideInformation,
+                              // rideInformation: passengerRideStatusState.rideInformation,
+                            );
                           } else if (passengerRideStatusState is PassengerRideFeedbackCompleted) {
-                            return const SizedBox(
+                            return SizedBox(
                               width: double.infinity,
                               height: double.infinity,
                               child: Center(
-                                child: Text("Thank you for your feedback!"),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Lottie.asset(
+                                      'assets/congratulations.json',
+                                      width: 150,
+                                      height: 150,
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const Text(
+                                      "Thank you for your feedback!",
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           } else {

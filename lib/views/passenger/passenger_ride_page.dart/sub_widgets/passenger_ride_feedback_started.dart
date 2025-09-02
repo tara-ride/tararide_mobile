@@ -4,9 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tararide_mobile/bloc/passenger_ride_status/passenger_ride_status_bloc.dart';
+import 'package:tararide_mobile/models/ride_information_data.dart';
 
 class PassengerRideFeedbackStartedWidget extends StatefulWidget {
-  const PassengerRideFeedbackStartedWidget({super.key});
+  final RideInformationModel rideInformation;
+
+  const PassengerRideFeedbackStartedWidget({super.key, required this.rideInformation});
 
   @override
   State<StatefulWidget> createState() => PassengerRideFeedbackStartedState();
@@ -285,10 +288,23 @@ class PassengerRideFeedbackStartedState extends State<PassengerRideFeedbackStart
                             "ride_id": passengerRideFeedbackStarted.rideInformation.rideId,
                             "feedback_id": feedbackReference.id,
                           });
+
+                          // var rideInformationReference = firebaseFirestore.collection("ride_information").doc(widget.rideInformation.rideId);
+
+                          // var index = widget.rideInformation.passengersList.indexWhere((item) {
+                          //   return item.passengerId == firebaseAuth.currentUser!.uid;
+                          // });
+
+                          // widget.rideInformation.passengersList[index].rideStatus = "completed";
+
+                          // await rideInformationReference.update({
+                          //   "passengers_list": widget.rideInformation.passengersList,
+                          // });
                         }
                         context.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackComplete());
                         // ignore: empty_catches
                       } catch (error) {
+                        print(error.toString());
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(error.toString()),
                           duration: const Duration(milliseconds: 200),

@@ -568,10 +568,7 @@ class PassengerProfileState extends State<PassengerProfile> {
                                 try {
                                   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
                                   firebaseAuth.signOut();
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/login',
-                                  );
+                                  Navigator.of(context).pop();
                                 } catch (error) {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                     content: Text(error.toString()),

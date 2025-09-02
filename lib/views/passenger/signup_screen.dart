@@ -428,6 +428,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         return 'Please enter your contact number';
                                       } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
                                         return 'Contact number must be 11 digits and start with "09"';
+                                      } else if (value.length != 11) {
+                                        return 'Contact number must be exactly 11 digits long';
                                       }
                                       return null;
                                     },
@@ -479,12 +481,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return "Password cannot be empty.";
-                                      } else if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
-                                        return "";
                                       } else if (value.length > 50) {
                                         return "Password must be at most 50 characters long";
                                       } else if (value.length < 8) {
                                         return "Password must be at least 8 characters long";
+                                      } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
+                                        return "Password must contain at least one uppercase letter, one lowercase, one special character, and one number.";
                                       } else {
                                         return null;
                                       }

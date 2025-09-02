@@ -332,9 +332,9 @@ class DriverSelectingDestinationWidgetState extends State<DriverSelectingDestina
                       );
                       return;
                     }
-
+         
                     context
-                        .read<DriverRideStatusBloc>()
+                       .read<DriverRideStatusBloc>()
                         .add(DriverInitializeConfirmRide(destinationCoordinates: _selectedDestinationLocation!, startCoordinates: widget.selectedStartLocation, startLocationFormattedAddress: widget.pickupLocationFormattedAddress, destinationFormattedAddress: destinationLocationFormattedAddress));
                   },
                   child: const Text("Select Destination")),

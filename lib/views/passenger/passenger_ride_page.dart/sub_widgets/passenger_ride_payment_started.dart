@@ -193,8 +193,8 @@ class _PassengerRidePaymentStartedState extends State<PassengerRidePaymentStarte
                             duration: Duration(seconds: 2),
                           ),
                         );
-
                         context.read<PassengerRideStatusBloc>().add(PassengerRideFeedbackStart(rideId: widget.rideInformation.rideId));
+                        context.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
                       } catch (error) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(

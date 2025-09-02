@@ -319,7 +319,11 @@ class _DriverSelectingStartLocationWidgetState extends State<DriverSelectingStar
               height: 40,
               child: ElevatedButton(
                   onPressed: () {
-                    if (_startItemSelectedIndex < 0 || _startItemSelectedIndex >= driverSelectingStartLocationState.possibleStartLocations.length) {
+                    if (_startItemSelectedIndex < 0 || _startItemSelectedIndex >= _placesList.length) {
+                      //  print("_startItemSelectedIndex is invalid: $_startItemSelectedIndex");
+                      // print("_placesList.length is invalid: ${_placesList.length}");
+                      // print("driverSelectingStartLocationState.possibleStartLocations.length : ${driverSelectingStartLocationState.possibleStartLocations.length}");
+                      // print("No valid start location selected");
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("Please select a valid location"),
