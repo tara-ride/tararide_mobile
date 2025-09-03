@@ -101,6 +101,7 @@ class _DriverRidePageState extends State<DriverRidePage> {
     _locationController.onLocationChanged.listen((LocationData currentLocation) async {
       if (currentLocation.latitude != null && currentLocation.longitude != null) {
         if (mounted) {
+          print("Driver Current Location: ${currentLocation.latitude}, ${currentLocation.longitude}");
           await rideInfoDocument.update({
             "driver_current_location": GeoPoint(currentLocation.latitude!, currentLocation.longitude!),
           });
@@ -307,7 +308,6 @@ class _DriverRidePageState extends State<DriverRidePage> {
                         }
 
                         if (driverStatusBlocState is DriverRideCompleted) {
-                          
                           polylines = {};
                           _currentMarkers.removeWhere(
                             (marker) => marker.markerId.value == "start_location",
@@ -338,7 +338,6 @@ class _DriverRidePageState extends State<DriverRidePage> {
                               weatherData: driverStatusBlocState,
                             );
                           }
-
                           if (driverStatusBlocState is DriverPostRideFormDisplayed) {
                             return DriverPostRideFormDisplayedWidget(
                               onCarpoolDetailsCollected: (value) {

@@ -500,7 +500,6 @@ class PassengerRideState extends State<PassengerRide> {
                               // No height change for this state
                               break;
                           }
-
                           // Only call setState if a new height was determined AND it's different
                           if (newHeight != null && newHeight != currentStateContainerHeight) {
                             setState(() {
@@ -515,7 +514,7 @@ class PassengerRideState extends State<PassengerRide> {
                             polylines = passengerRideStatusState.polylines;
                           } else if (passengerRideStatusState is PassengerRideFeedbackCompleted) {
                             // Dispatch event after a delay for the feedback completed state
-                            
+
                             Future.delayed(const Duration(seconds: 5), () {
                               passengerRideStatusContext.read<PassengerRideStatusBloc>().add(PassengerRideStatusInitialize());
                             });
